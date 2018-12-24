@@ -1,4 +1,5 @@
 .idea/
 .gradle/
 out/
-libs/GENA.jar
+!libs/readme.txt
+libs/
