@@ -17,7 +17,11 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
     
-    compile files('libs/GENA.jar')
+//    compile files('libs/GENA.jar')
+    compile fileTree(dir: 'libs/packagelib', include: ['*.jar'])
+    compile fileTree(dir: 'libs/packagelib/lib', include: ['*.jar'])
+    compile fileTree(dir: 'libs/packagelib/ProM68_dist', include: ['*.jar'])
+    compile fileTree(dir: 'libs/packagelib/ProM68_lib', include: ['*.jar'])
 }
 
 compileKotlin {
