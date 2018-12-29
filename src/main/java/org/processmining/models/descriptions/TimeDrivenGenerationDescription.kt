@@ -46,13 +46,14 @@ class TimeDrivenGenerationDescription : GenerationDescriptionWithNoise() {
     
     val simplifiedResources: MutableList<Resource> = ArrayList()
     
+    // use TimeDrivenGenerationDescription.NoiseDescription class
     override val noiseDescription = NoiseDescription(this)
     
-    var time: Map<Transition, Pair<Long, Long>> = HashMap()
+    var time: MutableMap<Transition, Pair<Long, Long>> = mutableMapOf()
     
     val resourceGroups: List<Group> = ArrayList()
     
-    val resourceMapping: Map<Any, ResourceMapping> = HashMap()
+    val resourceMapping: MutableMap<Any, ResourceMapping> = mutableMapOf()
     
     var generationStart: Calendar = Calendar.getInstance()
     
@@ -60,14 +61,6 @@ class TimeDrivenGenerationDescription : GenerationDescriptionWithNoise() {
     
     override val isUsingLifecycle: Boolean = true
     
-    
-        // Pavel: why do not just init with Calendar.getInstance() ?
-//    init {
-//        val currentCalendar = Calendar.getInstance()
-//        generationStart = GregorianCalendar(currentCalendar.get(Calendar.YEAR), currentCalendar.get(Calendar.MONTH),
-//                currentCalendar.get(Calendar.DAY_OF_MONTH), currentCalendar.get(Calendar.HOUR_OF_DAY),
-//                currentCalendar.get(Calendar.MINUTE), currentCalendar.get(Calendar.SECOND))
-//    }
     
     class NoiseDescription(description: TimeDrivenGenerationDescription) : GenerationDescriptionWithNoise.NoiseDescription(description) {
         var isUsingTimestampNoise = true
