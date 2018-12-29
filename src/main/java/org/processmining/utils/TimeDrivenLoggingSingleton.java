@@ -92,7 +92,7 @@ public class TimeDrivenLoggingSingleton extends LoggingSingleton
         TimeDrivenGenerationDescription.NoiseDescription noiseDescription = description.getNoiseDescription();
         if (description.isUsingNoise() && description.isSeparatingStartAndFinish() && noiseDescription.isUsingLifecycleNoise())
         {
-            if (noiseDescription.getNoisedLevel() >= random.nextInt(TimeDrivenGenerationDescription.NoiseDescription.MAX_NOISE_LEVEL + 1))  //use noise transitions
+            if (noiseDescription.getNoisedLevel() >= random.nextInt(GenerationDescriptionWithNoise.NoiseDescription.MAX_NOISE_LEVEL + 1))  //use noise transitions
             {
                 return !original;
             }
@@ -173,7 +173,7 @@ public class TimeDrivenLoggingSingleton extends LoggingSingleton
         TimeDrivenGenerationDescription.NoiseDescription noiseDescription = description.getNoiseDescription();
         if (description.isUsingNoise() && noiseDescription.isUsingTimestampNoise())
         {
-            if (noiseDescription.getNoisedLevel() >= random.nextInt(TimeDrivenGenerationDescription.NoiseDescription.MAX_NOISE_LEVEL + 1))  //use noise transitions
+            if (noiseDescription.getNoisedLevel() >= random.nextInt(GenerationDescriptionWithNoise.NoiseDescription.MAX_NOISE_LEVEL + 1))  //use noise transitions
             {
                 return true;
             }

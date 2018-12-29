@@ -67,7 +67,7 @@ public class StaticPrioritiesPanel extends EmptyPanel
             try
             {
                 int priority = Integer.parseInt(priorityString);
-                if (priority < GenerationDescriptionWithStaticPriorities.MIN_PRIORITY || priority > MAX_PRIORITY)
+                if (priority < GenerationDescriptionWithStaticPriorities.Companion.getMIN_PRIORITY() || priority > MAX_PRIORITY)
                 {
                     correct = false;
                 }

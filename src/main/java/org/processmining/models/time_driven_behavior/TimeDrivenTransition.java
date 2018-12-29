@@ -349,7 +349,7 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
         if (getGenerationDescription().isUsingNoise())
         {
             TimeDrivenGenerationDescription.NoiseDescription noiseDescription = getGenerationDescription().getNoiseDescription();
-            if (noiseDescription.getNoisedLevel() >= random.nextInt(TimeDrivenGenerationDescription.NoiseDescription.MAX_NOISE_LEVEL + 1))  //use noise transitions
+            if (noiseDescription.getNoisedLevel() >= random.nextInt(org.processmining.models.descriptions.GenerationDescriptionWithNoise.NoiseDescription.MAX_NOISE_LEVEL + 1))  //use noise transitions
             {
                 if (noiseDescription.isUsingInternalTransitions() || noiseDescription.isUsingExternalTransitions())
                 {

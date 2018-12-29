@@ -125,7 +125,7 @@ public class SimpleTransition extends BaseTransition
         if (description.isUsingNoise())
         {
             GenerationDescriptionWithNoise.NoiseDescription noiseDescription = description.getNoiseDescription();
-            if (noiseDescription.getNoisedLevel() >= random.nextInt(TimeDrivenGenerationDescription.NoiseDescription.MAX_NOISE_LEVEL + 1))  //use noise transitions
+            if (noiseDescription.getNoisedLevel() >= random.nextInt(GenerationDescriptionWithNoise.NoiseDescription.MAX_NOISE_LEVEL + 1))  //use noise transitions
             {
                 return true;
             }
