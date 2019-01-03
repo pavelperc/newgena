@@ -1,5 +1,6 @@
 package org.processmining.models.descriptions
 
+import com.sun.org.apache.xpath.internal.operations.Bool
 import org.processmining.framework.util.Pair
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.models.organizational_extension.Group
@@ -14,20 +15,46 @@ import java.util.*
  * Created on 11.02.2014
  */
 
-class TimeDrivenGenerationDescription : GenerationDescriptionWithNoise() {
+class TimeDrivenGenerationDescription(
+        numberOfLogs: Int = 5,
+        numberOfTraces: Int = 10,
+        maxNumberOfSteps: Int = 100,
+        
+        isUsingNoise: Boolean = true,
+        override var isUsingResources: Boolean = true,
+        
+        isRemovingUnfinishedTraces: Boolean = true,
+        isRemovingEmptyTraces: Boolean = true,
+        isUsingComplexResourceSettings: Boolean = true,
+        isUsingSynchronizationOnResources: Boolean = true,
+        
+        minimumIntervalBetweenActions: Int = 10,
+        maximumIntervalBetweenActions: Int = 20,
+        
+        var isSeparatingStartAndFinish: Boolean = true,
+        
+        val simplifiedResources: MutableList<Resource> = ArrayList(),
+        var time: MutableMap<Transition, Pair<Long, Long>> = mutableMapOf(),
+        override val isUsingTime: Boolean = true,
+        override val isUsingLifecycle: Boolean = true,
+        var generationStart: Calendar = Calendar.getInstance(),
+        val resourceMapping: MutableMap<Any, ResourceMapping> = mutableMapOf(),
+        val resourceGroups: List<Group> = ArrayList(),
+        
+        // we use lambda, because we can not instantiate default value for inner class here
+        noiseDescriptionCreator: TimeDrivenGenerationDescription.() -> TimeNoiseDescription = { TimeNoiseDescription() }
+) : GenerationDescriptionWithNoise(numberOfLogs, numberOfTraces, maxNumberOfSteps, isUsingNoise, isRemovingUnfinishedTraces, isRemovingEmptyTraces) {
     
-    var isSeparatingStartAndFinish = true
+    override val noiseDescription: TimeNoiseDescription = noiseDescriptionCreator.invoke(this)
     
-    override var isUsingResources = true
-    
-    var isUsingComplexResourceSettings = true
+    var isUsingComplexResourceSettings = isUsingComplexResourceSettings
         get() = isUsingResources && field //resources with groups and roles
     
-    var isUsingSynchronizationOnResources = true
+    var isUsingSynchronizationOnResources = isUsingSynchronizationOnResources
         get() = isUsingResources && field
     
     //TODO стоит ли проверять разницу во времени?
-    var minimumIntervalBetweenActions = 10
+    var minimumIntervalBetweenActions = minimumIntervalBetweenActions
         set(value) {
             if (value < 0) {
                 throw IllegalArgumentException("Time cannot be negative")
@@ -36,7 +63,7 @@ class TimeDrivenGenerationDescription : GenerationDescriptionWithNoise() {
         }
     
     //TODO стоит ли проверять разницу во времени?
-    var maximumIntervalBetweenActions = 20
+    var maximumIntervalBetweenActions = maximumIntervalBetweenActions
         set(value) {
             if (value < 0) {
                 throw IllegalArgumentException("Time cannot be negative")
@@ -44,36 +71,20 @@ class TimeDrivenGenerationDescription : GenerationDescriptionWithNoise() {
             field = value
         }
     
-    val simplifiedResources: MutableList<Resource> = ArrayList()
-    
-    // use TimeDrivenGenerationDescription.NoiseDescription class
-    override val noiseDescription = NoiseDescription(this)
-    
-    var time: MutableMap<Transition, Pair<Long, Long>> = mutableMapOf()
-    
-    val resourceGroups: List<Group> = ArrayList()
-    
-    val resourceMapping: MutableMap<Any, ResourceMapping> = mutableMapOf()
-    
-    var generationStart: Calendar = Calendar.getInstance()
-    
-    override val isUsingTime = true
-    
-    override val isUsingLifecycle: Boolean = true
-    
-    
-    class NoiseDescription(description: TimeDrivenGenerationDescription) : GenerationDescriptionWithNoise.NoiseDescription(description) {
-        var isUsingTimestampNoise = true
-            get() = generationDescription.isUsingNoise && field
+    inner class TimeNoiseDescription(
+            isUsingTimestampNoise: Boolean = true,
+            isUsingLifecycleNoise: Boolean = true,
+            isUsingTimeGranularity: Boolean = true,
+            var maxTimestampDeviation: Int = 0,
+            var granularityType: GranularityTypes = GranularityTypes.MINUTES_5
+    ) : GenerationDescriptionWithNoise.NoiseDescription() {
+        var isUsingTimestampNoise = isUsingTimestampNoise
+            get() = isUsingNoise && field
         
-        var isUsingLifecycleNoise = true
-            get() = generationDescription.isUsingNoise && field
+        var isUsingLifecycleNoise = isUsingLifecycleNoise
+            get() = isUsingNoise && field
         
-        var maxTimestampDeviation: Int = 0
-        
-        var granularityType = GranularityTypes.MINUTES_5
-        
-        var isUsingTimeGranularity = true
-            get() = generationDescription.isUsingNoise && field
+        var isUsingTimeGranularity = isUsingTimeGranularity
+            get() = isUsingNoise && field
     }
 }

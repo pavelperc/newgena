@@ -222,7 +222,7 @@ public class TimeDrivenLogGenerator extends BasePetrinetGenerationPlugin //TODO 
     private TaskListener.InteractionResult configureNoise(boolean isLast)  //TODO проблема с графикой, если выбрать только пропускание элементов
     {
         //TODO отрефакторить момент с определением последнего окошка? а надо ли вообще?
-        TimeDrivenGenerationDescription.NoiseDescription noiseDescription = description.getNoiseDescription();
+        TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = description.getNoiseDescription();
         TaskListener.InteractionResult result = TaskListener.InteractionResult.PREV;
         while (true)
         {

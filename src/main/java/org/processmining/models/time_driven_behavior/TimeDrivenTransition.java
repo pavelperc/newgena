@@ -332,7 +332,7 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
     private List<NoiseEvent> getNoiseEventsBasedOnSettings()
     {
         List<NoiseEvent> noiseEvents = new ArrayList<NoiseEvent>();
-        TimeDrivenGenerationDescription.NoiseDescription noiseDescription = getGenerationDescription().getNoiseDescription();
+        TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = getGenerationDescription().getNoiseDescription();
         if (noiseDescription.isUsingInternalTransitions())
         {
             noiseEvents.addAll(noiseDescription.getExistingNoiseEvents());
@@ -348,8 +348,8 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
     {
         if (getGenerationDescription().isUsingNoise())
         {
-            TimeDrivenGenerationDescription.NoiseDescription noiseDescription = getGenerationDescription().getNoiseDescription();
-            if (noiseDescription.getNoisedLevel() >= random.nextInt(org.processmining.models.descriptions.GenerationDescriptionWithNoise.NoiseDescription.MAX_NOISE_LEVEL + 1))  //use noise transitions
+            TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = getGenerationDescription().getNoiseDescription();
+            if (noiseDescription.getNoisedLevel() >= random.nextInt(org.processmining.models.descriptions.GenerationDescriptionWithNoise.MAX_NOISE_LEVEL + 1))  //use noise transitions
             {
                 if (noiseDescription.isUsingInternalTransitions() || noiseDescription.isUsingExternalTransitions())
                 {

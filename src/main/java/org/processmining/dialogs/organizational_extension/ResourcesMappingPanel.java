@@ -46,7 +46,7 @@ public class ResourcesMappingPanel extends EmptyPanel
 
 
         Collection possibleActions = new ArrayList(petrinet.getTransitions());         //TODO просто скопипастил код с SimplifiedResource mapping
-        TimeDrivenGenerationDescription.NoiseDescription noiseDescription = description.getNoiseDescription();
+        TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = description.getNoiseDescription();
         if (description.isUsingNoise() && noiseDescription.isUsingExternalTransitions())
         {
             possibleActions.addAll(noiseDescription.getArtificialNoiseEvents());
@@ -70,7 +70,7 @@ public class ResourcesMappingPanel extends EmptyPanel
                 mapping.put(transition, new ResourceMapping());
             }
         }
-        TimeDrivenGenerationDescription.NoiseDescription noiseDescription = description.getNoiseDescription();
+        TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = description.getNoiseDescription();
         if (description.isUsingNoise() && noiseDescription.isUsingExternalTransitions())
         {
             for (NoiseEvent noiseEvent : noiseDescription.getArtificialNoiseEvents())

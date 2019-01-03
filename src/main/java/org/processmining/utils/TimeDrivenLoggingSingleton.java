@@ -89,10 +89,10 @@ public class TimeDrivenLoggingSingleton extends LoggingSingleton
 
     private boolean addNoiseToLifecycleProperty(boolean original)
     {
-        TimeDrivenGenerationDescription.NoiseDescription noiseDescription = description.getNoiseDescription();
+        TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = description.getNoiseDescription();
         if (description.isUsingNoise() && description.isSeparatingStartAndFinish() && noiseDescription.isUsingLifecycleNoise())
         {
-            if (noiseDescription.getNoisedLevel() >= random.nextInt(GenerationDescriptionWithNoise.NoiseDescription.MAX_NOISE_LEVEL + 1))  //use noise transitions
+            if (noiseDescription.getNoisedLevel() >= random.nextInt(GenerationDescriptionWithNoise.MAX_NOISE_LEVEL + 1))  //use noise transitions
             {
                 return !original;
             }
@@ -170,10 +170,10 @@ public class TimeDrivenLoggingSingleton extends LoggingSingleton
 
     private boolean shouldDistortTimestamp()
     {
-        TimeDrivenGenerationDescription.NoiseDescription noiseDescription = description.getNoiseDescription();
+        TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = description.getNoiseDescription();
         if (description.isUsingNoise() && noiseDescription.isUsingTimestampNoise())
         {
-            if (noiseDescription.getNoisedLevel() >= random.nextInt(GenerationDescriptionWithNoise.NoiseDescription.MAX_NOISE_LEVEL + 1))  //use noise transitions
+            if (noiseDescription.getNoisedLevel() >= random.nextInt(GenerationDescriptionWithNoise.MAX_NOISE_LEVEL + 1))  //use noise transitions
             {
                 return true;
             }
@@ -184,7 +184,7 @@ public class TimeDrivenLoggingSingleton extends LoggingSingleton
     private long distortTimestamp(long originalTimestamp)
     {
         System.out.println("Timestamp is distorted");    //TODO delete?
-        TimeDrivenGenerationDescription.NoiseDescription noiseDescription = description.getNoiseDescription();
+        TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = description.getNoiseDescription();
 
         int deviation = random.nextInt(noiseDescription.getMaxTimestampDeviation() + 1) * 1000;
 
@@ -229,7 +229,7 @@ public class TimeDrivenLoggingSingleton extends LoggingSingleton
 
     private long granulateTimestamp(long timestamp)
     {
-        TimeDrivenGenerationDescription.NoiseDescription noiseDescription = description.getNoiseDescription();
+        TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = description.getNoiseDescription();
 
         if (description.isUsingNoise() && noiseDescription.isUsingTimeGranularity())
         {
@@ -299,7 +299,7 @@ public class TimeDrivenLoggingSingleton extends LoggingSingleton
         GenerationDescriptionWithNoise.NoiseDescription noiseDescription = description.getNoiseDescription();
         if (description.isUsingNoise() && noiseDescription.isSkippingTransitions())
         {
-            if (noiseDescription.getNoisedLevel() >= random.nextInt(GenerationDescriptionWithNoise.NoiseDescription.MAX_NOISE_LEVEL + 1))  //use noise transitions
+            if (noiseDescription.getNoisedLevel() >= random.nextInt(GenerationDescriptionWithNoise.MAX_NOISE_LEVEL + 1))  //use noise transitions
             {
                 return true;
             }

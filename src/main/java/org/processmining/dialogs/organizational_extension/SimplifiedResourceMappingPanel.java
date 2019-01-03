@@ -46,7 +46,7 @@ public class SimplifiedResourceMappingPanel extends EmptyPanel
         header.add(new JLabel("Resources", SwingConstants.CENTER));
 
         Collection possibleActions = new ArrayList(petrinet.getTransitions());
-        TimeDrivenGenerationDescription.NoiseDescription noiseDescription = description.getNoiseDescription();
+        TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = description.getNoiseDescription();
         if (description.isUsingNoise() && noiseDescription.isUsingExternalTransitions())
         {
             for (NoiseEvent event : noiseDescription.getArtificialNoiseEvents())
@@ -73,7 +73,7 @@ public class SimplifiedResourceMappingPanel extends EmptyPanel
                 mapping.put(transition, new ResourceMapping());
             }
         }
-        TimeDrivenGenerationDescription.NoiseDescription noiseDescription = description.getNoiseDescription();
+        TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = description.getNoiseDescription();
         if (description.isUsingNoise() && noiseDescription.isUsingExternalTransitions())
         {
             for (NoiseEvent noiseEvent : noiseDescription.getArtificialNoiseEvents())

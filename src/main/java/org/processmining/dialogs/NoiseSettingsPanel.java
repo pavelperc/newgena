@@ -75,8 +75,8 @@ public class NoiseSettingsPanel extends EmptyPanel
         try
         {
             int thresholdLevel = Integer.parseInt(thresholdLevelElement.getValue());
-            if (thresholdLevel < GenerationDescriptionWithNoise.NoiseDescription.MIN_NOISE_LEVEL ||
-                    thresholdLevel > GenerationDescriptionWithNoise.NoiseDescription.MAX_NOISE_LEVEL)
+            if (thresholdLevel < GenerationDescriptionWithNoise.MIN_NOISE_LEVEL ||
+                    thresholdLevel > GenerationDescriptionWithNoise.MAX_NOISE_LEVEL)
             {
                 isCorrect = false;
             }

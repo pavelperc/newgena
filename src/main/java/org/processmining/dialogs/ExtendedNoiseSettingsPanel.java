@@ -18,7 +18,7 @@ public class ExtendedNoiseSettingsPanel extends NoiseSettingsPanel
     public ExtendedNoiseSettingsPanel(TimeDrivenGenerationDescription description)
     {
         super(description);
-        TimeDrivenGenerationDescription.NoiseDescription noiseDescription = description.getNoiseDescription();
+        TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = description.getNoiseDescription();
 
         maxTimestampDeviationElement = new InputTextElement("Max timestamp deviation", Integer.toString(noiseDescription.getMaxTimestampDeviation()));
         usingTimestampNoiseElement = new ColoredSelectableElement("Use timestamp noise", noiseDescription.isUsingTimestampNoise());
@@ -40,7 +40,7 @@ public class ExtendedNoiseSettingsPanel extends NoiseSettingsPanel
         boolean isCorrect = super.verify();
         isCorrect &= verifyTimestampDeviation();
         TimeDrivenGenerationDescription generationDescription = getGenerationDescription();
-        TimeDrivenGenerationDescription.NoiseDescription noiseDescription = generationDescription.getNoiseDescription();
+        TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = generationDescription.getNoiseDescription();
         if (usingLifecycleNoiseElement != null)
         {
             noiseDescription.setUsingLifecycleNoise(usingLifecycleNoiseElement.isSelected());
@@ -72,7 +72,7 @@ public class ExtendedNoiseSettingsPanel extends NoiseSettingsPanel
             else
             {
                 TimeDrivenGenerationDescription description = getGenerationDescription();
-                TimeDrivenGenerationDescription.NoiseDescription noiseDescription = description.getNoiseDescription();
+                TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = description.getNoiseDescription();
                 noiseDescription.setMaxTimestampDeviation(maxTimestampDeviation);
                 return true;
             }
