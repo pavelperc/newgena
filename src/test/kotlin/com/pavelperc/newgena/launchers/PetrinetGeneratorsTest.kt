@@ -1,33 +1,24 @@
-package com.pavelperc.newgena.launchers.petrinet
+package com.pavelperc.newgena.launchers
 
+import com.pavelperc.newgena.testutils.eventNames
+import com.pavelperc.newgena.testutils.name
+import com.pavelperc.newgena.testutils.time
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeIn
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotBeEmpty
-import org.deckfour.xes.extension.std.XTimeExtension
-import org.deckfour.xes.model.XEvent
-import org.deckfour.xes.model.XLog
-import org.deckfour.xes.model.XTrace
-import org.deckfour.xes.model.impl.XAttributeMapImpl
-import org.deckfour.xes.model.impl.XLogImpl
 import org.junit.Test
 import org.processmining.framework.util.Pair
-import org.processmining.log.models.EventLogArray
-import org.processmining.log.models.impl.EventLogArrayImpl
 import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
-
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.Petrinet
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl
 import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.utils.TimeDrivenLoggingSingleton
-import java.lang.IllegalStateException
 import java.util.*
-import kotlin.test.assertTrue
 
-
-class GeneratorsTest {
+class PetrinetGeneratorsTest {
     
     @Test
     fun simplePetriNet() {
@@ -70,7 +61,7 @@ class GeneratorsTest {
         
         
         // launch generator
-        val logArray = Generators.generateSimple(petrinet, initialMarking, finalMarking, description)
+        val logArray = PetrinetGenerators.generateSimple(petrinet, initialMarking, finalMarking, description)
         
         logArray.size shouldEqual description.numberOfLogs
         
@@ -130,15 +121,15 @@ class GeneratorsTest {
                 isRemovingEmptyTraces = true // works very strange!! TODO tests for isRemovingEmptyTraces and isRemovingUnfinishedTraces
         )
         
-        var logArray = Generators.generateSimple(petrinet, initialMarking, finalMarking, description)
-    
+        var logArray = PetrinetGenerators.generateSimple(petrinet, initialMarking, finalMarking, description)
+
 //        println(logArray.eventNames())
 //        return
         
         logArray.eventNames().shouldBeEmpty()
         
         initialMarking.add(p2) // why we don't add another p3 to final ???
-        logArray = Generators.generateSimple(petrinet, initialMarking, finalMarking, description)
+        logArray = PetrinetGenerators.generateSimple(petrinet, initialMarking, finalMarking, description)
         
         logArray.eventNames()
                 .shouldNotBeEmpty()
@@ -189,7 +180,7 @@ class GeneratorsTest {
         )
         
         // launch generator
-        val logArray = Generators.generateWithPriorities(petrinet, initialMarking, finalMarking, description)
+        val logArray = PetrinetGenerators.generateWithPriorities(petrinet, initialMarking, finalMarking, description)
         
         logArray.size shouldEqual description.numberOfLogs
         
@@ -263,7 +254,7 @@ class GeneratorsTest {
         
         
         // launching generator
-        val logArray = Generators.generateWithTime(petrinet, initialMarking, finalMarking, description)
+        val logArray = PetrinetGenerators.generateWithTime(petrinet, initialMarking, finalMarking, description)
         
         logArray.size shouldEqual description.numberOfLogs
         
@@ -298,23 +289,4 @@ class GeneratorsTest {
             }
         }
     }
-    
-    
-    private val XEvent.name
-        get() = attributes["concept:name"].toString()
-    
-    private val XEvent.time
-        get() = XTimeExtension.instance().extractTimestamp(this)
-                ?: throw IllegalStateException("No timestamp was found in event $name")
-    
-    private fun EventLogArray.toSeq(): Sequence<XLog> = sequence {
-        0.until(size).forEach { i -> yield(getLog(i)) }
-    }
-    private fun EventLogArray.toList() = this.toSeq().toList()
-    
-    private fun XTrace.eventNames() = map { event -> event.name }
-    private fun XLog.eventNames() = map { trace -> trace.eventNames() }
-    
-    private fun EventLogArray.eventNames() = toList().flatMap { log -> log.eventNames() }
-    
 }

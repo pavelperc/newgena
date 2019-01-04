@@ -1,4 +1,4 @@
-package com.pavelperc.newgena.launchers.petrinet
+package com.pavelperc.newgena.launchers
 
 import org.processmining.log.models.EventLogArray
 import org.processmining.models.GenerationDescription
@@ -13,7 +13,7 @@ import org.processmining.utils.helpers.SimpleGenerationHelper
 import org.processmining.utils.helpers.StaticPrioritiesGenerationHelper
 import org.processmining.utils.helpers.TimeDrivenGenerationHelper
 
-object Generators {
+object PetrinetGenerators {
     
     fun generateSimple(
             petrinet: Petrinet,
@@ -60,5 +60,5 @@ object Generators {
         }
     }
     
-    private val emptyCallback = ProgressBarCallback {  }
+    val emptyCallback = ProgressBarCallback {  }
 }
