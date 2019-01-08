@@ -38,7 +38,7 @@ public class SimpleTransition extends BaseTransition
             {
                 if (noiseDescription.isUsingInternalTransitions() || noiseDescription.isUsingExternalTransitions())
                 {
-                    boolean skipEvent = random.nextBoolean();
+                    boolean skipEvent = getRandom().nextBoolean();
 
                     if (skipEvent)
                     {
@@ -70,7 +70,7 @@ public class SimpleTransition extends BaseTransition
 
     protected void logNoiseAndTransition(XTrace trace)
     {
-        boolean noiseFirst = random.nextBoolean();
+        boolean noiseFirst = getRandom().nextBoolean();
 
         if (noiseFirst)
         {
@@ -98,7 +98,7 @@ public class SimpleTransition extends BaseTransition
         List<Object> noiseEvents = getNoiseEventsBasedOnSettings();
         if (!noiseEvents.isEmpty())
         {
-            int index = random.nextInt(noiseEvents.size());
+            int index = getRandom().nextInt(noiseEvents.size());
             Object event = noiseEvents.get(index);
             LoggingSingleton.log(trace, event);
         }
@@ -125,7 +125,7 @@ public class SimpleTransition extends BaseTransition
         if (description.isUsingNoise())
         {
             GenerationDescriptionWithNoise.NoiseDescription noiseDescription = description.getNoiseDescription();
-            if (noiseDescription.getNoisedLevel() >= random.nextInt(GenerationDescriptionWithNoise.MAX_NOISE_LEVEL + 1))  //use noise transitions
+            if (noiseDescription.getNoisedLevel() >= getRandom().nextInt(GenerationDescriptionWithNoise.MAX_NOISE_LEVEL + 1))  //use noise transitions
             {
                 return true;
             }

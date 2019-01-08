@@ -11,7 +11,7 @@ import org.junit.Test
 import java.io.File
 
 
-class JustGraphviz {
+class JustGraphvizTest {
     
     
     @Test
