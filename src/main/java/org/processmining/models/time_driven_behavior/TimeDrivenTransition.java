@@ -222,7 +222,7 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
 
     private int getDistortionType()
     {
-        return random.nextInt(3);
+        return getRandom().nextInt(3);
     }
 
     private void moveTokensFromPrecedingPlaces(XTrace trace, MovementResult<TimeDrivenToken> movementResult)
@@ -244,8 +244,8 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
 
     private void startTransition(XTrace trace, MovementResult<TimeDrivenToken> movementResult, long timeStamp)
     {
-        long timeDeviation = (long) (random.nextDouble() * (maxTimeDeviation + 1));
-        if (random.nextBoolean())
+        long timeDeviation = (long) (getRandom().nextDouble() * (maxTimeDeviation + 1));
+        if (getRandom().nextBoolean())
         {
             timeDeviation = -timeDeviation;
         }
@@ -259,7 +259,7 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
                 usedResource.setTime(finishTime);
                 setResourceTime(usedResource, finishTime);
             }
-            producedToken = new TimeDrivenToken(this, usedResource, finishTime);
+            producedToken = new TimeDrivenToken(this, finishTime, usedResource);
         }
         else
         {
@@ -279,7 +279,7 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
             long minDelay = resource.getMinDelayBetweenActions();
             long maxDelay = resource.getMaxDelayBetweenActions();
             long difference = maxDelay - minDelay;
-            long actualDelay = random.nextLong() % (difference + 1);
+            long actualDelay = getRandom().nextLong() % (difference + 1);
             finishTime += minDelay + actualDelay;
         }
         resource.setTime(finishTime);
@@ -293,7 +293,7 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
         while (noiseEventList.size() > 0)
         {
             System.out.println("Number of noise events: " + noiseEventList.size());
-            NoiseEvent noiseEvent = noiseEventList.remove(random.nextInt(noiseEventList.size()));
+            NoiseEvent noiseEvent = noiseEventList.remove(getRandom().nextInt(noiseEventList.size()));
             if (getGenerationDescription().isUsingSynchronizationOnResources() && !loggingSingleton.areResourcesAvailable(noiseEvent.getActivity(), timestamp))
             {
                 continue;
@@ -311,8 +311,8 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
                     loggingSingleton.log(trace, noiseEvent, timestamp, false);
                 }
             }
-            long timeDeviation = (long) (random.nextDouble() * (noiseEvent.getMaxTimeDeviation() + 1));
-            if (random.nextBoolean())
+            long timeDeviation = (long) (getRandom().nextDouble() * (noiseEvent.getMaxTimeDeviation() + 1));
+            if (getRandom().nextBoolean())
             {
                 timeDeviation = -timeDeviation;
             }
@@ -322,7 +322,7 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
             {
                 usedResource.setTime(finishTime);
             }
-            NoiseToken noiseToken = new NoiseToken(noiseEvent, usedResource, finishTime);
+            NoiseToken noiseToken = new NoiseToken(noiseEvent, finishTime, usedResource);
             movementResult.addProducedExtraToken(noiseToken);
             return new Pair<Object, Resource>(noiseEvent, usedResource);
         }
@@ -349,7 +349,7 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
         if (getGenerationDescription().isUsingNoise())
         {
             TimeDrivenGenerationDescription.TimeNoiseDescription noiseDescription = getGenerationDescription().getNoiseDescription();
-            if (noiseDescription.getNoisedLevel() >= random.nextInt(org.processmining.models.descriptions.GenerationDescriptionWithNoise.MAX_NOISE_LEVEL + 1))  //use noise transitions
+            if (noiseDescription.getNoisedLevel() >= getRandom().nextInt(org.processmining.models.descriptions.GenerationDescriptionWithNoise.MAX_NOISE_LEVEL + 1))  //use noise transitions
             {
                 if (noiseDescription.isUsingInternalTransitions() || noiseDescription.isUsingExternalTransitions())
                 {
@@ -412,7 +412,7 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
         int possibleTimeVariation = description.getMaximumIntervalBetweenActions() - description.getMinimumIntervalBetweenActions();
         for (TimeDrivenPlace place : getOutputPlaces())
         {
-            int timeBetweenActions = (description.getMinimumIntervalBetweenActions() + random.nextInt(possibleTimeVariation + 1));
+            int timeBetweenActions = (description.getMinimumIntervalBetweenActions() + getRandom().nextInt(possibleTimeVariation + 1));
             TimeDrivenToken token = new TimeDrivenToken(place, maxTimeStamp + timeBetweenActions * 1000);
             place.addToken(token);
         }

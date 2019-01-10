@@ -61,7 +61,7 @@ public class StaticPrioritiesGenerationHelper extends PetriNetGenerationHelper<P
         List<BaseTransition> allTransitions = new ArrayList<BaseTransition>();
         for (org.processmining.models.graphbased.directed.petrinet.elements.Transition transition : petrinet.getTransitions())
         {
-            BaseTransition.BaseTransitionBuilder transitionBuilder = new BaseTransition.BaseTransitionBuilder(transition, description);
+            BaseTransition.Companion.BaseTransitionBuilder transitionBuilder = new BaseTransition.Companion.BaseTransitionBuilder(transition, description);
 
             //gets out edges
             Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> outEdges = petrinet.getOutEdges(transition);

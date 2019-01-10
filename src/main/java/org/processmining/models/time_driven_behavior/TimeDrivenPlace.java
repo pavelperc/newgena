@@ -13,7 +13,7 @@ public class TimeDrivenPlace extends Place<TimeDrivenToken>
     public TimeDrivenPlace(org.processmining.models.graphbased.directed.petrinet.elements.Place node, TimeDrivenGenerationDescription generationDescription)
     {
         super(node, generationDescription);
-        tokens = new PriorityQueue<TimeDrivenToken>();
+        setTokens(new PriorityQueue<TimeDrivenToken>());
     }
 
     @Override
@@ -23,12 +23,12 @@ public class TimeDrivenPlace extends Place<TimeDrivenToken>
         {
             throw new NullPointerException("Token cannot be null");
         }
-        tokens.add(token);
+        getTokens().add(token);
     }
 
 
     public long getLowestTimestamp()
     {
-        return tokens.peek().getTimestamp();
+        return getTokens().peek().getTimestamp();
     }
 }
