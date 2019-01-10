@@ -232,7 +232,7 @@ public class TimeDrivenGenerationHelper extends PetriNetGenerationHelper<TimeDri
                         }
                         else
                         {
-                            boolean useTransition = random.nextBoolean();
+                            boolean useTransition = Companion.getRandom().nextBoolean();
                             if (useTransition)
                             {
                                 Map.Entry<Long, List<Transition>> entry = enabledTransitions.firstEntry();

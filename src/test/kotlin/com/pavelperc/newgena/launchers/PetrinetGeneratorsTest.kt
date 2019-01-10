@@ -29,7 +29,7 @@ class PetrinetGeneratorsTest {
     
     
     companion object {
-        /** map of graphviz to draw to its short filename.*/
+        /** map of graphviz graphs to their short filenames for saving.*/
         val forDrawing = mutableMapOf<MutableGraph, String>()
         
         @BeforeClass
@@ -40,10 +40,10 @@ class PetrinetGeneratorsTest {
         
         @AfterClass
         @JvmStatic
-        fun drawGrahviz() {
-            val DRAW = true
+        fun drawGraphviz() {
+            val DRAW_GRAPHVIZ = false
             
-            if (DRAW) {
+            if (DRAW_GRAPHVIZ) {
                 println("drawing graphviz")
                 forDrawing.forEach { graph, filename ->
                     graph.toGraphviz().render(Format.SVG).toFile(File("gv/$filename"))

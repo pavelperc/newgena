@@ -108,7 +108,7 @@ public class BaseLogGenerator extends BasePetrinetGenerationPlugin
 
     protected Object[] generate()
     {
-        SimpleGenerationHelper generationHelper = SimpleGenerationHelper.createHelper(petrinet, initialMarking, finalMarking, description);
+        SimpleGenerationHelper generationHelper = SimpleGenerationHelper.Companion.createHelper(petrinet, initialMarking, finalMarking, description);
         EventLogArray logArray = generate(generationHelper, description);
         return new Object[]{logArray, initialMarking, finalMarking, description};
     }
