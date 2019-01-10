@@ -1,12 +1,18 @@
 package com.pavelperc.newgena.launchers
 
+import com.pavelperc.newgena.graphviz.toGraphviz
 import com.pavelperc.newgena.testutils.eventNames
 import com.pavelperc.newgena.testutils.name
 import com.pavelperc.newgena.testutils.time
+import guru.nidi.graphviz.engine.Format
+import guru.nidi.graphviz.model.MutableGraph
+import guru.nidi.graphviz.toGraphviz
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeIn
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotBeEmpty
+import org.junit.AfterClass
+import org.junit.BeforeClass
 import org.junit.Test
 import org.processmining.framework.util.Pair
 import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
@@ -16,15 +22,42 @@ import org.processmining.models.graphbased.directed.petrinet.Petrinet
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl
 import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.utils.TimeDrivenLoggingSingleton
+import java.io.File
 import java.util.*
 
 class PetrinetGeneratorsTest {
+    
+    
+    companion object {
+        /** map of graphviz to draw to its short filename.*/
+        val forDrawing = mutableMapOf<MutableGraph, String>()
+        
+        @BeforeClass
+        @JvmStatic
+        fun clearGraphviz() {
+            forDrawing.clear()
+        }
+        
+        @AfterClass
+        @JvmStatic
+        fun drawGrahviz() {
+            val DRAW = true
+            
+            if (DRAW) {
+                println("drawing graphviz")
+                forDrawing.forEach { graph, filename ->
+                    graph.toGraphviz().render(Format.SVG).toFile(File("gv/$filename"))
+                    
+                }
+            }
+        }
+    }
     
     @Test
     fun simplePetriNet() {
         
         
-        val petrinet: Petrinet = PetrinetImpl("net1")
+        val petrinet: Petrinet = PetrinetImpl("simplePetriNet")
         
         val a = petrinet.addTransition("A")
         val b = petrinet.addTransition("B")
@@ -51,6 +84,8 @@ class PetrinetGeneratorsTest {
         
         val initialMarking = Marking(listOf(p1))
         val finalMarking = Marking(listOf(p4))
+        
+        forDrawing += petrinet.toGraphviz(initialMarking) to "simplePetriNet.svg"
         
         val description = SimpleGenerationDescription(
                 isRemovingUnfinishedTraces = true,
@@ -86,7 +121,7 @@ class PetrinetGeneratorsTest {
     
     @Test
     fun conjunction() {
-        val petrinet: Petrinet = PetrinetImpl("net1")
+        val petrinet: Petrinet = PetrinetImpl("conjunction")
         
         val t0 = petrinet.addTransition("t0")
         val t1 = petrinet.addTransition("t1")
@@ -115,6 +150,9 @@ class PetrinetGeneratorsTest {
 //        val finalMarking = Marking(listOf(p1, p2)) // ???? why the result is empty
         val finalMarking = Marking(listOf(p3))
         
+        forDrawing += petrinet.toGraphviz(initialMarking) to "conjunction.svg"
+        
+        
         val description = SimpleGenerationDescription(
                 isUsingNoise = false,
                 isRemovingUnfinishedTraces = true, // works very strange!!
@@ -139,7 +177,7 @@ class PetrinetGeneratorsTest {
     @Test
     fun priorityPetriNet() {
         
-        val petrinet: Petrinet = PetrinetImpl("net1")
+        val petrinet: Petrinet = PetrinetImpl("priorityPetriNet")
         
         val a = petrinet.addTransition("A")
         val b = petrinet.addTransition("B")

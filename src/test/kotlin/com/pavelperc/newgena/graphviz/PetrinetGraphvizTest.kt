@@ -39,8 +39,9 @@ class PetrinetGraphvizTest {
         //               /     \
         // p1 -> A -> p2 -> C -> p3 -> D -> p4
         
-        val graph = PetrinetGraphviz.convert(petrinet, listOf(p1, p1))
         
-        graph.toGraphviz().render(Format.SVG).toFile(File("gv/simpleNet.svg"));
+        
+//        val graph = petrinet.drawGraphviz("gv/simpleNet.svg", listOf(p1, p1, p1, p1, p1, p1, p1))
+        val graph = petrinet.drawGraphviz("gv/simpleNet.svg", listOf(p1, p1, p1, p1, p1))
     }
 }
