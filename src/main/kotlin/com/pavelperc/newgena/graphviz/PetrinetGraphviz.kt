@@ -37,8 +37,9 @@ private fun convert(petrinet: Petrinet, marking: List<PetrinetNode>, graphLabel:
             val node = mutNode(label)
             // circles
             val points =
-                    if (count > 6) "$count \u23FA"
-                    else "\u23FA".repeat(count).chunked(3).joinToString("\n")
+                    if (count == 0) "    "
+                    else if (count > 6) "$count \u25CF"
+                    else "\u25CF".repeat(count).chunked(3).joinToString("\n")
             
             node[Label.raw(points)]
         }

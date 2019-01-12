@@ -43,6 +43,7 @@ class PetrinetGraphvizTest {
         
 //        val marking = Marking(listOf(p1, p1, p1, p1, p1, p1, p1))
         val marking = Marking(listOf(p1, p1, p1, p1, p1))
+//        val marking = Marking(listOf(p1, p1))
         
         petrinet.toGraphviz(marking, saveToSvg = "gv/simpleNet.svg")
     }
