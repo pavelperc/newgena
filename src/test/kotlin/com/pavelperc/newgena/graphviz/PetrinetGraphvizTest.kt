@@ -8,6 +8,7 @@ import org.junit.Assert.*
 import org.junit.Test
 import org.processmining.models.graphbased.directed.petrinet.Petrinet
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl
+import org.processmining.models.semantics.petrinet.Marking
 import java.io.File
 
 class PetrinetGraphvizTest {
@@ -40,8 +41,9 @@ class PetrinetGraphvizTest {
         // p1 -> A -> p2 -> C -> p3 -> D -> p4
         
         
+//        val marking = Marking(listOf(p1, p1, p1, p1, p1, p1, p1))
+        val marking = Marking(listOf(p1, p1, p1, p1, p1))
         
-//        val graph = petrinet.drawGraphviz("gv/simpleNet.svg", listOf(p1, p1, p1, p1, p1, p1, p1))
-        val graph = petrinet.drawGraphviz("gv/simpleNet.svg", listOf(p1, p1, p1, p1, p1))
+        petrinet.toGraphviz(marking, saveToSvg = "gv/simpleNet.svg")
     }
 }

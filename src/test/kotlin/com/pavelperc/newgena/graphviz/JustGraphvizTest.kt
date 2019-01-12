@@ -1,4 +1,4 @@
-package com.pavelperc.newgena
+package com.pavelperc.newgena.graphviz
 
 import guru.nidi.graphviz.*
 import guru.nidi.graphviz.attribute.*
