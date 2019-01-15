@@ -17,14 +17,15 @@ abstract class GraphvizDrawer(draw: Boolean = false) {
     }
     
     companion object {
+        const val DRAW_ALL: Boolean = false
+    
         /** Map of graphviz graphs to their short filenames for saving.*/
         val forDrawing = mutableMapOf<MutableGraph, String>()
-        
+    
         private const val folder = "gv"
         
         // it is always reset to false in @AfterClass
         private var drawGraphviz = false
-        
         
         @BeforeClass
         @JvmStatic
@@ -38,7 +39,7 @@ abstract class GraphvizDrawer(draw: Boolean = false) {
         fun drawGraphviz() {
 //            println("inside afterClass")
             
-            if (drawGraphviz) {
+            if (drawGraphviz && DRAW_ALL) {
                 println("drawing graphviz")
                 forDrawing.forEach { graph, filename ->
                     graph.toGraphviz().render(Format.SVG).toFile(File("$folder/$filename"))

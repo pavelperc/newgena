@@ -1,9 +1,9 @@
 package com.pavelperc.newgena.launchers
 
 import com.pavelperc.newgena.testutils.GraphvizDrawer
-import com.pavelperc.newgena.testutils.eventNames
-import com.pavelperc.newgena.testutils.name
-import com.pavelperc.newgena.testutils.time
+import com.pavelperc.newgena.utils.xlogutils.eventNames
+import com.pavelperc.newgena.utils.xlogutils.name
+import com.pavelperc.newgena.utils.xlogutils.time
 import org.amshove.kluent.shouldBeIn
 import org.amshove.kluent.shouldEqual
 import org.junit.Test

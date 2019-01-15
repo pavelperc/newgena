@@ -1,16 +1,36 @@
-package com.pavelperc.newgena.testutils
+package com.pavelperc.newgena.utils.xlogutils
 
+import org.deckfour.xes.extension.std.XConceptExtension
 import org.deckfour.xes.extension.std.XTimeExtension
+import org.deckfour.xes.factory.XFactoryBufferedImpl
 import org.deckfour.xes.model.XEvent
 import org.deckfour.xes.model.XLog
 import org.deckfour.xes.model.XTrace
 import org.processmining.log.models.EventLogArray
 import java.lang.IllegalStateException
+import java.util.*
 
-val XEvent.name
+
+private val factory = XFactoryBufferedImpl()
+
+var XEvent.name
     get() = attributes["concept:name"].toString()
+    set(value) {
+        val name = factory.createAttributeLiteral("concept:name", value, XConceptExtension.instance())
+        attributes["concept:name"] = name
+    }
 
-val XEvent.time
+
+var XTrace.name
+    get() = attributes["concept:name"].toString()
+    set(value) {
+        val name = factory.createAttributeLiteral("concept:name", value, XConceptExtension.instance())
+        attributes["concept:name"] = name
+    }
+
+
+
+val XEvent.time: Date
     get() = XTimeExtension.instance().extractTimestamp(this)
             ?: throw IllegalStateException("No timestamp was found in event $name")
 

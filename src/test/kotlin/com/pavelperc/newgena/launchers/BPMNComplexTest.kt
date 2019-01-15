@@ -1,6 +1,6 @@
 package com.pavelperc.newgena.launchers
 
-import com.pavelperc.newgena.testutils.eventNames
+import com.pavelperc.newgena.utils.xlogutils.eventNames
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldBeIn
 import org.amshove.kluent.shouldEqual
@@ -9,7 +9,6 @@ import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramFactory
 import org.processmining.models.graphbased.directed.bpmn.elements.Event
 import org.processmining.models.graphbased.directed.bpmn.elements.Gateway
-import org.processmining.plugins.bpmn.Bpmn
 
 class BPMNComplexTest {
     

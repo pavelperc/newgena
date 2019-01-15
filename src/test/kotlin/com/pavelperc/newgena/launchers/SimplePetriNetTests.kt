@@ -2,7 +2,7 @@ package com.pavelperc.newgena.launchers
 
 import com.pavelperc.newgena.testutils.GraphvizDrawer
 import com.pavelperc.newgena.graphviz.toGraphviz
-import com.pavelperc.newgena.testutils.eventNames
+import com.pavelperc.newgena.utils.xlogutils.eventNames
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeIn
 import org.amshove.kluent.shouldEqual
