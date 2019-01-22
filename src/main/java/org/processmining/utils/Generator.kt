@@ -130,6 +130,9 @@ class Generator(private val callback: ProgressBarCallback) {
             var stepNumber = 0
             
             while (stepNumber < generationDescription.maxNumberOfSteps && !replayedCompletely) {
+                println("in generateTrace: " + trace)
+                
+                
                 val movable = generationHelper.chooseNextMovable()
                 
                 if (movable == null) {
@@ -137,7 +140,7 @@ class Generator(private val callback: ProgressBarCallback) {
                     break
                 }
                 
-                // TODO pavel: update movable interface and implementations
+                // TODO pavel: update movable interface return type and implementations 
                 val movementResult = movable.move(trace!!) as MovementResult<F>
                 
                 if (!movementResult.isActualStep) {

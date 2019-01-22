@@ -21,6 +21,12 @@ var XEvent.name
     }
 
 
+val XEvent.time: Date
+    get() = XTimeExtension.instance().extractTimestamp(this)
+            ?: throw IllegalStateException("No timestamp was found in event $name")
+
+
+
 var XTrace.name
     get() = attributes["concept:name"].toString()
     set(value) {
@@ -29,19 +35,15 @@ var XTrace.name
     }
 
 
+fun XTrace.eventNames() = map { event -> event.name }
 
-val XEvent.time: Date
-    get() = XTimeExtension.instance().extractTimestamp(this)
-            ?: throw IllegalStateException("No timestamp was found in event $name")
+fun XLog.eventNames() = map { trace -> trace.eventNames() }
 
 fun EventLogArray.toSeq(): Sequence<XLog> = sequence {
     0.until(size).forEach { i -> yield(getLog(i)) }
 }
 
 fun EventLogArray.toList() = this.toSeq().toList()
-
-fun XTrace.eventNames() = map { event -> event.name }
-fun XLog.eventNames() = map { trace -> trace.eventNames() }
 
 /** Returns a list with all traces, containing only event names.*/
 fun EventLogArray.eventNames() = toList().flatMap { log -> log.eventNames() }

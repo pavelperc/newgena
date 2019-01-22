@@ -13,7 +13,7 @@ import org.processmining.models.graphbased.directed.petrinet.Petrinet
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl
 import org.processmining.models.semantics.petrinet.Marking
 
-class SimplePetriNetTests : GraphvizDrawer(true) {
+class SimplePetriNetTests : GraphvizDrawer(false) {
     
     
     @Test
@@ -118,14 +118,17 @@ class SimplePetriNetTests : GraphvizDrawer(true) {
         
         val description = SimpleGenerationDescription(
                 isUsingNoise = false,
-                isRemovingUnfinishedTraces = true, // works very strange!!
-                isRemovingEmptyTraces = true // works very strange!! TODO tests for isRemovingEmptyTraces and isRemovingUnfinishedTraces
+                isRemovingUnfinishedTraces = false, // works very strange!!
+                isRemovingEmptyTraces = false // works very strange!! TODO tests for isRemovingEmptyTraces and isRemovingUnfinishedTraces
         )
+        
+        description.isRemovingUnfinishedTraces shouldEqual false
+        description.isRemovingEmptyTraces shouldEqual false
+        
+        
         
         var logArray = PetrinetGenerators.generateSimple(petrinet, initialMarking, finalMarking, description)
 
-//        println(logArray.eventNames())
-//        return
         
         logArray.eventNames().shouldBeEmpty()
         
