@@ -31,9 +31,9 @@ class NoiseToken(
         val logger = TimeDrivenLoggingSingleton.timeDrivenInstance()
         
         if (resource == null) {
-            logger.log(trace, modelActivity, timestamp!!, true)
+            logger.log(trace, modelActivity, timestamp, true)
         } else {
-            logger.logCompleteEventWithResource(trace, modelActivity, resource, timestamp!!)
+            logger.logCompleteEventWithResource(trace, modelActivity, resource, timestamp)
         }
     }
     

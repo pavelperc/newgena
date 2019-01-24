@@ -3,10 +3,7 @@ package com.pavelperc.newgena.launchers
 import com.pavelperc.newgena.testutils.GraphvizDrawer
 import com.pavelperc.newgena.graphviz.toGraphviz
 import com.pavelperc.newgena.utils.xlogutils.eventNames
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldBeIn
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldNotBeEmpty
+import org.amshove.kluent.*
 import org.junit.Test
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.Petrinet
@@ -14,7 +11,6 @@ import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl
 import org.processmining.models.semantics.petrinet.Marking
 
 class SimplePetriNetTests : GraphvizDrawer(false) {
-    
     
     @Test
     fun simplePetriNet() {
@@ -126,24 +122,27 @@ class SimplePetriNetTests : GraphvizDrawer(false) {
         description.isRemovingEmptyTraces shouldEqual false
         
         
-        
         var logArray = PetrinetGenerators.generateSimple(petrinet, initialMarking, finalMarking, description)
-
+        println(logArray.eventNames())
+        
         
         logArray.eventNames().shouldBeEmpty()
         
-        initialMarking.add(p2) // why we don't add another p1 to final ???
+        initialMarking.add(p2)
+        finalMarking.add(p1)// should not finish p3
         forDrawing += petrinet.toGraphviz(initialMarking, "added p2") to "conjunction/2.svg"
         forDrawing += petrinet.toGraphviz(finalMarking, "expected result") to "conjunction/3.svg"
         
         logArray = PetrinetGenerators.generateSimple(petrinet, initialMarking, finalMarking, description)
+        println(logArray.eventNames())
         
         logArray.eventNames()
                 .shouldNotBeEmpty()
-                .forEach { trace -> trace shouldEqual listOf("t0", "t1") } // why t1 is repeating just once?
+                .forEach { trace -> trace shouldContainSame listOf("t0", "t0", "t1") }
         
         initialMarking.addAll(listOf(p1, p2, p2))
         finalMarking.addAll(listOf(p3, p3))
+        finalMarking.remove(p1)
         forDrawing += petrinet.toGraphviz(initialMarking, "added p1, p2, p2") to "conjunction/4.svg"
         forDrawing += petrinet.toGraphviz(finalMarking, "new expected final marking. ?????") to "conjunction/5.svg"
         

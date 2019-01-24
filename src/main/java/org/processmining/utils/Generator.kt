@@ -1,5 +1,6 @@
 package org.processmining.utils
 
+import com.pavelperc.newgena.utils.xlogutils.eventNames
 import com.pavelperc.newgena.utils.xlogutils.name
 import org.deckfour.xes.extension.std.XConceptExtension
 import org.deckfour.xes.extension.std.XLifecycleExtension
@@ -130,7 +131,7 @@ class Generator(private val callback: ProgressBarCallback) {
             var stepNumber = 0
             
             while (stepNumber < generationDescription.maxNumberOfSteps && !replayedCompletely) {
-                println("in generateTrace: " + trace)
+//                println("in generateTrace: " + trace?.eventNames())
                 
                 
                 val movable = generationHelper.chooseNextMovable()

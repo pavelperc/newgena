@@ -23,8 +23,8 @@ abstract class BaseGenerationHelper<T : Tokenable<*>, K : Movable, F : Movable>(
     
     // everything is immutable
     
-    private val initialMarking = initialMarking.toSet()
-    private val finalMarking = finalMarking.toSet()
+    private val initialMarking = initialMarking
+    private val finalMarking = finalMarking
     
     private val allTokenables = allTokenables.toList()
     

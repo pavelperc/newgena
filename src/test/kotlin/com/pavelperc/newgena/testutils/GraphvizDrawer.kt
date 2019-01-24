@@ -7,7 +7,7 @@ import org.junit.AfterClass
 import org.junit.BeforeClass
 import java.io.File
 
-/** Drawing helper for test classes.*/
+/** Drawing helper for test classes. */
 abstract class GraphvizDrawer(draw: Boolean = false) {
     
     // init is run between @BeforeClass and @AfterClass
@@ -17,7 +17,7 @@ abstract class GraphvizDrawer(draw: Boolean = false) {
     }
     
     companion object {
-        const val DRAW_ALL: Boolean = false
+        const val DRAW_ALL: Boolean = true
     
         /** Map of graphviz graphs to their short filenames for saving.*/
         val forDrawing = mutableMapOf<MutableGraph, String>()
@@ -41,12 +41,12 @@ abstract class GraphvizDrawer(draw: Boolean = false) {
             
             if (drawGraphviz && DRAW_ALL) {
                 println("drawing graphviz")
+                var counter = 0
                 forDrawing.forEach { graph, filename ->
                     graph.toGraphviz().render(Format.SVG).toFile(File("$folder/$filename"))
-                    
+                    println("drew: $filename (${++counter} from ${forDrawing.size})")
                 }
             }
-            
             drawGraphviz = false
         }
     }

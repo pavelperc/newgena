@@ -10,6 +10,7 @@ import java.util.ArrayList
 /**
  * Created by Иван on 27.10.2014.
  */
+
 abstract class PetriNetGenerationHelper<T : Place<*>, K : Transition<*>, F : Token>(
         initialMarking: Collection<T>,
         finalMarking: Collection<T>,
