@@ -5,6 +5,11 @@ import org.processmining.models.abstract_net_representation.Token
 import org.processmining.models.graphbased.directed.petrinet.Petrinet
 import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.models.descriptions.SimpleGenerationDescription
+import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
+import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
+import org.processmining.models.graphbased.directed.petrinet.elements.Arc
+import org.processmining.models.graphbased.directed.petrinet.elements.InhibitorArc
+import org.processmining.models.graphbased.directed.petrinet.elements.ResetArc
 import org.processmining.models.simple_behavior.SimpleTransition
 
 /**
@@ -26,7 +31,7 @@ class SimpleGenerationHelper(
     companion object {
         
         fun createHelper(
-                petrinet: Petrinet,
+                petrinet: PetrinetGraph,
                 initialMarking: Marking,
                 finalMarking: Marking,
                 description: SimpleGenerationDescription
@@ -35,33 +40,66 @@ class SimpleGenerationHelper(
             val idsToLoggablePlaces = petrinet.places.map { it.id to Place<Token>(it, description) }.toMap()
             
             val allPlaces = idsToLoggablePlaces.values
+            
             val initialPlaces = initialMarking.mapNotNull { idsToLoggablePlaces[it.id] }
             val finalPlaces = finalMarking.mapNotNull { idsToLoggablePlaces[it.id] }
             
             
-            val allTransitions = mutableListOf<SimpleTransition>()
-            for (transition in petrinet.transitions) {
-                val transitionBuilder = SimpleTransition.SimpleTransitionBuilder(transition, description)
+            val allTransitions = petrinet.transitions.map { transition ->
+                val outPlaces = petrinet
+                        .getOutEdges(transition)
+                        .mapNotNull { edge -> idsToLoggablePlaces[edge.target.id] }
                 
-                //gets out edges
-                val outEdges = petrinet.getOutEdges(transition)
-                for (edge in outEdges) {
-                    val id = edge.target.id
-                    val outputPlace = idsToLoggablePlaces[id]
-                    transitionBuilder.outputPlace(outputPlace)
-                }
+                val inPlaces = petrinet
+                        .getInEdges(transition)
+                        .mapNotNull { edge -> idsToLoggablePlaces[edge.source.id] }
                 
-                //get in edges
-                val inEdges = petrinet.getInEdges(transition)
-                for (edge in inEdges) {
-                    val id = edge.source.id
-                    val inputPlace = idsToLoggablePlaces[id]
-                    transitionBuilder.inputPlace(inputPlace)
-                }
                 
-                val simpleTransition = transitionBuilder.build()
-                allTransitions.add(simpleTransition)
+                SimpleTransition(transition, description, inPlaces, outPlaces)
             }
+            
+            return SimpleGenerationHelper(initialPlaces, finalPlaces, allTransitions, allPlaces, description)
+        }
+    
+        fun createFromInhibitorReset(
+                petrinet: ResetInhibitorNet,
+                initialMarking: Marking,
+                finalMarking: Marking,
+                description: SimpleGenerationDescription
+        ): SimpleGenerationHelper {
+    
+            val idsToLoggablePlaces = petrinet.places.map { it.id to Place<Token>(it, description) }.toMap()
+    
+            val allPlaces = idsToLoggablePlaces.values
+    
+            val initialPlaces = initialMarking.mapNotNull { idsToLoggablePlaces[it.id] }
+            val finalPlaces = finalMarking.mapNotNull { idsToLoggablePlaces[it.id] }
+    
+    
+            val allTransitions = petrinet.transitions.map { transition ->
+                val outPlaces = petrinet
+                        .getOutEdges(transition)
+                        .mapNotNull { edge -> idsToLoggablePlaces[edge.target.id] }
+        
+                val inPlaces = petrinet
+                        .getInEdges(transition)
+                        .filter { it is Arc }
+                        .mapNotNull { edge -> idsToLoggablePlaces[edge.source.id] }
+                
+                val inResetArcPlaces = petrinet
+                        .getInEdges(transition)
+                        .filter { it is ResetArc }
+                        .mapNotNull { idsToLoggablePlaces[it.source.id] }
+                
+                val inInhibitorArcPlaces = petrinet
+                        .getInEdges(transition)
+                        .filter { it is InhibitorArc }
+                        .mapNotNull { idsToLoggablePlaces[it.source.id] }
+                
+                
+                SimpleTransition(transition, description, inPlaces, outPlaces, inInhibitorArcPlaces, inResetArcPlaces)
+            }
+    
             return SimpleGenerationHelper(initialPlaces, finalPlaces, allTransitions, allPlaces, description)
         }
     }

@@ -24,7 +24,11 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
     private long executionTime;
     private long maxTimeDeviation;
 
-    protected TimeDrivenTransition(org.processmining.models.graphbased.directed.petrinet.elements.Transition node, TimeDrivenGenerationDescription generationDescription, TimeDrivenPlace[] inputPlaces, TimeDrivenPlace[] outputPlaces)
+    protected TimeDrivenTransition(
+            org.processmining.models.graphbased.directed.petrinet.elements.Transition node,
+            TimeDrivenGenerationDescription generationDescription,
+            List<TimeDrivenPlace> inputPlaces,
+            List<TimeDrivenPlace> outputPlaces)
     {
         super(node, generationDescription, inputPlaces, outputPlaces);
         Pair<Long, Long> timePair = generationDescription.getTime().get(node);
@@ -473,10 +477,10 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
 
         public TimeDrivenTransition build()
         {
-            TimeDrivenPlace[] inputPlacesArray = inputPlaces.toArray(new TimeDrivenPlace[inputPlaces.size()]);
-            TimeDrivenPlace[] outputPlacesArray = outputPlaces.toArray(new TimeDrivenPlace[outputPlaces.size()]);
+//            TimeDrivenPlace[] inputPlacesArray = inputPlaces.toArray(new TimeDrivenPlace[inputPlaces.size()]);
+//            TimeDrivenPlace[] outputPlacesArray = outputPlaces.toArray(new TimeDrivenPlace[outputPlaces.size()]);
 
-            return new TimeDrivenTransition(transition, description, inputPlacesArray, outputPlacesArray);
+            return new TimeDrivenTransition(transition, description, inputPlaces, outputPlaces);
         }
     }
 }

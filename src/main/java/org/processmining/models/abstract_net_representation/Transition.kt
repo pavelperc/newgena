@@ -11,14 +11,18 @@ import java.util.Random
  * Created  02.12.2013
  */
 //T - type of place
-abstract class Transition<T : Place<*>> protected constructor(
+abstract class Transition<T : Place<*>> @JvmOverloads protected constructor(
         node: org.processmining.models.graphbased.directed.petrinet.elements.Transition,
         generationDescription: GenerationDescription,
-        val inputPlaces: Array<T>,
-        val outputPlaces: Array<T>
+        val inputPlaces: List<T>,
+        val outputPlaces: List<T>,
+        val inputInhibitorArcPlaces: List<T> = listOf(),
+        val inputResetArcPlaces: List<T> = listOf()
 ) : AbstractPetriNode(node, generationDescription), Movable {
     
-    override fun checkAvailability() = inputPlaces.all { place -> place.hasTokens() }
+    override fun checkAvailability() =
+            (inputPlaces + inputResetArcPlaces).all { place -> place.hasTokens() } 
+                    && inputInhibitorArcPlaces.all {place -> !place.hasTokens() }
     
     companion object {
         @JvmStatic

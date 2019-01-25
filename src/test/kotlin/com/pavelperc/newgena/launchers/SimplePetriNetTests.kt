@@ -129,7 +129,7 @@ class SimplePetriNetTests : GraphvizDrawer(false) {
         logArray.eventNames().shouldBeEmpty()
         
         initialMarking.add(p2)
-        finalMarking.add(p1)// should not finish p3
+        finalMarking.add(p1) // should not finish p3
         forDrawing += petrinet.toGraphviz(initialMarking, "added p2") to "conjunction/2.svg"
         forDrawing += petrinet.toGraphviz(finalMarking, "expected result") to "conjunction/3.svg"
         

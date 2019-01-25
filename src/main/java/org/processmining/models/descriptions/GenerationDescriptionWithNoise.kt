@@ -45,7 +45,7 @@ abstract class GenerationDescriptionWithNoise(
             get() = isUsingNoise && field
         
         
-        val artificialNoiseEvents: List<NoiseEvent> = ArrayList()
+        val artificialNoiseEvents: List<NoiseEvent> = mutableListOf()
     }
     
     companion object{
