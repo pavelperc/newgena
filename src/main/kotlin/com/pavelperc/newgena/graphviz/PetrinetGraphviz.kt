@@ -8,9 +8,8 @@ import guru.nidi.graphviz.attribute.Label
 import guru.nidi.graphviz.engine.Format
 import guru.nidi.graphviz.model.Factory.mutNode
 import guru.nidi.graphviz.model.MutableGraph
-import org.processmining.models.graphbased.directed.petrinet.Petrinet
+import guru.nidi.graphviz.model.MutableNode
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
-import org.processmining.models.graphbased.directed.petrinet.PetrinetNode
 import org.processmining.models.graphbased.directed.petrinet.elements.InhibitorArc
 import org.processmining.models.graphbased.directed.petrinet.elements.Place
 import org.processmining.models.graphbased.directed.petrinet.elements.ResetArc
@@ -28,7 +27,6 @@ private fun convert(petrinet: PetrinetGraph, marking: List<Place>, graphLabel: S
             val label = Label.of(it.label)
             mutNode(label).add(Shape.CIRCLE, label.external())
         }
-        places.forEach { it[Label.of("      ")] }
         
         val transitions = petrinet.transitions.map { mutNode(it.label).add(Shape.RECTANGLE) }
         
@@ -41,7 +39,7 @@ private fun convert(petrinet: PetrinetGraph, marking: List<Place>, graphLabel: S
             }
         }
         
-        drawTokens(marking)
+        drawTokens(places, marking)
 //        
 //        if (petrinet is ICPetrinet) {
 //            
@@ -49,21 +47,21 @@ private fun convert(petrinet: PetrinetGraph, marking: List<Place>, graphLabel: S
     }
 }
 
-private fun drawTokens(marking: List<Place>) {
+private fun drawTokens(allPlaceNodes: List<MutableNode>, marking: List<Place>) {
+    // No token
+    allPlaceNodes.forEach { it[Label.of("   ")]}
+    
     // grouping places by labels
     val counts = marking.groupBy { it.label!! }.mapValues { it.value.size }
-    
     counts.forEach { label, count ->
         val node = mutNode(label)
         // circles
-//        val circle = "•"
         val circle = "●"
+//        val circle = "•"
 //        val circle = "*"
         val points =
                 when {
-//                    count == 0 -> "      "
                     count > 6 -> "$count $circle"
-//                    count < 4 -> circle.repeat(count) + "\n   "
                     else -> circle.repeat(count).chunked(3).joinToString("\n")
                 }
         node[Label.raw(points)]

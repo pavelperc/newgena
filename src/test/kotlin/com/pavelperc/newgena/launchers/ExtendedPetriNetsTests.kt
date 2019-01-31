@@ -116,7 +116,7 @@ class ExtendedPetriNetsTests : GraphvizDrawer(false) {
         
         val initialMarking = Marking(listOf(p1))
         val finalMarking = Marking(listOf(p4))
-        
+            
         val description = TimeDrivenGenerationDescription(
                 time = mutableMapOf(
                         a to Pair(100L, 0L), // delay in seconds, deviation

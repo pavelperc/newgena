@@ -42,6 +42,7 @@ class InhibitorResetPetriNetTests : GraphvizDrawer(false) {
                 isUsingNoise = false
         )
         
+        
         val generationHelper = SimpleGenerationHelper.createFromInhibitorReset(petrinet, initialMarking, finalMarking, description)
         
         val transitions = generationHelper.allModelMovables
