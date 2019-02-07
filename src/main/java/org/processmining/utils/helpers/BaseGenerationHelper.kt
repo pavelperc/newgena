@@ -34,7 +34,7 @@ abstract class BaseGenerationHelper<T : Tokenable<*>, K : Movable, F : Movable>(
     init {
         moveToInitialState()
     }
-    
+
 //    override fun getGenerationDescription(): GenerationDescription {
 //        return description
 //    }
@@ -56,10 +56,11 @@ abstract class BaseGenerationHelper<T : Tokenable<*>, K : Movable, F : Movable>(
         }
     }
     
-    protected fun <L : Movable> pickRandomMovable(movables: List<L>): L {
-        val index = random.nextInt(movables.size)
-        return movables[index]
-    }
+    protected fun <L : Movable> pickRandomMovable(movables: List<L>): L? =
+            if (movables.isEmpty())
+                null
+            else
+                movables.random()
     
     
     override fun handleMovementResult(movementResult: MovementResult<F>): AssessedMovementResult {

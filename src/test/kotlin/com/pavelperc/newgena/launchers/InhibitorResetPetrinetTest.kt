@@ -4,15 +4,17 @@ import com.pavelperc.newgena.graphviz.toGraphviz
 import org.junit.Test
 import com.pavelperc.newgena.testutils.GraphvizDrawer
 import com.pavelperc.newgena.utils.xlogutils.eventNames
+import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotBeEmpty
+import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.graphbased.directed.petrinet.impl.ResetInhibitorNetImpl
 import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.utils.helpers.SimpleGenerationHelper
 
-class InhibitorResetPetriNetTests : GraphvizDrawer(false) {
+class InhibitorResetPetrinetTest : GraphvizDrawer(false) {
     
     @Test
     fun testSimpleGenerationHelper() {
@@ -43,7 +45,7 @@ class InhibitorResetPetriNetTests : GraphvizDrawer(false) {
         )
         
         
-        val generationHelper = SimpleGenerationHelper.createFromInhibitorReset(petrinet, initialMarking, finalMarking, description)
+        val generationHelper = SimpleGenerationHelper.createHelper(petrinet, initialMarking, finalMarking, description)
         
         val transitions = generationHelper.allModelMovables
         
@@ -138,5 +140,68 @@ class InhibitorResetPetriNetTests : GraphvizDrawer(false) {
         logArray.eventNames()
                 .shouldNotBeEmpty()
                 .forEach { trace -> trace shouldEqual listOf("A") }
+    }
+    
+    
+    @Test
+    fun priorityInhResetNet() {
+        val petrinet: ResetInhibitorNet = ResetInhibitorNetImpl("simplePetriNet")
+
+//        val a = petrinet.addTransition("A")
+        val b = petrinet.addTransition("B")
+        val c = petrinet.addTransition("C")
+        val d = petrinet.addTransition("D")
+        
+        val p1 = petrinet.addPlace("p1")
+        val p2 = petrinet.addPlace("p2")
+        val p3 = petrinet.addPlace("p3")
+        val p4 = petrinet.addPlace("p4")
+        
+        petrinet.addArc(p2, b)
+        petrinet.addResetArc(p2, c)
+        petrinet.addArc(b, p3)
+        petrinet.addArc(c, p3)
+        petrinet.addInhibitorArc(p3, d)
+        petrinet.addArc(p1, d)
+        petrinet.addArc(d, p4)
+        //       B          p1
+        //   /     \         \
+        // p2 ->> C -> p3 --o D -> p4
+        
+        
+        val description = GenerationDescriptionWithStaticPriorities(
+                maxPriority = 100,
+                numberOfLogs = 6,
+                numberOfTraces = 8,
+                priorities = mapOf(
+                        b to 1,
+                        c to 2, // should always choose c instead of b
+                        d to 3 // will be chosen first
+                )
+        )
+        
+        var logArray = PetrinetGenerators.generateWithPriorities(
+                petrinet,
+                Marking(listOf(p2, p2, p1)),
+                Marking(listOf(p3, p4)),
+                description
+        )
+        logArray.eventNames().shouldNotBeEmpty().forEach { it shouldEqual listOf("D", "C") }
+        
+        description.putPriorities(mapOf(
+                b to 3, // first
+                c to 2,
+                d to 1
+        ))
+    
+        logArray = PetrinetGenerators.generateWithPriorities(
+                petrinet,
+                Marking(listOf(p2, p2, p1)),
+                Marking(listOf(p3, p3, p1)),
+                description
+        )
+        logArray.eventNames().shouldNotBeEmpty().forEach { it shouldEqual listOf("B", "B") }
+        
+        
     }
 }

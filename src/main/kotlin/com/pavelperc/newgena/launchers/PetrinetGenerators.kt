@@ -6,6 +6,7 @@ import org.processmining.models.descriptions.GenerationDescriptionWithStaticPrio
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.Petrinet
+import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.utils.Generator
@@ -17,7 +18,7 @@ import org.processmining.utils.helpers.TimeDrivenGenerationHelper
 object PetrinetGenerators {
     
     fun generateSimple(
-            petrinet: Petrinet,
+            petrinet: PetrinetGraph,
             initialMarking: Marking,
             finalMarking: Marking,
             description: SimpleGenerationDescription,
@@ -34,14 +35,11 @@ object PetrinetGenerators {
             finalMarking: Marking,
             description: SimpleGenerationDescription,
             callback: ProgressBarCallback = emptyCallback
-    ): EventLogArray {
-        val generationHelper = SimpleGenerationHelper.createFromInhibitorReset(petrinet, initialMarking, finalMarking, description)
-        return Generator(callback).generate(generationHelper)
-    }
+    ) = generateSimple(petrinet, initialMarking, finalMarking, description, callback)
     
     
     fun generateWithPriorities(
-            petrinet: Petrinet,
+            petrinet: PetrinetGraph,
             initialMarking: Marking,
             finalMarking: Marking,
             description: GenerationDescriptionWithStaticPriorities,

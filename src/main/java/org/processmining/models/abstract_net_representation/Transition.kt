@@ -10,14 +10,15 @@ import java.util.Random
  * @author Ivan Shugurov
  * Created  02.12.2013
  */
-//T - type of place
-abstract class Transition<T : Place<*>> @JvmOverloads protected constructor(
-        node: org.processmining.models.graphbased.directed.petrinet.elements.Transition,
+//P - type of place
+abstract class Transition<P : Place<*>> @JvmOverloads protected constructor(
+        /** Wrapped ProM transition. */
+        override val node: org.processmining.models.graphbased.directed.petrinet.elements.Transition,
         generationDescription: GenerationDescription,
-        val inputPlaces: List<T>,
-        val outputPlaces: List<T>,
-        val inputInhibitorArcPlaces: List<T> = listOf(),
-        val inputResetArcPlaces: List<T> = listOf()
+        val inputPlaces: List<P>,
+        val outputPlaces: List<P>,
+        val inputInhibitorArcPlaces: List<P> = listOf(),
+        val inputResetArcPlaces: List<P> = listOf()
 ) : AbstractPetriNode(node, generationDescription), Movable {
     
     override fun checkAvailability() =

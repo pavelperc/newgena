@@ -29,8 +29,6 @@ class GenerationDescriptionWithStaticPriorities(
     val priorities
         get() = _priorities as Map<Transition, Int>
     
-    fun getPriority(transition: Transition) = _priorities.getValue(transition)
-    
     init {
         if (maxPriority < MIN_PRIORITY) {
             throw IllegalArgumentException("Max priority cannot be less than $MIN_PRIORITY")

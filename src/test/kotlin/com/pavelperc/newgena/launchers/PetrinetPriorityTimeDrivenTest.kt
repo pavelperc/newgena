@@ -16,7 +16,7 @@ import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.utils.TimeDrivenLoggingSingleton
 import java.util.*
 
-class ExtendedPetriNetsTests : GraphvizDrawer(false) {
+class PetrinetPriorityTimeDrivenTest : GraphvizDrawer(false) {
     
     
     @Test

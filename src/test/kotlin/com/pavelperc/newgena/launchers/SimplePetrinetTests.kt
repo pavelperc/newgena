@@ -10,7 +10,7 @@ import org.processmining.models.graphbased.directed.petrinet.Petrinet
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl
 import org.processmining.models.semantics.petrinet.Marking
 
-class SimplePetriNetTests : GraphvizDrawer(false) {
+class SimplePetrinetTests : GraphvizDrawer(false) {
     
     @Test
     fun simplePetriNet() {

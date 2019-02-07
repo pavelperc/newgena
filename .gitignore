@@ -1,6 +1,10 @@
 .idea/
 .gradle/
 out/
-!libs/readme.txt
 libs/
+!libs/readme.txt
 gv/
+
+examples/petrinet/*.exe
+examples/petrinet/*.dll
+examples/petrinet/*.png

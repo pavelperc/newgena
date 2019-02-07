@@ -16,13 +16,13 @@ import java.util.ArrayList
  * Created by Ivan Shugurov on 30.10.2014.
  */
 class SimpleTransition(
-        transition: Transition,
+        node: Transition,
         generationDescription: SimpleGenerationDescription,
         inputPlaces: List<Place<Token>>,
         outputPlaces: List<Place<Token>>,
         inputInhibitorArcPlaces: List<Place<Token>> = listOf(),
         inputResetArcPlaces: List<Place<Token>> = listOf()
-) : BaseTransition(transition, generationDescription, inputPlaces, outputPlaces, inputInhibitorArcPlaces, inputResetArcPlaces) {
+) : BaseTransition(node, generationDescription, inputPlaces, outputPlaces, inputInhibitorArcPlaces, inputResetArcPlaces) {
      
     //TODO почему здесь и в версии с временами по-разному работает этот метод?
     private val noiseEventsBasedOnSettings: List<Any>
@@ -82,7 +82,7 @@ class SimpleTransition(
     }
     
     private fun logTransition(trace: XTrace) {
-        val realTransition = node as Transition
+        val realTransition = node
         if (!realTransition.isInvisible) {
             LoggingSingleton.log(trace, node)
         }

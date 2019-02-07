@@ -19,32 +19,8 @@ abstract class PetriNetGenerationHelper<T : Place<*>, K : Transition<*>, F : Tok
         description: GenerationDescription
 ) : BaseGenerationHelper<T, K, F>(initialMarking, finalMarking, allTransitions, allPlaces, description) {
     
-    override fun chooseNextMovable(): Movable? {
-        val enabledTransitions = findEnabledTransitions()
-        
-        val movable: Movable
-        
-        if (enabledTransitions.isEmpty() && extraMovables.isEmpty()) {
-            return null
-        } else {
-            if (enabledTransitions.isEmpty()) {
-                movable = pickRandomMovable(extraMovables)
-            } else {
-                if (extraMovables.isEmpty()) {
-                    movable = pickRandomMovable(enabledTransitions)
-                } else {
-                    val moveThroughTransition = random.nextBoolean()
-                    if (moveThroughTransition) {
-                        movable = pickRandomMovable(enabledTransitions)
-                    } else {
-                        movable = pickRandomMovable(extraMovables)
-                    }
-                }
-            }
-        }
-        
-        return movable
-    }
+    override fun chooseNextMovable() =
+            pickRandomMovable(findEnabledTransitions() + extraMovables)
     
     protected fun findEnabledTransitions() = allModelMovables.filter { it.checkAvailability() }
     

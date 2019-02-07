@@ -117,7 +117,7 @@ public class LogGeneratorWithStaticPriorities extends BasePetrinetGenerationPlug
 
     private Object[] generate()
     {
-        GenerationHelper helper = StaticPrioritiesGenerationHelper.createStaticPrioritiesGenerationHelper(petrinet,
+        GenerationHelper helper = StaticPrioritiesGenerationHelper.Companion.createStaticPrioritiesGenerationHelper(petrinet,
                 initialMarking, finalMarking, description);
         EventLogArray eventLogArray = generate(helper, description);
         return new Object[]{eventLogArray, initialMarking, finalMarking, description};

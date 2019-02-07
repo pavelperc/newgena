@@ -1,25 +1,17 @@
 package com.pavelperc.newgena.imports
 
-import org.deckfour.xes.model.XLog
-import org.processmining.contexts.cli.CLIContext
-import org.processmining.contexts.cli.CLIPluginContext
-import org.processmining.framework.plugin.GlobalContext
-import org.processmining.framework.plugin.PluginContext
-import org.processmining.framework.plugin.impl.PluginContextIDImpl
 import org.processmining.models.connections.GraphLayoutConnection
 import org.processmining.models.graphbased.directed.petrinet.Petrinet
+import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetFactory
-import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl
 import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.plugins.pnml.Pnml
-import org.processmining.plugins.pnml.importing.PnmlImportUtils
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.FileInputStream
 import java.lang.Exception
-import java.util.*
 
 
-object PetriNetLoader {
+object PnmlLoader {
     
     
     private fun loadPnml(path: String): Pnml {
@@ -53,13 +45,26 @@ object PetriNetLoader {
         
     }
     
-    fun loadPetriNet(path: String, markingToPut: Marking): Petrinet {
+    
+    fun loadPetrinet(
+            path: String
+    ): PetrinetWithSettings {
+        
         val pnml = loadPnml(path)
         
-        val net = PetrinetFactory.newPetrinet(pnml.label)!!
+        val net = PetrinetFactory.newResetInhibitorNet(pnml.label)!!
         
-        pnml.convertToNet(net, markingToPut, GraphLayoutConnection(net))
+        val marking = Marking()
+        pnml.convertToNet(net, marking, GraphLayoutConnection(net))
         
-        return net
+        return PetrinetWithSettings(net, marking)
     }
+    
+    data class PetrinetWithSettings(
+            val petrinet: PetrinetGraph,
+            val marking: Marking
+    ) {
+        
+    }
+
 }

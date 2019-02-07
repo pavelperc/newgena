@@ -7,9 +7,11 @@ import org.processmining.models.graphbased.directed.petrinet.PetrinetNode
 /**
  * @author Ivan Shugurov
  * Created  02.12.2013
+ * 
+ * Wrapper for [PetrinetNode]. Contains [generationDescription].
  */
 abstract class AbstractPetriNode protected constructor(
-        val node: PetrinetNode,
+        open val node: PetrinetNode,
         open val generationDescription: GenerationDescription
 ) {
     val nodeId: NodeID

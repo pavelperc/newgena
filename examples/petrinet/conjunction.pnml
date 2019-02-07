@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<pnml>
+  <net id="net1" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>conjunction</text>
+    </name>
+    <page id="n0">
+      <place id="place5">
+        <graphics>
+          <position x="190" y="90" />
+          <dimension x="30" y="30" />
+        </graphics>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="place6">
+        <graphics>
+          <position x="190" y="160" />
+          <dimension x="30" y="30" />
+        </graphics>
+        <initialMarking>
+          <text>3</text>
+        </initialMarking>
+      </place>
+      <place id="place7">
+        <graphics>
+          <position x="70" y="90" />
+          <dimension x="30" y="30" />
+        </graphics>
+        <initialMarking>
+          <text>2</text>
+        </initialMarking>
+      </place>
+      <place id="place8">
+        <graphics>
+          <position x="310" y="160" />
+          <dimension x="30" y="30" />
+        </graphics>
+      </place>
+      <transition id="transition1">
+        <graphics>
+          <position x="130" y="80" />
+          <dimension x="35" y="35" />
+        </graphics>
+      </transition>
+      <transition id="transition2">
+        <graphics>
+          <position x="255" y="150" />
+          <dimension x="35" y="35" />
+        </graphics>
+      </transition>
+      <arc id="arc3" source="place7" target="transition1">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc4" source="transition1" target="place5">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc5" source="place5" target="transition2">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc6" source="place6" target="transition2">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc7" source="transition2" target="place8">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+    </page>
+  </net>
+</pnml>
