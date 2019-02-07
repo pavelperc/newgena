@@ -2,19 +2,21 @@ package com.pavelperc.newgena.launchers
 
 import com.pavelperc.newgena.testutils.GraphvizDrawer
 import com.pavelperc.newgena.graphviz.toGraphviz
+import com.pavelperc.newgena.utils.common.markingOf
 import com.pavelperc.newgena.utils.xlogutils.eventNames
 import org.amshove.kluent.*
+import org.deckfour.xes.out.XesXmlSerializer
 import org.junit.Test
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.Petrinet
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl
 import org.processmining.models.semantics.petrinet.Marking
+import java.io.File
 
 class SimplePetrinetTests : GraphvizDrawer(false) {
     
     @Test
     fun simplePetriNet() {
-        
         
         val petrinet: Petrinet = PetrinetImpl("simplePetriNet")
         
@@ -77,6 +79,51 @@ class SimplePetrinetTests : GraphvizDrawer(false) {
             }
         }
     }
+    
+    
+    @Test
+    fun fileExport() {
+        
+        val petrinet: Petrinet = PetrinetImpl("simplePetriNet")
+        
+        val a = petrinet.addTransition("A")
+        val b = petrinet.addTransition("B")
+        val c = petrinet.addTransition("C")
+        val d = petrinet.addTransition("D")
+        
+        val p1 = petrinet.addPlace("p1")
+        val p2 = petrinet.addPlace("p2")
+        val p3 = petrinet.addPlace("p3")
+        val p4 = petrinet.addPlace("p4")
+        
+        petrinet.addArc(p1, a)
+        petrinet.addArc(a, p2)
+        petrinet.addArc(p2, b)
+        petrinet.addArc(p2, c)
+        petrinet.addArc(b, p3)
+        petrinet.addArc(c, p3)
+        petrinet.addArc(p3, d)
+        petrinet.addArc(d, p4)
+        //                  B
+        //               /     \
+        // p1 -> A -> p2 -> C -> p3 -> D -> p4
+        
+        
+        // launch generator
+        val logArray = PetrinetGenerators.generateSimple(
+                petrinet,
+                markingOf(p1),
+                markingOf(p4),
+                SimpleGenerationDescription()
+        )
+        logArray.eventNames().shouldNotBeEmpty()
+        
+        
+        val serializer = XesXmlSerializer()
+        logArray.exportToFile(null, File("xes-out/simpleLog.xes"), serializer)
+    }
+    
+    
     
     @Test
     fun conjunction() {
@@ -149,8 +196,11 @@ class SimplePetrinetTests : GraphvizDrawer(false) {
         logArray = PetrinetGenerators.generateSimple(petrinet, initialMarking, finalMarking, description)
         
         println(logArray.eventNames())
-        
         // !!!
         logArray.eventNames().shouldNotBeEmpty()
+    
+    
+//        val serializer = XesXmlSerializer()
+//        logArray.exportToFile(null, File("xes-out/conjunctionLog.xes"), serializer)
     }
 }

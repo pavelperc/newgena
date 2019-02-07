@@ -7,7 +7,7 @@ class SimpleGenerationDescription(
         numberOfLogs: Int = 5,
         numberOfTraces: Int = 10,
         maxNumberOfSteps: Int = 100,
-        isUsingNoise: Boolean = true,
+        isUsingNoise: Boolean = false,
         isRemovingUnfinishedTraces: Boolean = true,
         isRemovingEmptyTraces: Boolean = true,
         override val isUsingTime: Boolean = false,
