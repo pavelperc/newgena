@@ -1,5 +1,7 @@
 package org.processmining.dialogs.organizational_extension;
 
+import kotlin.ULong;
+import kotlin.ULongKt;
 import org.processmining.models.organizational_extension.Resource;
 import ru.hse.pais.shugurov.widgets.elements.InputTextElement;
 
@@ -72,8 +74,8 @@ public abstract class BaseResourceCreationDialog extends JDialog   //TODO вып
             long maxDelay;
             if (resource == null)
             {
-                minDelay = Resource.DEFAULT_MIN_DELAY_BETWEEN_ACTIONS;
-                maxDelay = Resource.DEFAULT_MAX_DELAY_BETWEEN_ACTIONS;
+                minDelay = Resource.Companion.getDEFAULT_MIN_DELAY_BETWEEN_ACTIONS();
+                maxDelay = Resource.Companion.getDEFAULT_MAX_DELAY_BETWEEN_ACTIONS();
             }
             else
             {
@@ -163,8 +165,8 @@ public abstract class BaseResourceCreationDialog extends JDialog   //TODO вып
             JOptionPane.showMessageDialog(BaseResourceCreationDialog.this, "Resource name cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        long minDelayBetweenActions = Resource.DEFAULT_MIN_DELAY_BETWEEN_ACTIONS;
-        long maxDelayBetweenActions = Resource.DEFAULT_MAX_DELAY_BETWEEN_ACTIONS;
+        long minDelayBetweenActions = Resource.Companion.getDEFAULT_MIN_DELAY_BETWEEN_ACTIONS();
+        long maxDelayBetweenActions = Resource.Companion.getDEFAULT_MAX_DELAY_BETWEEN_ACTIONS();
         if (minDelayBetweenActionsInput != null && maxDelayBetweenActionsInput != null)
         {
 

@@ -160,8 +160,8 @@ public class ArtificialNoisePanel extends EditableListPanel<NoiseEvent>
                                 }
                                 else
                                 {
-                                    noiseEvent.setExecutionTime(executionTime);
-                                    noiseEvent.setMaxTimeDeviation(deviationTime);
+                                    noiseEvent.setExecutionTimeSeconds(executionTime);
+                                    noiseEvent.setMaxTimeDeviationSeconds(deviationTime);
                                 }
 
                             } catch (NumberFormatException e1)
@@ -209,13 +209,13 @@ public class ArtificialNoisePanel extends EditableListPanel<NoiseEvent>
             long deviation;
             if (noiseEvent == null)
             {
-                executionTime = NoiseEvent.DEFAULT_EXECUTION_TIME;
-                deviation = NoiseEvent.DEFAULT_MAX_DEVIATION_TIME;
+                executionTime = NoiseEvent.Companion.getDEFAULT_EXECUTION_TIME();
+                deviation = NoiseEvent.Companion.getDEFAULT_MAX_DEVIATION_TIME();
             }
             else
             {
-                executionTime = noiseEvent.getExecutionTime();
-                deviation = noiseEvent.getMaxTimeDeviation();
+                executionTime = noiseEvent.getExecutionTimeSeconds();
+                deviation = noiseEvent.getMaxTimeDeviationSeconds();
             }
             if (useTime)
             {

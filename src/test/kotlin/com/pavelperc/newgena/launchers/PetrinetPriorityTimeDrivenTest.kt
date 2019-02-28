@@ -88,7 +88,6 @@ class PetrinetPriorityTimeDrivenTest : GraphvizDrawer(false) {
     
     @Test
     fun timeDrivenPetriNet() {
-        
         val petrinet: Petrinet = PetrinetImpl("net1")
         
         val a = petrinet.addTransition("A")
@@ -125,7 +124,6 @@ class PetrinetPriorityTimeDrivenTest : GraphvizDrawer(false) {
                         d to Pair(400L, 0L)
                 ),
                 isUsingNoise = false,
-                isUsingResources = false,
                 minimumIntervalBetweenActions = 10,
                 maximumIntervalBetweenActions = 10
         )

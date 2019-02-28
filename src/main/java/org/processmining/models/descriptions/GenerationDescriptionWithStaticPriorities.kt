@@ -5,7 +5,7 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 /**
  * Created by Ivan Shugurov on 29.12.2014.
  */
-class GenerationDescriptionWithStaticPriorities(
+open class GenerationDescriptionWithStaticPriorities(
         private val maxPriority: Int,
         
         numberOfLogs: Int = 5,
@@ -13,13 +13,15 @@ class GenerationDescriptionWithStaticPriorities(
         maxNumberOfSteps: Int = 100,
         
         override var isRemovingUnfinishedTraces: Boolean = true,
-        override val isUsingTime: Boolean = false,
-        override val isUsingResources: Boolean = false,
-        override val isUsingLifecycle: Boolean = false,
-        override val isRemovingEmptyTraces: Boolean = false,
         priorities: Map<Transition, Int> = mapOf()
-        ) : BaseGenerationDescription(numberOfLogs, numberOfTraces, maxNumberOfSteps) {
+) : BaseGenerationDescription(numberOfLogs, numberOfTraces, maxNumberOfSteps) {
     
+    override val isUsingTime: Boolean = false
+    override val isUsingResources: Boolean = false
+    override val isUsingLifecycle: Boolean = false
+    override val isRemovingEmptyTraces: Boolean = false
+    
+    // to avoid @JvmOverloads
     constructor(maxPriority: Int) : this(maxPriority, 5)
     
     

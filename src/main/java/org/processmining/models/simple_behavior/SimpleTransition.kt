@@ -23,7 +23,7 @@ class SimpleTransition(
         inputInhibitorArcPlaces: List<Place<Token>> = listOf(),
         inputResetArcPlaces: List<Place<Token>> = listOf()
 ) : BaseTransition(node, generationDescription, inputPlaces, outputPlaces, inputInhibitorArcPlaces, inputResetArcPlaces) {
-     
+    
     //TODO почему здесь и в версии с временами по-разному работает этот метод?
     private val noiseEventsBasedOnSettings: List<Any>
         get() {

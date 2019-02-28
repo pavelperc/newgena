@@ -10,9 +10,10 @@ class SimpleGenerationDescription(
         isUsingNoise: Boolean = false,
         isRemovingUnfinishedTraces: Boolean = true,
         isRemovingEmptyTraces: Boolean = true,
-        override val isUsingTime: Boolean = false,
-        override val isUsingResources: Boolean = false,
-        override val isUsingLifecycle: Boolean = false,
         noiseDescriptionCreator: GenerationDescriptionWithNoise.() -> NoiseDescription = { this.NoiseDescription() }
 
-) : GenerationDescriptionWithNoise(numberOfLogs, numberOfTraces, maxNumberOfSteps, isUsingNoise, isRemovingUnfinishedTraces, isRemovingEmptyTraces, noiseDescriptionCreator)
+) : GenerationDescriptionWithNoise(numberOfLogs, numberOfTraces, maxNumberOfSteps, isUsingNoise, isRemovingUnfinishedTraces, isRemovingEmptyTraces, noiseDescriptionCreator) {
+    override val isUsingTime: Boolean = false
+    override val isUsingResources: Boolean = false
+    override val isUsingLifecycle: Boolean = false
+}

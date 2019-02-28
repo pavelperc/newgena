@@ -315,12 +315,12 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
                     loggingSingleton.log(trace, noiseEvent, timestamp, false);
                 }
             }
-            long timeDeviation = (long) (getRandom().nextDouble() * (noiseEvent.getMaxTimeDeviation() + 1));
+            long timeDeviation = (long) (getRandom().nextDouble() * (noiseEvent.getMaxTimeDeviationSeconds() + 1));
             if (getRandom().nextBoolean())
             {
                 timeDeviation = -timeDeviation;
             }
-            long totalExecutionTime = (noiseEvent.getExecutionTime() + timeDeviation) * 1000;
+            long totalExecutionTime = (noiseEvent.getExecutionTimeSeconds() + timeDeviation) * 1000;
             long finishTime = timestamp + totalExecutionTime;
             if (usedResource != null && getGenerationDescription().isUsingSynchronizationOnResources())
             {

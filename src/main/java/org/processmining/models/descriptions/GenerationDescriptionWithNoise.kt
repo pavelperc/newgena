@@ -27,6 +27,7 @@ abstract class GenerationDescriptionWithNoise(
             isUsingExternalTransitions: Boolean = true,
             isUsingInternalTransitions: Boolean = true,
             var isSkippingTransitions: Boolean = true,
+            // core prom transitions TODO: pavel: change generationHelper
             var internalTransitions: MutableList<Transition> = ArrayList(),
             var existingNoiseEvents: MutableList<NoiseEvent> = ArrayList()    //TODO мне не нравится название(
     ) {
@@ -38,12 +39,12 @@ abstract class GenerationDescriptionWithNoise(
                 field = value
             }
         
+        // TODO: pavel: remove complex properties
         var isUsingExternalTransitions = isUsingExternalTransitions
             get () = isUsingNoise && field
         
         var isUsingInternalTransitions = isUsingInternalTransitions
             get() = isUsingNoise && field
-        
         
         val artificialNoiseEvents: List<NoiseEvent> = mutableListOf()
     }

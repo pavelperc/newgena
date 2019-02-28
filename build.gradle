@@ -33,9 +33,7 @@ dependencies {
     implementation fileTree(dir: 'libs/packagelib/ProM68_dist', include: ['*.jar'])
     implementation fileTree(dir: 'libs/packagelib/ProM68_lib', include: ['*.jar'])
     
-    
     implementation 'net.sourceforge.javacsv:javacsv:2.0'
-    
     
     // graphviz
     implementation "ch.qos.logback:logback-classic:1.2.3"
@@ -45,11 +43,12 @@ dependencies {
     
     // tests
     testImplementation 'junit:junit:4.12'
-
 //    testImplementation('org.junit.jupiter:junit-jupiter-api:5.2.0')
 //    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.2.0')
-
-    testImplementation 'org.amshove.kluent:kluent:1.43'
+    testImplementation 'org.amshove.kluent:kluent:1.48'
+    
+    // jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
 }
 
 

@@ -75,7 +75,7 @@ public class SimplifiedResourcePanel extends EditableListPanel<Resource>
         @Override
         protected void createResource(String resourceName)
         {
-            resource = new Resource(resourceName);
+            resource = new Resource(resourceName, 0, 0, 0, null, null);
         }
     }
 }
