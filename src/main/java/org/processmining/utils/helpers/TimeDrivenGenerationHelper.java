@@ -14,6 +14,7 @@ import org.processmining.models.time_driven_behavior.TimeDrivenPlace;
 import org.processmining.models.time_driven_behavior.TimeDrivenToken;
 import org.processmining.models.time_driven_behavior.TimeDrivenTransition;
 
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -27,8 +28,8 @@ public class TimeDrivenGenerationHelper extends PetriNetGenerationHelper<TimeDri
     public TimeDrivenGenerationHelper(Collection<TimeDrivenPlace> initialMarking, Collection<TimeDrivenPlace> finalMarking, Collection<TimeDrivenPlace> allPlaces, Collection<TimeDrivenTransition> allTransitions, TimeDrivenGenerationDescription description)
     {
         super(initialMarking, finalMarking, allTransitions, allPlaces, description);
-        Calendar startCalendar = description.getGenerationStart();
-        generationStart = startCalendar.getTimeInMillis();
+        Instant startCalendar = description.getGenerationStart();
+        generationStart = startCalendar.toEpochMilli();
     }
 
     public static TimeDrivenGenerationHelper createInstance(Petrinet petrinet, Marking initialMarking, Marking finalMarking, TimeDrivenGenerationDescription description)

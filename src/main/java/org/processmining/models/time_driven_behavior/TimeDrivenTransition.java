@@ -31,7 +31,7 @@ public class TimeDrivenTransition extends Transition<TimeDrivenPlace> implements
             List<TimeDrivenPlace> outputPlaces)
     {
         super(node, generationDescription, inputPlaces, outputPlaces);
-        Pair<Long, Long> timePair = generationDescription.getTime().get(node);
+        kotlin.Pair<Long, Long> timePair = generationDescription.getTime().get(node);
         executionTime = timePair.getFirst();
         maxTimeDeviation = timePair.getSecond();
     }

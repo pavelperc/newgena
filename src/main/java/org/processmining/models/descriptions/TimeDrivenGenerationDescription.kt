@@ -1,14 +1,17 @@
 package org.processmining.models.descriptions
 
-import com.sun.org.apache.xpath.internal.operations.Bool
-import org.processmining.framework.util.Pair
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.models.organizational_extension.Group
 import org.processmining.models.organizational_extension.Resource
 import org.processmining.models.time_driven_behavior.GranularityTypes
+import org.processmining.models.time_driven_behavior.NoiseEvent
 import org.processmining.models.time_driven_behavior.ResourceMapping
-
+import java.time.Instant
 import java.util.*
+
+
+typealias TimeNoiseDescriptionCreator 
+        = TimeDrivenGenerationDescription.() -> TimeDrivenGenerationDescription.TimeNoiseDescription
 
 /**
  * @author Ivan Shugurov
@@ -33,16 +36,16 @@ class TimeDrivenGenerationDescription(
         
         var isSeparatingStartAndFinish: Boolean = true,
         
-        val simplifiedResources: MutableList<Resource> = ArrayList(),
-        var time: MutableMap<Transition, Pair<Long, Long>> = mutableMapOf(),
+        val simplifiedResources: List<Resource> = listOf(),
         override val isUsingTime: Boolean = true,
+        val time: Map<Transition, Pair<Long, Long>> = emptyMap(),
         override val isUsingLifecycle: Boolean = true,
-        var generationStart: Calendar = Calendar.getInstance(),
-        val resourceMapping: MutableMap<Any, ResourceMapping> = mutableMapOf(),
+        var generationStart: Instant = Instant.now(),
+        val resourceMapping: Map<Any, ResourceMapping> = emptyMap(),
         val resourceGroups: List<Group> = ArrayList(),
         
         // we use lambda, because we can not instantiate default value for inner class here
-        noiseDescriptionCreator: TimeDrivenGenerationDescription.() -> TimeNoiseDescription = { TimeNoiseDescription() }
+        noiseDescriptionCreator: TimeNoiseDescriptionCreator = { TimeNoiseDescription() }
 ) : GenerationDescriptionWithNoise(numberOfLogs, numberOfTraces, maxNumberOfSteps, isUsingNoise, isRemovingUnfinishedTraces, isRemovingEmptyTraces) {
     
     override val noiseDescription: TimeNoiseDescription = noiseDescriptionCreator.invoke(this)
@@ -76,8 +79,16 @@ class TimeDrivenGenerationDescription(
             isUsingLifecycleNoise: Boolean = true,
             isUsingTimeGranularity: Boolean = true,
             var maxTimestampDeviation: Int = 0,
-            var granularityType: GranularityTypes = GranularityTypes.MINUTES_5
-    ) : GenerationDescriptionWithNoise.NoiseDescription() {
+            var granularityType: GranularityTypes = GranularityTypes.MINUTES_5,
+            
+            
+            noisedLevel: Int = 5,
+            isUsingExternalTransitions: Boolean = true,
+            isUsingInternalTransitions: Boolean = true,
+            isSkippingTransitions: Boolean = true,
+            internalTransitions: List<Transition> = emptyList(),
+            existingNoiseEvents: List<NoiseEvent> = emptyList()
+    ) : GenerationDescriptionWithNoise.NoiseDescription(noisedLevel, isUsingExternalTransitions, isUsingInternalTransitions, isSkippingTransitions, internalTransitions, existingNoiseEvents) {
         var isUsingTimestampNoise = isUsingTimestampNoise
             get() = isUsingNoise && field
         

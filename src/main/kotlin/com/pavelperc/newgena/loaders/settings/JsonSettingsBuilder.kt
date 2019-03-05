@@ -1,0 +1,218 @@
+package com.pavelperc.newgena.loaders.settings
+
+import org.processmining.models.GenerationDescription
+import org.processmining.models.descriptions.*
+import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
+import org.processmining.models.organizational_extension.Group
+import org.processmining.models.organizational_extension.Resource
+import org.processmining.models.organizational_extension.Role
+import org.processmining.models.time_driven_behavior.ResourceMapping
+
+@kotlin.ExperimentalUnsignedTypes
+class JsonSettingsBuilder(val petrinet: PetrinetGraph) {
+    
+    private val idsToTransitions = petrinet.transitions.map { it.id.toString() to it!! }.toMap()
+    
+    private fun String.toTrans() = idsToTransitions.getValue(this)
+    
+    
+    fun JsonSettings.build() {
+        val description: GenerationDescription
+        // where to put checkers???
+        // всё равно состояние настроек не будет до конца устойчивым...
+        // может сделать все чекеры на уровне интерфейса и билдера?
+        checkExclusive(isUsingTime to "isUsingTime", isUsingStaticPriorities to "isUsingStaticPriorities")
+        
+        
+        if (isUsingStaticPriorities) {
+            staticPriorities?.apply {
+                description = GenerationDescriptionWithStaticPriorities(
+                        maxPriority = maxPriority,
+                        numberOfLogs = numberOfLogs,
+                        numberOfTraces = numberOfTraces,
+                        maxNumberOfSteps = maxNumberOfSteps,
+                        isRemovingUnfinishedTraces = isRemovingUnfinishedTraces,
+                        isRemovingEmptyTraces = isRemovingEmptyTraces,
+                        priorities = transitionIdsToPriorities.mapKeys { it.key.toTrans() }
+                )
+            } ?: throw IllegalStateException("staticPriorities is null, but isUsingStaticPriorities is true.")
+        } else {
+            
+            val noiseDescriptionCreator: NoiseDescriptionCreator
+            if (isUsingNoise) {
+                noiseDescriptionCreator = noiseDescription?.build()
+                        ?: throw IllegalStateException("noiseDescription is null, but isUsingNoise is true.")
+            } else
+                noiseDescriptionCreator = { NoiseDescription() }
+            
+            if (isUsingTime) {
+                
+                timeDescription?.build(this)
+                        ?: throw IllegalStateException("timeDescription is null, but isUsingTime is true.")
+                
+            } else {
+                description = SimpleGenerationDescription(
+                        numberOfLogs = numberOfLogs,
+                        numberOfTraces = numberOfTraces,
+                        maxNumberOfSteps = maxNumberOfSteps,
+                        isUsingNoise = isUsingNoise,
+                        isRemovingUnfinishedTraces = isRemovingUnfinishedTraces,
+                        isRemovingEmptyTraces = isRemovingEmptyTraces,
+                        noiseDescriptionCreator = noiseDescriptionCreator
+                )
+            }
+        }
+    }
+    
+    private fun JsonTimeDescription.build(jsonSettings: JsonSettings): TimeDrivenGenerationDescription {
+        return jsonSettings.run {
+            
+            var simpleRes = listOf<Resource>()
+            var resGroups = listOf<Group>()
+            var resMapping = emptyMap<Any, ResourceMapping>()
+            if (isUsingResources) {
+                
+                simpleRes = simplifiedResources.map { it.buildSimplified() }
+                resGroups = resourceGroups.map { it.build() }
+                val complexRes = resGroups.flatMap { it.resources }
+                
+                val simpleResFromNames = simpleRes.map { it.name to it }.toMap()
+                val complexResFromFullNames = complexRes.map {
+                    JsonResources.ResourceMapping.FullResourceName(it.group?.name
+                            ?: "null", it.role?.name
+                            ?: "null", it.name) to it
+                }.toMap()
+                
+                resMapping = transitionIdsToResources
+                        .mapValues { (transId, mapping) ->
+                            if (mapping.fullResourceNames.size + mapping.simplifiedResourceNames.size < 1) {
+                                throw IllegalStateException("Error in transitionIdsToResources: Transition $transId should have at least one resource.")
+                            }
+                            ResourceMapping(
+                                    selectedSimplifiedResources = mapping.simplifiedResourceNames.map { simpleResFromNames.getValue(it) },
+                                    selectedResources = mapping.fullResourceNames.map { complexResFromFullNames.getValue(it) }
+                            )
+                        }
+                        .mapKeys { (transId, _) -> transId.toTrans() as Any }
+                
+            }
+            
+            
+            val timeNoiseDescriptionCreator: TimeNoiseDescriptionCreator
+            if (isUsingNoise) {
+                val commonNoise = noiseDescription?: throw IllegalStateException("noiseDescription is null, but isUsingNoise is true.")
+                val timeNoise = timeDrivenNoise ?: throw IllegalStateException("timeDrivenNoise is null, but isUsingNoise is true.")
+                
+                timeNoiseDescriptionCreator = timeNoise.build(commonNoise)
+            } else {
+                timeNoiseDescriptionCreator = { TimeNoiseDescription() }
+            }
+    
+            TimeDrivenGenerationDescription(
+                    numberOfLogs = numberOfLogs,
+                    numberOfTraces = numberOfLogs,
+                    maxNumberOfSteps = maxNumberOfSteps,
+                    isUsingNoise = isUsingNoise,
+                    isUsingResources = isUsingResources,
+                    isRemovingUnfinishedTraces = isRemovingUnfinishedTraces,
+                    isRemovingEmptyTraces = isRemovingEmptyTraces,
+                    isUsingComplexResourceSettings = isUsingComplexResourceSettings,
+                    isUsingSynchronizationOnResources = isUsingSynchronizationOnResources,
+                    minimumIntervalBetweenActions = minimumIntervalBetweenActions,
+                    maximumIntervalBetweenActions = maximumIntervalBetweenActions,
+                    isSeparatingStartAndFinish = isSeparatingStartAndFinish,
+                    simplifiedResources = simpleRes,
+                    isUsingTime = isUsingTime,
+                    time = transitionIdsToDelays.map { (id, delay) -> id.toTrans() to delay.toPair() }.toMap(),
+                    isUsingLifecycle = isUsingLifecycle,
+                    generationStart = generationStart,
+                    resourceMapping = resMapping,
+                    resourceGroups = resGroups,
+                    noiseDescriptionCreator = timeNoiseDescriptionCreator
+            )
+        }
+    }
+    
+    fun JsonSettings.Noise.build():
+            NoiseDescriptionCreator = {
+        NoiseDescription(
+                noisedLevel = noiseLevel,
+                isUsingExternalTransitions = isUsingExternalTransitions,
+                isUsingInternalTransitions = isUsingInternalTransitions,
+                isSkippingTransitions = isSkippingTransitions,
+                internalTransitions = internalTransitionIds.map { it.toTrans() },
+                existingNoiseEvents = existingNoiseEvents
+        )
+    }
+    
+    fun JsonTimeDescription.TimeDrivenNoise.build(noiseSettings: JsonSettings.Noise):
+            TimeNoiseDescriptionCreator {
+        return noiseSettings.run {
+            {
+                TimeNoiseDescription(
+                        isUsingTimestampNoise = isUsingTimestampNoise,
+                        isUsingLifecycleNoise = isUsingLifecycleNoise,
+                        isUsingTimeGranularity = isUsingTimeGranularity,
+                        maxTimestampDeviation = maxTimestampDeviationSeconds,
+                        granularityType = granularityType,
+                        
+                        noisedLevel = noiseLevel,
+                        isUsingExternalTransitions = isUsingExternalTransitions,
+                        isUsingInternalTransitions = isUsingInternalTransitions,
+                        isSkippingTransitions = isSkippingTransitions,
+                        internalTransitions = internalTransitionIds.map { it.toTrans() },
+                        existingNoiseEvents = existingNoiseEvents
+                )
+            }
+        }
+    }
+    
+    
+    private fun JsonResources.Resource.buildSimplified(): Resource {
+        return Resource(
+                name = name,
+                willBeFreed = willBeFreed,
+                minDelayBetweenActions = minDelayBetweenActionsMillis,
+                maxDelayBetweenActions = maxDelayBetweenActionsMillis,
+                group = null,
+                role = null
+        )
+    }
+    
+    private fun JsonResources.Group.build(): Group {
+        // we create roles and resources in special lambdas - creators,
+        // because all roles need groups, all resources need roles and groups and vice versa
+        
+        // oldRole, oldRes mean json role and res
+        return Group(name) { newGroup ->
+            roles.map { oldRole ->
+                Role(
+                        name = oldRole.name,
+                        group = newGroup
+                ) { _, newRole ->
+                    oldRole.resources.map { oldRes ->
+                        Resource(
+                                name = oldRes.name,
+                                willBeFreed = oldRes.willBeFreed,
+                                minDelayBetweenActions = oldRes.minDelayBetweenActionsMillis,
+                                maxDelayBetweenActions = oldRes.maxDelayBetweenActionsMillis,
+                                group = newGroup,
+                                role = newRole
+                        )
+                
+                    }
+                }
+            }
+        }
+    }
+    
+    fun checkExclusive(vararg paramToNames: Pair<Boolean, String>) {
+        paramToNames
+                .filter { it.first } // true params
+                .map { it.second } // select names
+                .apply {
+                    if (size > 1)
+                        throw IllegalStateException("Error in JsonSettings: Parameters ${joinToString(", ")} are exclusive.")
+                }
+    }
+}

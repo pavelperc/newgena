@@ -7,13 +7,13 @@ import com.pavelperc.newgena.utils.xlogutils.time
 import org.amshove.kluent.shouldBeIn
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
-import org.processmining.framework.util.Pair
 import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.Petrinet
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl
 import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.utils.TimeDrivenLoggingSingleton
+import java.time.*
 import java.util.*
 
 class PetrinetPriorityTimeDrivenTest : GraphvizDrawer(false) {
@@ -130,8 +130,9 @@ class PetrinetPriorityTimeDrivenTest : GraphvizDrawer(false) {
         // fails with npe without this line)
         TimeDrivenLoggingSingleton.init(description)
         
-        description.generationStart.set(2000, Calendar.DECEMBER, 1, 0, 0)
-        val startDate: Date = description.generationStart.time!!
+        description.generationStart = ZonedDateTime.of(2000, 12, 1, 0, 0, 0, 0, ZoneOffset.UTC).toInstant()
+//                set(2000, Calendar.DECEMBER, 1, 0, 0)
+        val startDate: Instant = description.generationStart
         
         
         // launching generator
@@ -152,7 +153,7 @@ class PetrinetPriorityTimeDrivenTest : GraphvizDrawer(false) {
                 val names = trace.map { event -> event.name }
                 val timestamps = trace.map { event -> event.time }
                 // diffs in seconds
-                val diffs = timestamps.map { date -> date.time - startDate.time }.map { it / 1000 }
+                val diffs = timestamps.map { date -> date.time - startDate.toEpochMilli() }.map { it / 1000 }
                 
                 println(names)
 //                println(timestamps)

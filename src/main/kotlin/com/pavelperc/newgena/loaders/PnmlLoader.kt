@@ -1,7 +1,6 @@
-package com.pavelperc.newgena.imports
+package com.pavelperc.newgena.loaders
 
 import org.processmining.models.connections.GraphLayoutConnection
-import org.processmining.models.graphbased.directed.petrinet.Petrinet
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetFactory
 import org.processmining.models.semantics.petrinet.Marking

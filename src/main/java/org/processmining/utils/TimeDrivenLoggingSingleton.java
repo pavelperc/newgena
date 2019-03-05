@@ -11,6 +11,7 @@ import org.processmining.models.time_driven_behavior.ResourceMapping;
 import org.processmining.models.organizational_extension.Resource;
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription;
 
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -195,11 +196,11 @@ public class TimeDrivenLoggingSingleton extends LoggingSingleton
 
         long resultedTimestamp = originalTimestamp + deviation;
 
-        Date generationStartTime = description.getGenerationStart().getTime();
+        Instant generationStartTime = description.getGenerationStart();
 
-        if (resultedTimestamp < generationStartTime.getTime())
+        if (resultedTimestamp < generationStartTime.toEpochMilli())
         {
-            resultedTimestamp = generationStartTime.getTime();
+            resultedTimestamp = generationStartTime.toEpochMilli();
         }
         return resultedTimestamp;
     }

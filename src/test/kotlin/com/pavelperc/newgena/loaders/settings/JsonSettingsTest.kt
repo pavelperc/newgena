@@ -1,23 +1,15 @@
-package com.pavelperc.newgena.imports.settings
+package com.pavelperc.newgena.loaders.settings
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.Test
-import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
-import org.processmining.models.descriptions.SimpleGenerationDescription
-import org.processmining.models.descriptions.TimeDrivenGenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.impl.ResetInhibitorNetImpl
 
 @kotlin.ExperimentalUnsignedTypes
-class SettingsTest {
+class JsonSettingsTest {
     
-    private fun Any.toJson(): String {
-        val mapper = ObjectMapper()
-        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this)
-    }
     
     
     @Test
-    fun `save settings to json`() {
+    fun `save and load json settings`() {
         val petrinet = ResetInhibitorNetImpl("simplePetriNet")
     
         val a = petrinet.addTransition("A")
@@ -43,16 +35,13 @@ class SettingsTest {
         // p1 -> A -> p2 -> C -> p3 -> D -> p4
         
         
-        val settings = Settings()
+        val settings = JsonSettings()
         
         settings.marking.initialPlaceIds = mutableListOf("p1", "p2", "p3")
         settings.marking.finalPlaceIds = mutableListOf("p4")
         
         
-        
-        println("simple: " + settings.toJson())
-        
-        settings.staticPriorities = Settings.StaticPriorities().apply {
+        settings.staticPriorities = JsonSettings.StaticPriorities().apply {
             this.maxPriority = 10
             this.transitionIdsToPriorities = mutableMapOf(
                     a.id.toString() to 1,
@@ -61,12 +50,16 @@ class SettingsTest {
                     d.id.toString() to 4
             )
         }
-        println("\n\nstatic priorities: " + settings.toJson())
-        
-//        settings.generationDescription = TimeDrivenGenerationDescription()
-//        println("\n\ntime driven: " + settings.toJson())
         
         
+        settings.isUsingNoise = false
+        settings.isUsingTime = true
         
+//        settings.timeDescription?.timeDrivenNoise = null
+        
+        var json = settings.toJson()
+        json = JsonSettings.fromJson(json).toJson()
+        
+        println("time driven:\n$json")
     }
 }

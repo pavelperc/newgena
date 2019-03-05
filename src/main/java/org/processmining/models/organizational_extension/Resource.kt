@@ -1,5 +1,6 @@
 package org.processmining.models.organizational_extension
 
+import java.lang.IllegalStateException
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 import kotlin.random.nextLong
@@ -10,7 +11,7 @@ import kotlin.random.nextULong
  * Created on 02.04.2014
  */
 //@kotlin.ExperimentalUnsignedTypes
-class Resource(
+class Resource constructor(
         var name: String,
         willBeFreed: Long = 0L,
         var minDelayBetweenActions: Long = DEFAULT_MIN_DELAY_BETWEEN_ACTIONS,
@@ -20,6 +21,10 @@ class Resource(
 ) : Comparable<Resource>        //TODO неправильно рабоатет с одинаковыми именами ресурсов
 {
     init {
+        if ((role == null) xor (group == null))
+            throw IllegalArgumentException("Error in Resource.init(): role and group should be both null or not.")
+        
+        
         if (role?.group != group) {
             throw IllegalArgumentException("Precondition violated in Resource.init(). Incorrect role")
         }
@@ -30,7 +35,7 @@ class Resource(
     }
     
     var willBeFreed = willBeFreed
-    private set
+        private set
     
     var isIdle = true
     
@@ -43,16 +48,16 @@ class Resource(
         }
     }
     
-    fun relocate(newGroup: Group, newRole: Role) {
-        // TODO: logic?
-        if (newGroup != newRole.group) {
-            group?.removeResource(this)
-        }
-        group = newGroup
-        role?.resources?.remove(this)
-        role = newRole
-        newRole.resources.add(this)
-    }
+//    fun relocate(newGroup: Group, newRole: Role) {
+//        // TODO: logic?
+//        if (newGroup != newRole.group) {
+//            group?.removeResource(this)
+//        }
+//        group = newGroup
+//        role?.resources?.remove(this)
+//        role = newRole
+//        newRole.resources.add(this)
+//    }
     
     private fun addDelay() {
         willBeFreed += Random.nextLong(minDelayBetweenActions..maxDelayBetweenActions)
@@ -62,9 +67,9 @@ class Resource(
     
     override fun compareTo(other: Resource) = this.name.compareTo(other.name)
     
-    fun removeResource() {
-        group?.removeResource(this)
-    }
+//    fun removeResource() {
+//        group?.removeResource(this)
+//    }
     
     fun setDelayBetweenActions(minDelay: Long, maxDelay: Long) {
         minDelayBetweenActions = minDelay

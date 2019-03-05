@@ -1,4 +1,4 @@
-package com.pavelperc.newgena.imports
+package com.pavelperc.newgena.loaders
 
 import com.pavelperc.newgena.graphviz.toGraphviz
 import com.pavelperc.newgena.testutils.GraphvizDrawer
