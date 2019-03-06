@@ -6,17 +6,31 @@ import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
 import org.processmining.models.organizational_extension.Group
 import org.processmining.models.organizational_extension.Resource
 import org.processmining.models.organizational_extension.Role
+import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.models.time_driven_behavior.ResourceMapping
 
-@kotlin.ExperimentalUnsignedTypes
-class JsonSettingsBuilder(val petrinet: PetrinetGraph) {
+class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSettings) {
     
-    private val idsToTransitions = petrinet.transitions.map { it.id.toString() to it!! }.toMap()
+    private val idsToTransitions = petrinet.transitions.map { it.label.toString() to it!! }.toMap()
     
     private fun String.toTrans() = idsToTransitions.getValue(this)
     
     
-    fun JsonSettings.build() {
+    fun buildDescription() = jsonSettings.build()
+    
+    fun buildMarking(): Pair<Marking, Marking> {
+        return jsonSettings.marking.run {
+    
+            val idsToPlaces = petrinet.places.map { it.label.toString() to it!! }.toMap()
+            
+            val initialMarking = initialPlaceIds.map { idsToPlaces.getValue(it) }
+            val finalMarking = finalPlaceIds.map { idsToPlaces.getValue(it) }
+            
+            Marking(initialMarking) to Marking(finalMarking)
+        }
+    }
+    
+    private fun JsonSettings.build(): GenerationDescription {
         val description: GenerationDescription
         // where to put checkers???
         // всё равно состояние настроек не будет до конца устойчивым...
@@ -25,8 +39,8 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph) {
         
         
         if (isUsingStaticPriorities) {
-            staticPriorities?.apply {
-                description = GenerationDescriptionWithStaticPriorities(
+            description = staticPriorities?.run {
+                GenerationDescriptionWithStaticPriorities(
                         maxPriority = maxPriority,
                         numberOfLogs = numberOfLogs,
                         numberOfTraces = numberOfTraces,
@@ -47,7 +61,7 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph) {
             
             if (isUsingTime) {
                 
-                timeDescription?.build(this)
+                description = timeDescription?.build(this)
                         ?: throw IllegalStateException("timeDescription is null, but isUsingTime is true.")
                 
             } else {
@@ -62,6 +76,7 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph) {
                 )
             }
         }
+        return description
     }
     
     private fun JsonTimeDescription.build(jsonSettings: JsonSettings): TimeDrivenGenerationDescription {
@@ -104,14 +119,16 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph) {
             
             val timeNoiseDescriptionCreator: TimeNoiseDescriptionCreator
             if (isUsingNoise) {
-                val commonNoise = noiseDescription?: throw IllegalStateException("noiseDescription is null, but isUsingNoise is true.")
-                val timeNoise = timeDrivenNoise ?: throw IllegalStateException("timeDrivenNoise is null, but isUsingNoise is true.")
+                val commonNoise = noiseDescription
+                        ?: throw IllegalStateException("noiseDescription is null, but isUsingNoise is true.")
+                val timeNoise = timeDrivenNoise
+                        ?: throw IllegalStateException("timeDrivenNoise is null, but isUsingNoise is true.")
                 
                 timeNoiseDescriptionCreator = timeNoise.build(commonNoise)
             } else {
                 timeNoiseDescriptionCreator = { TimeNoiseDescription() }
             }
-    
+            
             TimeDrivenGenerationDescription(
                     numberOfLogs = numberOfLogs,
                     numberOfTraces = numberOfLogs,
@@ -137,7 +154,7 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph) {
         }
     }
     
-    fun JsonSettings.Noise.build():
+    private fun JsonNoise.build():
             NoiseDescriptionCreator = {
         NoiseDescription(
                 noisedLevel = noiseLevel,
@@ -149,7 +166,7 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph) {
         )
     }
     
-    fun JsonTimeDescription.TimeDrivenNoise.build(noiseSettings: JsonSettings.Noise):
+    private fun JsonTimeDrivenNoise.build(noiseSettings: JsonNoise):
             TimeNoiseDescriptionCreator {
         return noiseSettings.run {
             {
@@ -203,14 +220,14 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph) {
                                 group = newGroup,
                                 role = newRole
                         )
-                
+                        
                     }
                 }
             }
         }
     }
     
-    fun checkExclusive(vararg paramToNames: Pair<Boolean, String>) {
+    private fun checkExclusive(vararg paramToNames: Pair<Boolean, String>) {
         paramToNames
                 .filter { it.first } // true params
                 .map { it.second } // select names

@@ -20,7 +20,7 @@
 //import org.processmining.models.organizational_extension.Group;
 //import org.processmining.models.organizational_extension.Resource;
 //import org.processmining.models.organizational_extension.Role;
-//import org.processmining.models.semantics.petrinet.Marking;
+//import org.processmining.models.semantics.petrinet.JsonMarking;
 //import org.processmining.models.time_driven_behavior.GranularityTypes;
 //import org.processmining.models.time_driven_behavior.NoiseEvent;
 //import org.processmining.models.time_driven_behavior.ResourceMapping;
@@ -52,7 +52,7 @@
 //            (
 //                    name = "GENA: Time-Driven log generator",
 //                    returnLabels = {"Event log array", "Initial marking", "Final marking", "Generation description"},
-//                    returnTypes = {org.processmining.log.models.EventLogArray.class, Marking.class, Marking.class, GenerationDescription.class},
+//                    returnTypes = {org.processmining.log.models.EventLogArray.class, JsonMarking.class, JsonMarking.class, GenerationDescription.class},
 //                    parameterLabels = {"Petri net"}
 //            )
 //    @UITopiaVariant

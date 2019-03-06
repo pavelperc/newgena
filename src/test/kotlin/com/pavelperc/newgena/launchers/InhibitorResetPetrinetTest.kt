@@ -91,7 +91,7 @@ class InhibitorResetPetrinetTest : GraphvizDrawer(false) {
         )
         
         
-        val logArray = PetrinetGenerators.generateInhibitorReset(petrinet, initialMarking, finalMarking, description)
+        val logArray = PetrinetGenerators.generateSimple(petrinet, initialMarking, finalMarking, description)
         println(logArray.eventNames())
         
         logArray.eventNames()
@@ -134,7 +134,7 @@ class InhibitorResetPetrinetTest : GraphvizDrawer(false) {
         )
         
         
-        val logArray = PetrinetGenerators.generateInhibitorReset(petrinet, initialMarking, finalMarking, description)
+        val logArray = PetrinetGenerators.generateSimple(petrinet, initialMarking, finalMarking, description)
         println(logArray.eventNames())
         
         logArray.eventNames()

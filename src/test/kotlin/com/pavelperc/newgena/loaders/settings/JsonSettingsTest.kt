@@ -41,7 +41,7 @@ class JsonSettingsTest {
         settings.marking.finalPlaceIds = mutableListOf("p4")
         
         
-        settings.staticPriorities = JsonSettings.StaticPriorities().apply {
+        settings.staticPriorities!!.apply {
             this.maxPriority = 10
             this.transitionIdsToPriorities = mutableMapOf(
                     a.id.toString() to 1,

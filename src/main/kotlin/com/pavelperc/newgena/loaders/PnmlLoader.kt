@@ -62,8 +62,6 @@ object PnmlLoader {
     data class PetrinetWithSettings(
             val petrinet: PetrinetGraph,
             val marking: Marking
-    ) {
-        
-    }
+    )
 
 }

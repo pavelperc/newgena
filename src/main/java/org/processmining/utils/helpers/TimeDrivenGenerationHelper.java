@@ -5,6 +5,7 @@ import org.processmining.models.abstract_net_representation.Transition;
 import org.processmining.models.graphbased.NodeID;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetEdge;
+import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
 import org.processmining.models.organizational_extension.Group;
 import org.processmining.models.organizational_extension.Resource;
@@ -32,7 +33,7 @@ public class TimeDrivenGenerationHelper extends PetriNetGenerationHelper<TimeDri
         generationStart = startCalendar.toEpochMilli();
     }
 
-    public static TimeDrivenGenerationHelper createInstance(Petrinet petrinet, Marking initialMarking, Marking finalMarking, TimeDrivenGenerationDescription description)
+    public static TimeDrivenGenerationHelper createInstance(PetrinetGraph petrinet, Marking initialMarking, Marking finalMarking, TimeDrivenGenerationDescription description)
     {
         checkConstructorParameters(petrinet, initialMarking, finalMarking, description);
 
@@ -92,7 +93,7 @@ public class TimeDrivenGenerationHelper extends PetriNetGenerationHelper<TimeDri
         return new TimeDrivenGenerationHelper(initialPlaces, finalPlaces, allPlaces, allTransitions, description);
     }
 
-    private static void checkConstructorParameters(Petrinet petrinet, Marking initialMarking, Marking finalMarking, TimeDrivenGenerationDescription description)
+    private static void checkConstructorParameters(PetrinetGraph petrinet, Marking initialMarking, Marking finalMarking, TimeDrivenGenerationDescription description)
     {
         if (petrinet == null)
         {

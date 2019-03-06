@@ -18,7 +18,7 @@
 //import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 //import org.processmining.models.jgraph.ProMJGraphVisualizer;
 //import org.processmining.models.jgraph.visualization.ProMJGraphPanel;
-//import org.processmining.models.semantics.petrinet.Marking;
+//import org.processmining.models.semantics.petrinet.JsonMarking;
 //import org.processmining.models.time_driven_behavior.NoiseEvent;
 //import org.processmining.utils.helpers.SimpleGenerationHelper;
 //import ru.hse.pais.shugurov.widgets.panels.MultipleChoicePanel;
@@ -38,7 +38,7 @@
 //            (
 //                    name = "GENA: Simple log generator",
 //                    returnLabels = {"Event log array", "Initial marking", "Final marking", "Generation description"},
-//                    returnTypes = {EventLogArray.class, Marking.class, Marking.class, GenerationDescription.class},
+//                    returnTypes = {EventLogArray.class, JsonMarking.class, JsonMarking.class, GenerationDescription.class},
 //                    parameterLabels = "Petri net"
 //            )
 //    @UITopiaVariant
@@ -86,7 +86,7 @@
 //                    screenNumber--;
 //                    break;
 //                case CANCEL:
-//                    return new Object[]{EventLogArrayFactory.createEventLogArray(), new Marking(), new Marking(), null};
+//                    return new Object[]{EventLogArrayFactory.createEventLogArray(), new JsonMarking(), new JsonMarking(), null};
 //                case FINISHED:
 //                    Object[] results = generate();
 //                    EventLogArray logArray = (EventLogArray) results[0];

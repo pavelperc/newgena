@@ -5,9 +5,7 @@ import org.processmining.models.GenerationDescription
 import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription
-import org.processmining.models.graphbased.directed.petrinet.Petrinet
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
-import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.utils.Generator
 import org.processmining.utils.ProgressBarCallback
@@ -29,15 +27,6 @@ object PetrinetGenerators {
     }
     
     
-    fun generateInhibitorReset(
-            petrinet: ResetInhibitorNet,
-            initialMarking: Marking,
-            finalMarking: Marking,
-            description: SimpleGenerationDescription,
-            callback: ProgressBarCallback = emptyCallback
-    ) = generateSimple(petrinet, initialMarking, finalMarking, description, callback)
-    
-    
     fun generateWithPriorities(
             petrinet: PetrinetGraph,
             initialMarking: Marking,
@@ -51,7 +40,7 @@ object PetrinetGenerators {
     
     
     fun generateWithTime(
-            petrinet: Petrinet,
+            petrinet: PetrinetGraph,
             initialMarking: Marking,
             finalMarking: Marking,
             description: TimeDrivenGenerationDescription,

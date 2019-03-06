@@ -152,8 +152,8 @@ class SimplePetrinetTests : GraphvizDrawer(false) {
         //     |
         //    p3
         val initialMarking = Marking(listOf(p0, p0))
-//        val initialMarking = Marking(listOf(p0, p2))
-//        val finalMarking = Marking(listOf(p1, p2)) // ???? why the result is empty
+//        val initialMarking = JsonMarking(listOf(p0, p2))
+//        val finalMarking = JsonMarking(listOf(p1, p2)) // ???? why the result is empty
         val finalMarking = Marking(listOf(p3))
         
         forDrawing += petrinet.toGraphviz(initialMarking, "has no traces") to "conjunction/1.svg"
