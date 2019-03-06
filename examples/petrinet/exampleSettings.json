@@ -4,6 +4,12 @@
     "initialPlaceIds" : [ "p1", "p2", "p3" ],
     "finalPlaceIds" : [ "p4" ]
   },
+  "isRemovingEmptyTraces" : true,
+  "isRemovingUnfinishedTraces" : true,
+  "isUsingNoise" : false,
+  "isUsingStaticPriorities" : false,
+  "isUsingTime" : true,
+  "maxNumberOfSteps" : 100,
   "noiseDescription" : {
     "internalTransitionIds" : [ ],
     "existingNoiseEvents" : [ {
@@ -11,25 +17,27 @@
       "executionTimeSeconds" : 600,
       "maxTimeDeviationSeconds" : 120
     } ],
+    "noiseLevel" : 5,
     "isUsingExternalTransitions" : true,
     "isSkippingTransitions" : true,
-    "isUsingInternalTransitions" : true,
-    "noiseLevel" : 5
+    "isUsingInternalTransitions" : true
   },
+  "numberOfLogs" : 5,
+  "numberOfTraces" : 10,
   "staticPriorities" : {
     "maxPriority" : 10,
     "transitionIdsToPriorities" : {
-      "node 625379eb-f610-41d9-9411-bf36743925d1" : 1,
-      "node 227bcf4f-2a7f-42c9-9985-11bd3238f7a0" : 2,
-      "node 666f3ffe-32cd-45cc-8863-9c9f2cfe536f" : 3,
-      "node da505c67-6bd7-4087-98f9-ab6275e76222" : 4
+      "node 2fcd3a6b-2578-4fd2-963b-76f30fd0ad4a" : 1,
+      "node 76dd4c7d-909b-4976-995e-6de17fca5719" : 2,
+      "node 48847d97-99ac-4891-b5f0-16829ab4f2c1" : 3,
+      "node 69bd38c8-a4a6-47a9-8305-7b5baa94c970" : 4
     }
   },
   "timeDescription" : {
     "simplifiedResources" : [ ],
     "resourceGroups" : [ ],
     "transitionIdsToDelays" : { },
-    "generationStart" : "2019-03-05T23:17:27.691Z",
+    "generationStart" : "2019-03-06T11:52:33.866Z",
     "transitionIdsToResources" : { },
     "timeDrivenNoise" : {
       "maxTimestampDeviationSeconds" : 0,
@@ -38,20 +46,12 @@
       "isUsingLifecycleNoise" : true,
       "isUsingTimeGranularity" : true
     },
+    "isUsingSynchronizationOnResources" : true,
     "isUsingResources" : false,
-    "isUsingComplexResourceSettings" : true,
-    "minimumIntervalBetweenActions" : 10,
     "isUsingLifecycle" : false,
+    "minimumIntervalBetweenActions" : 10,
     "maximumIntervalBetweenActions" : 20,
-    "isSeparatingStartAndFinish" : true,
-    "isUsingSynchronizationOnResources" : true
-  },
-  "isUsingTime" : true,
-  "isUsingNoise" : false,
-  "numberOfLogs" : 5,
-  "isRemovingUnfinishedTraces" : true,
-  "isUsingStaticPriorities" : false,
-  "numberOfTraces" : 10,
-  "maxNumberOfSteps" : 100,
-  "isRemovingEmptyTraces" : true
+    "isUsingComplexResourceSettings" : true,
+    "isSeparatingStartAndFinish" : true
+  }
 }

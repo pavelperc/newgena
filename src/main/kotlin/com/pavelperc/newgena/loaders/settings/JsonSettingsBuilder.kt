@@ -67,7 +67,7 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph) {
     private fun JsonTimeDescription.build(jsonSettings: JsonSettings): TimeDrivenGenerationDescription {
         return jsonSettings.run {
             
-            var simpleRes = listOf<Resource>()
+            var simpleRes = listOf<Resource>() // without groups and roles
             var resGroups = listOf<Group>()
             var resMapping = emptyMap<Any, ResourceMapping>()
             if (isUsingResources) {
@@ -94,6 +94,10 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph) {
                             )
                         }
                         .mapKeys { (transId, _) -> transId.toTrans() as Any }
+                
+                if (resMapping.size != petrinet.transitions.size) {
+                    throw IllegalStateException("transitionIdsToResources mapping should be specified for each transition.")
+                }
                 
             }
             

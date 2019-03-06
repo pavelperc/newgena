@@ -1,5 +1,6 @@
 package com.pavelperc.newgena.loaders.settings
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -22,6 +23,7 @@ import java.util.*
  * Should be json serializable, all properties are mutable.
  * This class is not used during generation, but can be converted in [GenerationDescription] class via [JsonSettingsBuilder].
  */
+@JsonPropertyOrder(value = ["petrinetFile", "marking"], alphabetic = true)
 class JsonSettings {
     class Marking {
         var initialPlaceIds = mutableListOf<String>()

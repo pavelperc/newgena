@@ -1,5 +1,6 @@
 package com.pavelperc.newgena.loaders.settings
 
+import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -12,6 +13,9 @@ val mapper: ObjectMapper = ObjectMapper().also { mapper ->
     // loading java8 time support
     mapper.findAndRegisterModules()
     mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+    
+    // sort alphabetically
+//    mapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
     
     // fixing boolean properties
     // all boolean properties now should start from with.
@@ -28,9 +32,9 @@ val mapper: ObjectMapper = ObjectMapper().also { mapper ->
         
         override fun nameForSetterMethod(config: MapperConfig<*>, method: AnnotatedMethod, defaultName: String): String {
 //            print("setter method: ${method.name}")
-            return if (method.parameterCount == 1 
-                            && method.name.startsWith("set") 
-                            && (method.getRawParameterType(0) == Boolean::class.java 
+            return if (method.parameterCount == 1
+                    && method.name.startsWith("set")
+                    && (method.getRawParameterType(0) == Boolean::class.java
                             || method.getRawParameterType(0) == Boolean::class.javaPrimitiveType)) {
                 ("is" + method.name.substring(3)) // .also { println(" -> $it") }
             } else super.nameForSetterMethod(config, method, defaultName) // .also { println(" -> $it") }
