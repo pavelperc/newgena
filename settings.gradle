@@ -1,2 +1,3 @@
 rootProject.name = 'newgena'
 
+include 'console', 'interface'

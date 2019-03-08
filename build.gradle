@@ -13,46 +13,16 @@ buildscript {
 apply plugin: 'kotlin'
 apply plugin: 'idea'
 
-group 'com.pavelperc'
+//group 'com.pavelperc'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:"
-    compile "org.jetbrains.kotlin:kotlin-reflect:"
-
-//    compile files('libs/GENA.jar')
-    implementation fileTree(dir: 'libs/packagelib', include: ['*.jar'])
-    implementation fileTree(dir: 'libs/packagelib/lib', include: ['*.jar'])
-    implementation fileTree(dir: 'libs/packagelib/ProM68_dist', include: ['*.jar'])
-    implementation fileTree(dir: 'libs/packagelib/ProM68_lib', include: ['*.jar'])
-    
-    implementation 'net.sourceforge.javacsv:javacsv:2.0'
-    
-    // graphviz
-    implementation "ch.qos.logback:logback-classic:1.2.3"
-//    implementation "org.apache.logging.log4j:log4j-core:2.11.1"
-//    implementation "org.apache.logging.log4j:log4j-slf4j-impl:2.11.1"
-    implementation "guru.nidi:graphviz-kotlin:0.7.0"
-    
-    // tests
-    testImplementation 'junit:junit:4.12'
-//    testImplementation('org.junit.jupiter:junit-jupiter-api:5.2.0')
-//    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.2.0')
-    testImplementation 'org.amshove.kluent:kluent:1.48'
-    
-    // json parser
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8'
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.8"
-//    implementation 'com.google.code.gson:gson:2.8.5'
-//    implementation 'com.beust:klaxon:5.0.1'
 }
 
 

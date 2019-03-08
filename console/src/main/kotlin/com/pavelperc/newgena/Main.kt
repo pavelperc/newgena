@@ -5,6 +5,7 @@ import com.pavelperc.newgena.loaders.PnmlLoader
 import com.pavelperc.newgena.loaders.settings.JsonSettings
 import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
 import com.pavelperc.newgena.loaders.settings.fromJson
+import com.pavelperc.newgena.loaders.settings.mapper
 import org.deckfour.xes.out.XesXmlSerializer
 import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
 import org.processmining.models.descriptions.SimpleGenerationDescription
@@ -15,6 +16,7 @@ fun main(args: Array<String>) {
     
     println("Hello world!!")
     println("Look at tests!")
+    println("Working directory: ${System.getProperty("user.dir")}")
     println("Loading settings")
     
     val settingsFilePath =

@@ -1,8 +1,8 @@
 .idea/
 .gradle/
 out/
-libs/
-!libs/readme.txt
+console/libs/
+!console/libs/readme.txt
 gv/
 
 examples/petrinet/*.exe

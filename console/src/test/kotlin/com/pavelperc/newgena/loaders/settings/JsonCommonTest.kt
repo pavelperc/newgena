@@ -39,7 +39,6 @@ class JsonCommonTest {
     
     }
     
-    
     @Test
     fun deserialize() {
         
