@@ -15,8 +15,8 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compile "org.jetbrains.kotlin:kotlin-reflect:"
-
+    compile "org.jetbrains.kotlin:kotlin-reflect"
+    
 //    compile files('libs/GENA.jar')
     implementation fileTree(dir: 'libs/packagelib', include: ['*.jar'])
     implementation fileTree(dir: 'libs/packagelib/lib', include: ['*.jar'])
@@ -33,9 +33,9 @@ dependencies {
 
     // tests
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.amshove.kluent:kluent:1.48'
 //    testImplementation('org.junit.jupiter:junit-jupiter-api:5.2.0')
 //    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.2.0')
-    testImplementation 'org.amshove.kluent:kluent:1.48'
 
     // json parser
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
