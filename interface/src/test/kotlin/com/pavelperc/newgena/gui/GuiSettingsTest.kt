@@ -2,9 +2,14 @@ package com.pavelperc.newgena.gui
 
 import com.pavelperc.newgena.gui.customfields.myIntField
 import com.pavelperc.newgena.gui.customfields.myStringField
+import com.pavelperc.newgena.models.markInhResetArcsByIds
 import com.pavelperc.newgena.utils.propertyinitializers.NonNegativeInt
 import javafx.util.StringConverter
 import org.junit.Test
+import org.processmining.models.graphbased.directed.petrinet.PetrinetEdge
+import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
+import org.processmining.models.graphbased.directed.petrinet.elements.Place
+import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import tornadofx.*
 
 class GuiSettingsTest : App(UISettings::class) {

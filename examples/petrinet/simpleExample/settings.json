@@ -1,11 +1,13 @@
 {
-  "petrinetFile" : "examples/petrinet/simpleExample/simple.pnml",
   "outputFolder" : "xes-out/simple",
-//  "marking": null,
-  "marking" : {
-    "initialPlaceIds" : [ "place1", "place2"],
-    "finalPlaceIds" : [ "place4", "place4" ],
-    "isUsingInitialMarkingFromPnml": false
+  //  "marking": null,
+  "petrinet" : {
+    "marking" : {
+      "initialPlaceIds" : [ "place1", "place2"],
+      "finalPlaceIds" : [ "place4", "place4" ],
+      "isUsingInitialMarkingFromPnml": false
+    },
+    "petrinetFile" : "examples/petrinet/simpleExample/simple.pnml"
   },
   "isRemovingEmptyTraces" : true,
   "isRemovingUnfinishedTraces" : true,

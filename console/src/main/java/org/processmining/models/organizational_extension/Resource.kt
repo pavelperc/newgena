@@ -10,7 +10,6 @@ import kotlin.random.nextULong
  * @author Ivan Shugurov
  * Created on 02.04.2014
  */
-//@kotlin.ExperimentalUnsignedTypes
 class Resource constructor(
         var name: String,
         willBeFreed: Long = 0L,

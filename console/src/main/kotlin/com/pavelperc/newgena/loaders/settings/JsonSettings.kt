@@ -10,14 +10,13 @@ import org.processmining.models.GenerationDescription
 import org.processmining.models.time_driven_behavior.GranularityTypes
 import org.processmining.models.time_driven_behavior.NoiseEvent
 import java.time.Instant
-import java.util.*
 
 /** Json representation of all generation settings.
  * Represents all adjustable(!) parameters.
  * Should be json serializable, all properties are mutable.
  * This class is not used during generation, but can be converted in [GenerationDescription] class via [JsonSettingsBuilder].
  */
-@JsonPropertyOrder(value = ["petrinetFile", "marking", "outputFolder"], alphabetic = true)
+@JsonPropertyOrder(value = ["petrinetSetup", "outputFolder"], alphabetic = true)
 class JsonSettings() {
     
     // JsonCreator constructors are made for Jackson to throw exceptions if one of json fields is missing.
@@ -28,9 +27,8 @@ class JsonSettings() {
     // Also in primary constructor there will be problems with delegated properties. Which are luckily work well with jackson.
     @JsonCreator
     constructor(
-            petrinetFile: String,
             outputFolder: String,
-            marking: JsonMarking,
+            petrinetSetup: JsonPetrinet,
             numberOfLogs: Int,
             numberOfTraces: Int,
             maxNumberOfSteps: Int,
@@ -43,9 +41,8 @@ class JsonSettings() {
             isUsingTime: Boolean,
             timeDescription: JsonTimeDescription?
     ) : this() {
-        this.petrinetFile = petrinetFile
         this.outputFolder = outputFolder
-        this.marking = marking
+        this.petrinetSetup = petrinetSetup
         this.numberOfLogs = numberOfLogs
         this.numberOfTraces = numberOfTraces
         this.maxNumberOfSteps = maxNumberOfSteps
@@ -59,11 +56,11 @@ class JsonSettings() {
         this.timeDescription = timeDescription
     }
 // ----------------------------- VARIABLES: ---------------------------
-    
-    var petrinetFile = "petrinet.pnml"
     var outputFolder = "xes-out"
     
-    var marking = JsonMarking()
+    
+    var petrinetSetup = JsonPetrinet()
+    
     var numberOfLogs by NonNegativeInt(5)
     var numberOfTraces by NonNegativeInt(10)
     
@@ -100,6 +97,28 @@ class JsonMarking() {
     var finalPlaceIds = mutableListOf<String>()
     
     var isUsingInitialMarkingFromPnml = false
+}
+
+@JsonPropertyOrder(value = ["petrinetFile"], alphabetic = true)
+class JsonPetrinet() {
+    
+    @JsonCreator
+    constructor(
+            petrinetFile: String,
+            marking: JsonMarking,
+            inhibitorArcIds: MutableList<String>?=null,
+            resetArcIds: MutableList<String>?=null
+    ) : this() {
+        this.marking = marking
+        this.inhibitorArcIds = inhibitorArcIds
+        this.resetArcIds = resetArcIds
+        this.petrinetFile = petrinetFile
+    }
+    
+    var petrinetFile = "petrinet.pnml"
+    var marking = JsonMarking()
+    var inhibitorArcIds: MutableList<String>? = mutableListOf()
+    var resetArcIds: MutableList<String>? = mutableListOf()
 }
 
 

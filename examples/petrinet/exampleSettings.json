@@ -1,9 +1,15 @@
 {
-  "petrinetFile" : "petrinet.pnml",
-  "marking" : {
-    "initialPlaceIds" : [ "p1", "p2", "p3" ],
-    "finalPlaceIds" : [ "p4" ]
+  "petrinetSetup" : {
+    "petrinetFile" : "petrinet.pnml",
+    "inhibitorArcIds" : [ ],
+    "marking" : {
+      "initialPlaceIds" : [ "p1", "p2", "p3" ],
+      "finalPlaceIds" : [ "p4" ],
+      "isUsingInitialMarkingFromPnml" : false
+    },
+    "resetArcIds" : [ ]
   },
+  "outputFolder" : "xes-out",
   "isRemovingEmptyTraces" : true,
   "isRemovingUnfinishedTraces" : true,
   "isUsingNoise" : false,
@@ -11,47 +17,47 @@
   "isUsingTime" : true,
   "maxNumberOfSteps" : 100,
   "noiseDescription" : {
+    "noiseLevel" : 5,
+    "isSkippingTransitions" : true,
+    "isUsingExternalTransitions" : true,
+    "isUsingInternalTransitions" : true,
     "internalTransitionIds" : [ ],
     "existingNoiseEvents" : [ {
       "activity" : "NoiseEvent",
       "executionTimeSeconds" : 600,
       "maxTimeDeviationSeconds" : 120
-    } ],
-    "noiseLevel" : 5,
-    "isUsingExternalTransitions" : true,
-    "isSkippingTransitions" : true,
-    "isUsingInternalTransitions" : true
+    } ]
   },
   "numberOfLogs" : 5,
   "numberOfTraces" : 10,
   "staticPriorities" : {
     "maxPriority" : 10,
     "transitionIdsToPriorities" : {
-      "node 2fcd3a6b-2578-4fd2-963b-76f30fd0ad4a" : 1,
-      "node 76dd4c7d-909b-4976-995e-6de17fca5719" : 2,
-      "node 48847d97-99ac-4891-b5f0-16829ab4f2c1" : 3,
-      "node 69bd38c8-a4a6-47a9-8305-7b5baa94c970" : 4
+      "A" : 1,
+      "B" : 2,
+      "C" : 3,
+      "D" : 4
     }
   },
   "timeDescription" : {
     "simplifiedResources" : [ ],
     "resourceGroups" : [ ],
     "transitionIdsToDelays" : { },
-    "generationStart" : "2019-03-06T11:52:33.866Z",
+    "generationStart" : "2019-03-13T19:40:27.815Z",
     "transitionIdsToResources" : { },
     "timeDrivenNoise" : {
-      "maxTimestampDeviationSeconds" : 0,
-      "granularityType" : "MINUTES_5",
       "isUsingTimestampNoise" : true,
       "isUsingLifecycleNoise" : true,
-      "isUsingTimeGranularity" : true
+      "isUsingTimeGranularity" : true,
+      "maxTimestampDeviationSeconds" : 0,
+      "granularityType" : "MINUTES_5"
     },
-    "isUsingSynchronizationOnResources" : true,
-    "isUsingResources" : false,
     "isUsingLifecycle" : false,
-    "minimumIntervalBetweenActions" : 10,
-    "maximumIntervalBetweenActions" : 20,
+    "isUsingResources" : false,
     "isUsingComplexResourceSettings" : true,
-    "isSeparatingStartAndFinish" : true
+    "isUsingSynchronizationOnResources" : true,
+    "isSeparatingStartAndFinish" : true,
+    "minimumIntervalBetweenActions" : 10,
+    "maximumIntervalBetweenActions" : 20
   }
 }

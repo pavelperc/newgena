@@ -2,6 +2,7 @@ package com.pavelperc.newgena.loaders
 
 import org.processmining.models.connections.GraphLayoutConnection
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
+import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetFactory
 import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.plugins.pnml.Pnml
@@ -17,13 +18,14 @@ object PnmlLoader {
     
         val factory = XmlPullParserFactory.newInstance()
         factory.isNamespaceAware = true
+        
         val xpp = factory.newPullParser()
         
         val inputStream = FileInputStream(path)
         
         xpp.setInput(inputStream, null)
         var eventType = xpp.eventType
-    
+        
         val pnml = Pnml()
         
         while (eventType != 2) {
@@ -47,7 +49,7 @@ object PnmlLoader {
     
     fun loadPetrinet(
             path: String
-    ): PetrinetWithSettings {
+    ): Pair<ResetInhibitorNet, Marking> {
         
         val pnml = loadPnml(path)
         
@@ -56,12 +58,6 @@ object PnmlLoader {
         val marking = Marking()
         pnml.convertToNet(net, marking, GraphLayoutConnection(net))
         
-        return PetrinetWithSettings(net, marking)
+        return net to marking
     }
-    
-    data class PetrinetWithSettings(
-            val petrinet: PetrinetGraph,
-            val marking: Marking
-    )
-
 }

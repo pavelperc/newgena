@@ -7,33 +7,34 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 
 /**
  * Replaces given arcs in petrinet with inhibitor and reset arcs.
- * Arcs are given as pairs of place and transition labels.
+ * Arcs are given as ids.
  * @throws IllegalArgumentException if one of given edges not found in petrinet
  */
-fun ResetInhibitorNet.markInhResetArcs(
-        inhibitorArcLabels: Set<Pair<String, String>> = setOf(),
-        resetArcLabels: Set<Pair<String, String>> = setOf()
+fun ResetInhibitorNet.markInhResetArcsByIds(
+        inhibitorArcIds: List<String> = listOf(),
+        resetArcIds: List<String> = listOf()
 ) {
     
     // map from pair of labels to petrinet edge
     val inEdges = this.transitions
-            .flatMap { transition -> this.getInEdges(transition) }
+            .flatMap { transition -> this.getInEdges(transition)}
             .map { edge ->
                 // warning is because of type erasure!!
                 // can not do safe cast..
-                edge as PetrinetEdge<Place, Transition>
+                
+                // USE LABEL BECAUSE OF PROM PNML LOADER
+                edge.label to edge as PetrinetEdge<Place, Transition>
             }
-            .map { it -> (it.source.label!! to it.target.label!!) to it }
             .toMap()
     
-    val resetEdges = resetArcLabels.map {
+    val resetEdges = resetArcIds.map {
         inEdges[it] ?: throw IllegalArgumentException("Can not mark arc $it as reset, " +
-                "because it has not been found among incoming edges of transitions.")
+                "because it has not been found among incoming edges of transitions. All ids:${inEdges.keys}")
     }
     
-    val inhibitorEdges = inhibitorArcLabels.map {
+    val inhibitorEdges = inhibitorArcIds.map {
         inEdges[it] ?: throw IllegalArgumentException("Can not mark arc $it as inhibitor, " +
-                "because it has not been found among incoming edges of transitions.")
+                "because it has not been found among incoming edges of transitions. All ids:${inEdges.keys}")
     }
     
     resetEdges.forEach { edge ->

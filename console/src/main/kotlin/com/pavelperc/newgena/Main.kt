@@ -1,16 +1,11 @@
 package com.pavelperc.newgena
 
 import com.pavelperc.newgena.launchers.PetrinetGenerators
-import com.pavelperc.newgena.loaders.PnmlLoader
-import com.pavelperc.newgena.loaders.settings.JsonSettings
-import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
-import com.pavelperc.newgena.loaders.settings.fromJson
-import com.pavelperc.newgena.loaders.settings.mapper
-import org.deckfour.xes.out.XesXmlSerializer
+import com.pavelperc.newgena.loaders.settings.JsonSettingsController
+import com.pavelperc.newgena.utils.xlogutils.exportXml
 import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription
-import java.io.File
 
 fun main(args: Array<String>) {
     
@@ -22,46 +17,41 @@ fun main(args: Array<String>) {
     val settingsFilePath =
             if (args.size > 0) args[0]
             else "examples/petrinet/simpleExample/settings.json"
-    val jsonSettingsStr = File(settingsFilePath).readText()
     
-    val jsonSettings = JsonSettings.fromJson(jsonSettingsStr)
+    val settingsController = JsonSettingsController.createFromFilePath(settingsFilePath)
     
-    val (petrinet, pnmlMarking) = PnmlLoader.loadPetrinet(jsonSettings.petrinetFile)
+    val generationKit = settingsController.getGenerationKit()
     
-    val builder = JsonSettingsBuilder(petrinet, jsonSettings)
-    
-    val generationDescription = builder.buildDescription()
-    var (initialMarking, finalMarking) = builder.buildMarking()
-    
-    if (jsonSettings.marking.isUsingInitialMarkingFromPnml) {
-        initialMarking = pnmlMarking
-    }
     
     println("Settings were built successfully!")
     
-    val logArray = when (generationDescription) {
-        is SimpleGenerationDescription -> PetrinetGenerators.generateSimple(
-                petrinet,
-                initialMarking,
-                finalMarking,
-                generationDescription)
-        is GenerationDescriptionWithStaticPriorities -> PetrinetGenerators.generateWithPriorities(
-                petrinet,
-                initialMarking,
-                finalMarking,
-                generationDescription)
-        is TimeDrivenGenerationDescription -> PetrinetGenerators.generateWithTime(
-                petrinet, // TODO: pavel ADAPT TIMEDRIVEN TO INHIBITOR AND RESET NETS.
-                initialMarking,
-                finalMarking,
-                generationDescription)
-        
-        else -> throw IllegalStateException("Unsupported type of generation description")
-        
+    // TODO: pavel: make GenerationController instead of PetrinetGenerators and hide this awful code there.
+    val logArray = with(generationKit) {
+        when (description) {
+            is SimpleGenerationDescription -> PetrinetGenerators.generateSimple(
+                    petrinet,
+                    initialMarking,
+                    finalMarking,
+                    description)
+            is GenerationDescriptionWithStaticPriorities -> PetrinetGenerators.generateWithPriorities(
+                    petrinet,
+                    initialMarking,
+                    finalMarking,
+                    description)
+            is TimeDrivenGenerationDescription -> PetrinetGenerators.generateWithTime(
+                    petrinet, // TODO: pavel ADAPT TIMEDRIVEN TO INHIBITOR AND RESET NETS.
+                    initialMarking,
+                    finalMarking,
+                    description)
+            
+            else -> throw IllegalStateException("Unsupported type of generation description")
+        }
     }
-    val serializer = XesXmlSerializer()
-    val logFile = File("${jsonSettings.outputFolder}/${petrinet.label}.xes")
-    logFile.parentFile.mkdirs()
-    logArray.exportToFile(null, logFile, serializer)
+    
+    
+    with (settingsController) {
+        logArray.exportXml("${jsonSettings.outputFolder}/${petrinet.label}.xes")
+    }
+    
     println("Done!")
 }

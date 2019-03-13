@@ -6,7 +6,9 @@ import org.deckfour.xes.factory.XFactoryBufferedImpl
 import org.deckfour.xes.model.XEvent
 import org.deckfour.xes.model.XLog
 import org.deckfour.xes.model.XTrace
+import org.deckfour.xes.out.XesXmlSerializer
 import org.processmining.log.models.EventLogArray
+import java.io.File
 import java.lang.IllegalStateException
 import java.util.*
 
@@ -47,3 +49,11 @@ fun EventLogArray.toList() = this.toSeq().toList()
 
 /** Returns a list with all traces, containing only event names.*/
 fun EventLogArray.eventNames() = toList().flatMap { log -> log.eventNames() }
+
+fun EventLogArray.exportXml(filePath: String) {
+    val serializer = XesXmlSerializer()
+    val logFile = File(filePath)
+    logFile.parentFile.mkdirs()
+    
+    this.exportToFile(null, logFile, serializer)
+}

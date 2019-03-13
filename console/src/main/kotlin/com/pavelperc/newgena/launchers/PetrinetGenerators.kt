@@ -13,7 +13,17 @@ import org.processmining.utils.helpers.SimpleGenerationHelper
 import org.processmining.utils.helpers.StaticPrioritiesGenerationHelper
 import org.processmining.utils.helpers.TimeDrivenGenerationHelper
 
+/**
+ * Common class to start all generators with Petrinet.
+ */
 object PetrinetGenerators {
+    
+    data class GenerationKit<G : GenerationDescription>(
+            val petrinet: PetrinetGraph,
+            val initialMarking: Marking,
+            val finalMarking: Marking,
+            val description: G
+    )
     
     fun generateSimple(
             petrinet: PetrinetGraph,
@@ -53,11 +63,11 @@ object PetrinetGenerators {
     fun getConsoleCallback(description: GenerationDescription): ProgressBarCallback {
         var progress = 0
         val maxProgress = description.numberOfLogs * description.numberOfTraces
-        return ProgressBarCallback { 
+        return ProgressBarCallback {
             progress++
             println("progress: $progress from $maxProgress")
         }
     }
     
-    val emptyCallback = ProgressBarCallback {  }
+    val emptyCallback = ProgressBarCallback { }
 }
