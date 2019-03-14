@@ -55,7 +55,8 @@ class JsonSettings() {
         this.isUsingTime = isUsingTime
         this.timeDescription = timeDescription
     }
-// ----------------------------- VARIABLES: ---------------------------
+    
+    // ----------------------------- VARIABLES: ---------------------------
     var outputFolder = "xes-out"
     
     
@@ -106,8 +107,8 @@ class JsonPetrinet() {
     constructor(
             petrinetFile: String,
             marking: JsonMarking,
-            inhibitorArcIds: MutableList<String>?=null,
-            resetArcIds: MutableList<String>?=null
+            inhibitorArcIds: MutableList<String> = mutableListOf(),
+            resetArcIds: MutableList<String> = mutableListOf()
     ) : this() {
         this.marking = marking
         this.inhibitorArcIds = inhibitorArcIds
@@ -117,8 +118,8 @@ class JsonPetrinet() {
     
     var petrinetFile = "petrinet.pnml"
     var marking = JsonMarking()
-    var inhibitorArcIds: MutableList<String>? = mutableListOf()
-    var resetArcIds: MutableList<String>? = mutableListOf()
+    var inhibitorArcIds: MutableList<String> = mutableListOf()
+    var resetArcIds: MutableList<String> = mutableListOf()
 }
 
 

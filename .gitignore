@@ -4,6 +4,8 @@ out/
 console/libs/
 !console/libs/readme.txt
 gv/
+console/gv
+*.svg
 
 examples/petrinet/*.exe
 examples/petrinet/*.dll

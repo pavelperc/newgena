@@ -2,6 +2,7 @@ package com.pavelperc.newgena.loaders.settings
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.pavelperc.newgena.utils.propertyinitializers.NonNegativeInt
 import com.pavelperc.newgena.utils.propertyinitializers.NonNegativeLong
@@ -28,15 +29,15 @@ class JsonCommonTest {
         override fun toString() = "Sample(a=$a, b=$b, c=$c)"
     }
     
-    data class Data(
-            val a: String = "a",
-            val b: String = "b",
-            val c: String? = "c"
+    data class Data @JsonCreator constructor(
+            @param:JsonProperty val a: String = "default",
+            @param:JsonProperty(required = true) val b: String = "default", // don't want to be default
+            @param:JsonProperty val c: String? = "default"
     ) {
         val d: String? = "d"
         
         override fun toString() = "Data(a='$a', b='$b', c=$c, d=$d)"
-    
+        
     }
     
     @Test
@@ -60,6 +61,7 @@ class JsonCommonTest {
             println(sample)
         }.also { println("time2: $it ms") }
         
+        
         val data = fromJson<Data>("""
             {
                 "a": "1",
@@ -67,7 +69,6 @@ class JsonCommonTest {
             }
         """.trimIndent())
         println(data)
-        
         
         
     }

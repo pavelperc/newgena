@@ -1,6 +1,7 @@
 package com.pavelperc.newgena.loaders.settings
 
 import com.pavelperc.newgena.models.markInhResetArcsByIds
+import com.pavelperc.newgena.models.pnmlId
 import org.processmining.models.GenerationDescription
 import org.processmining.models.descriptions.*
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
@@ -13,7 +14,7 @@ import org.processmining.models.time_driven_behavior.ResourceMapping
 
 class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSettings) {
     
-    private val idsToTransitions = petrinet.transitions.map { it.label.toString() to it!! }.toMap()
+    private val idsToTransitions = petrinet.transitions.map { it.pnmlId to it!! }.toMap()
     
     private fun String.toTrans() = idsToTransitions.getValue(this)
     
@@ -25,7 +26,7 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
     fun buildMarking(): Pair<Marking, Marking> {
         return jsonSettings.petrinetSetup.marking.run {
             
-            val idsToPlaces = petrinet.places.map { it.label.toString() to it!! }.toMap()
+            val idsToPlaces = petrinet.places.map { it.pnmlId to it!! }.toMap()
             
             val initialMarking = initialPlaceIds.map { idsToPlaces.getValue(it) }
             val finalMarking = finalPlaceIds.map { idsToPlaces.getValue(it) }

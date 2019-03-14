@@ -14,7 +14,7 @@ class PnmlLoaderTest : GraphvizDrawer(false) {
         
         println(System.getProperty("user.dir"))
         
-        val (petrinet, marking) = PnmlLoader.loadPetrinetOwnParser("../examples/petrinet/simple.pnml")
+        val (petrinet, marking) = PnmlLoader.loadPetrinetWithOwnParser("../examples/petrinet/simple.pnml")
         
         petrinet.places.shouldNotBeEmpty()
         petrinet.transitions.shouldNotBeEmpty()

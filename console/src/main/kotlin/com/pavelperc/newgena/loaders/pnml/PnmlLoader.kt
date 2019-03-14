@@ -1,5 +1,7 @@
 package com.pavelperc.newgena.loaders.pnml
 
+import com.pavelperc.newgena.models.makePnmlIdsFromLabels
+import com.pavelperc.newgena.models.makePnmlIdsOrdinal
 import org.processmining.models.connections.GraphLayoutConnection
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetFactory
@@ -48,14 +50,18 @@ object PnmlLoader {
         
     }
     
-    fun loadPetrinetOwnParser(path: String) = PnmlOwnParser.parseFromFile(File(path))
+    fun loadPetrinetWithOwnParser(path: String) = PnmlOwnParser.parseFromFile(File(path))
     
+    
+    @Deprecated("Use loadPetrinetWithOwnParser instead.")
     fun loadPetrinet(
             path: String
     ): Pair<ResetInhibitorNet, Marking> {
         val pnml = loadPnml(path)
         
         val petrinet = PetrinetFactory.newResetInhibitorNet(pnml.label)!!
+        petrinet.makePnmlIdsFromLabels()
+        petrinet.edges.toList().makePnmlIdsOrdinal()
         
         val marking = Marking()
         

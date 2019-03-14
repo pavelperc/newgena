@@ -1,13 +1,15 @@
 {
   "outputFolder" : "xes-out/simple",
   //  "marking": null,
-  "petrinet" : {
+  "petrinetSetup" : {
     "marking" : {
-      "initialPlaceIds" : [ "place1", "place2"],
+      "initialPlaceIds" : [ "place3", "place3", "place2"],
       "finalPlaceIds" : [ "place4", "place4" ],
       "isUsingInitialMarkingFromPnml": false
     },
-    "petrinetFile" : "examples/petrinet/simpleExample/simple.pnml"
+    "petrinetFile" : "examples/petrinet/simpleExample/simple.pnml",
+    "inhibitorArcIds" : ["arc1"],
+    "resetArcIds" : ["arc6"]
   },
   "isRemovingEmptyTraces" : true,
   "isRemovingUnfinishedTraces" : true,

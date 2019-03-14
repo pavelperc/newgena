@@ -16,6 +16,12 @@ fun ResetInhibitorNet.markInhResetArcsByIds(
         inhibitorArcIds: List<String> = listOf(),
         resetArcIds: List<String> = listOf()
 ) {
+    if (inhibitorArcIds.isEmpty() && resetArcIds.isEmpty())
+        return
+    
+    if (inhibitorArcIds.intersect(resetArcIds).isNotEmpty())
+        throw IllegalArgumentException("Inhibitor and Reset arc ids for replacing intersect: " +
+                "inhibitorARcIds=$inhibitorArcIds, inhibitorARcIds=$resetArcIds")
     
     // map from pair of ids to petrinet edge
     val inEdges = this.transitions
@@ -85,6 +91,7 @@ var PetrinetEdge<*, *>.pnmlId by PnmlIdDelegate()
 var PetrinetNode.pnmlId by PnmlIdDelegate()
 
 
+/** Fills [pnmlId] for [Transition]s and [Place]s from labels. */
 fun ResetInhibitorNet.makePnmlIdsFromLabels() {
     transitions.forEach { it.pnmlId = it.label }
     places.forEach { it.pnmlId = it.label }

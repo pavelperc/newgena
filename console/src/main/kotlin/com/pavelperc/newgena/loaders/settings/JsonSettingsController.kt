@@ -19,20 +19,23 @@ class JsonSettingsController(val jsonSettings: JsonSettings) {
         }
     }
     
-    val petrinet: ResetInhibitorNet
-    
     private val pnmlMarking: Marking
     
+    val petrinet: ResetInhibitorNet
+    
     init {
-        PnmlLoader.loadPetrinet(jsonSettings.petrinetSetup.petrinetFile).also { result ->
+        PnmlLoader.loadPetrinetWithOwnParser(jsonSettings.petrinetSetup.petrinetFile).also { result ->
             petrinet = result.first
             pnmlMarking = result.second
         }
+        // todo: save initial arc state
+        
+        updateInhResetArcsFromSettings()
     }
     
     fun updateInhResetArcsFromSettings() {
         with(jsonSettings.petrinetSetup) {
-            petrinet.markInhResetArcsByIds(inhibitorArcIds ?: emptyList(), resetArcIds ?: emptyList())
+            petrinet.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
         }
     }
     

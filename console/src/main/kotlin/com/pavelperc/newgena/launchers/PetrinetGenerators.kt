@@ -6,6 +6,7 @@ import org.processmining.models.descriptions.GenerationDescriptionWithStaticPrio
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
+import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.utils.Generator
 import org.processmining.utils.ProgressBarCallback
@@ -19,7 +20,7 @@ import org.processmining.utils.helpers.TimeDrivenGenerationHelper
 object PetrinetGenerators {
     
     data class GenerationKit<G : GenerationDescription>(
-            val petrinet: PetrinetGraph,
+            val petrinet: ResetInhibitorNet,
             val initialMarking: Marking,
             val finalMarking: Marking,
             val description: G

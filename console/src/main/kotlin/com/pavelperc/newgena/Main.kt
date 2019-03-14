@@ -1,8 +1,11 @@
 package com.pavelperc.newgena
 
+import com.pavelperc.newgena.graphviz.toGraphviz
 import com.pavelperc.newgena.launchers.PetrinetGenerators
 import com.pavelperc.newgena.loaders.settings.JsonSettingsController
+import com.pavelperc.newgena.utils.xlogutils.eventNames
 import com.pavelperc.newgena.utils.xlogutils.exportXml
+import com.pavelperc.newgena.utils.xlogutils.toList
 import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription
@@ -19,14 +22,18 @@ fun main(args: Array<String>) {
             else "examples/petrinet/simpleExample/settings.json"
     
     val settingsController = JsonSettingsController.createFromFilePath(settingsFilePath)
+    settingsController.updateInhResetArcsFromSettings()
     
     val generationKit = settingsController.getGenerationKit()
     
     
     println("Settings were built successfully!")
     
+    
     // TODO: pavel: make GenerationController instead of PetrinetGenerators and hide this awful code there.
     val logArray = with(generationKit) {
+//        petrinet.toGraphviz(initialMarking, saveToSvg = "gv/simpleExample/simple.svg")
+        
         when (description) {
             is SimpleGenerationDescription -> PetrinetGenerators.generateSimple(
                     petrinet,
@@ -47,9 +54,9 @@ fun main(args: Array<String>) {
             else -> throw IllegalStateException("Unsupported type of generation description")
         }
     }
+//    logArray.toList().map { it.eventNames() }.joinToString("\n").also { println(it) }
     
-    
-    with (settingsController) {
+    with(settingsController) {
         logArray.exportXml("${jsonSettings.outputFolder}/${petrinet.label}.xes")
     }
     
