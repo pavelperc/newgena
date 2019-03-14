@@ -68,18 +68,61 @@ class PetrinetExtensionsTest {
         
         petrinet.getInhibitorArc(p1, a).shouldNotBeNull()
         petrinet.getResetArc(p2, c).shouldNotBeNull()
-    
-    
+        
+        
         // check if we can change again already changed arcs
         petrinet.markInhResetArcsByIds(
                 resetArcIds = listOf("1"),
                 inhibitorArcIds = listOf("4")
         )
-    
+        
         petrinet.getArc(p1, a).shouldBeNull()
         petrinet.getArc(p2, c).shouldBeNull()
-    
+        
         petrinet.getResetArc(p1, a).shouldNotBeNull()
         petrinet.getInhibitorArc(p2, c).shouldNotBeNull()
+    }
+    
+    
+    @Test
+    fun testPnmlIdProperty() {
+        val petrinet: ResetInhibitorNet = ResetInhibitorNetImpl("simplePetriNet")
+        
+        val a = petrinet.addTransition("A")
+        val b = petrinet.addTransition("B")
+        val c = petrinet.addTransition("C")
+        val d = petrinet.addTransition("D")
+        
+        val p1 = petrinet.addPlace("p1")
+        val p2 = petrinet.addPlace("p2")
+        val p3 = petrinet.addPlace("p3")
+        val p4 = petrinet.addPlace("p4")
+        
+        val arc1 = petrinet.addResetArc(p1, a)
+        val arc2 = petrinet.addArc(a, p2)
+        val arc3 = petrinet.addInhibitorArc(p2, b)
+        petrinet.addArc(p2, c)
+        petrinet.addArc(b, p3)
+        petrinet.addArc(c, p3)
+        petrinet.addArc(p3, d)
+        petrinet.addArc(d, p4)
+        
+        a.pnmlId shouldEqual "null"
+        p1.pnmlId shouldEqual "null"
+        arc1.pnmlId shouldEqual "null"
+        arc2.pnmlId shouldEqual "null"
+        arc3.pnmlId shouldEqual "null"
+        
+        a.pnmlId = "t1"
+        p1.pnmlId = "p1"
+        arc1.pnmlId = "arc1"
+        arc2.pnmlId = "arc2"
+        arc3.pnmlId = "arc3"
+        
+        a.pnmlId shouldEqual "t1"
+        p1.pnmlId shouldEqual "p1"
+        arc1.pnmlId shouldEqual "arc1"
+        arc2.pnmlId shouldEqual "arc2"
+        arc3.pnmlId shouldEqual "arc3"
     }
 }

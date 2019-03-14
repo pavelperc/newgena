@@ -12,7 +12,7 @@ import java.util.Random
  */
 //P - type of place
 abstract class Transition<P : Place<*>> @JvmOverloads protected constructor(
-        /** Wrapped ProM transition. */
+        /** Wrapped ProM transition. (loggable.) */
         override val node: org.processmining.models.graphbased.directed.petrinet.elements.Transition,
         generationDescription: GenerationDescription,
         val inputPlaces: List<P>,
@@ -21,6 +21,7 @@ abstract class Transition<P : Place<*>> @JvmOverloads protected constructor(
         val inputResetArcPlaces: List<P> = listOf()
 ) : AbstractPetriNode(node, generationDescription), Movable {
     
+    /* Check if we can move this [Movable].*/
     override fun checkAvailability() =
             (inputPlaces + inputResetArcPlaces).all { place -> place.hasTokens() } 
                     && inputInhibitorArcPlaces.all {place -> !place.hasTokens() }

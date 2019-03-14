@@ -1,10 +1,8 @@
 package com.pavelperc.newgena.loaders.settings
 
 import com.pavelperc.newgena.launchers.PetrinetGenerators
-import com.pavelperc.newgena.loaders.PnmlLoader
+import com.pavelperc.newgena.loaders.pnml.PnmlLoader
 import com.pavelperc.newgena.models.markInhResetArcsByIds
-import org.deckfour.xes.out.XesXmlSerializer
-import org.processmining.log.models.EventLogArray
 import org.processmining.models.GenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.semantics.petrinet.Marking

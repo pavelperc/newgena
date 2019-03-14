@@ -44,6 +44,18 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.8"
 //    implementation 'com.google.code.gson:gson:2.8.5'
 //    implementation 'com.beust:klaxon:5.0.1'
+    
+    
+    // lip6 pnml loader
+    
+    
+    // 3rdpartimports is available only from jar or from their own maven repo
+//    implementation "fr.lip6.pnml:fr.lip6.pnml.framework.3rdpartimports:${lip6version}"
+//    implementation "fr.lip6.pnml:fr.lip6.pnml.framework.utils:2.2.12"
+//    
+//    implementation "fr.lip6.pnml:fr.lip6.pnml.framework.coremodel:2.2.12"
+//    implementation "fr.lip6.pnml:fr.lip6.pnml.framework.ptnet:2.2.12"
+    
 }
 
 compileKotlin {

@@ -1,8 +1,10 @@
 package com.pavelperc.newgena.models
 
+import org.processmining.models.graphbased.AbstractGraphElement
+import org.processmining.models.graphbased.AttributeMapOwner
 import org.processmining.models.graphbased.directed.petrinet.*
-import org.processmining.models.graphbased.directed.petrinet.elements.Place
-import org.processmining.models.graphbased.directed.petrinet.elements.Transition
+import org.processmining.models.graphbased.directed.petrinet.elements.*
+import kotlin.reflect.KProperty
 
 
 /**
@@ -47,3 +49,27 @@ fun ResetInhibitorNet.markInhResetArcsByIds(
         this.addInhibitorArc(edge.source, edge.target, edge.label)
     }
 }
+
+
+class PnmlIdDelegate {
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): String {
+        return (thisRef as AttributeMapOwner).attributeMap["pnmlId"]?.toString() ?: "null"
+    }
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: String) {
+        (thisRef as AttributeMapOwner).attributeMap.put("pnmlId", value)
+    }
+}
+
+var Transition.pnmlId by PnmlIdDelegate()
+
+var Place.pnmlId by PnmlIdDelegate()
+
+var Arc.pnmlId by PnmlIdDelegate()
+
+var ResetArc.pnmlId by PnmlIdDelegate()
+
+var InhibitorArc.pnmlId by PnmlIdDelegate()
+
+
+
+

@@ -1,7 +1,6 @@
-package com.pavelperc.newgena.loaders
+package com.pavelperc.newgena.loaders.pnml
 
 import org.processmining.models.connections.GraphLayoutConnection
-import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetFactory
 import org.processmining.models.semantics.petrinet.Marking
@@ -53,11 +52,12 @@ object PnmlLoader {
         
         val pnml = loadPnml(path)
         
-        val net = PetrinetFactory.newResetInhibitorNet(pnml.label)!!
+        val petrinet = PetrinetFactory.newResetInhibitorNet(pnml.label)!!
         
         val marking = Marking()
-        pnml.convertToNet(net, marking, GraphLayoutConnection(net))
         
-        return net to marking
+        pnml.convertToNet(petrinet, marking, GraphLayoutConnection(petrinet))
+        
+        return petrinet to marking
     }
 }
