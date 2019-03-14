@@ -37,8 +37,6 @@ class PnmlLoaderTest : GraphvizDrawer(false) {
         )
         
         forDrawing += petrinet.toGraphviz(marking) to "loadPnml/simple.svg"
-        
-        
     }
 
 //    @Test

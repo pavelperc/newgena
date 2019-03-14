@@ -17,15 +17,15 @@ fun ResetInhibitorNet.markInhResetArcsByIds(
         resetArcIds: List<String> = listOf()
 ) {
     
-    // map from pair of labels to petrinet edge
+    // map from pair of ids to petrinet edge
     val inEdges = this.transitions
-            .flatMap { transition -> this.getInEdges(transition)}
+            .flatMap { transition -> this.getInEdges(transition) }
             .map { edge ->
                 // warning is because of type erasure!!
                 // can not do safe cast..
                 
-                // USE LABEL BECAUSE OF PROM PNML LOADER
-                edge.label to edge as PetrinetEdge<Place, Transition>
+                
+                edge.pnmlId to edge as PetrinetEdge<Place, Transition>
             }
             .toMap()
     
@@ -42,20 +42,22 @@ fun ResetInhibitorNet.markInhResetArcsByIds(
     resetEdges.forEach { edge ->
         this.removeArc(edge.source, edge.target)
         this.addResetArc(edge.source, edge.target, edge.label)
+                .also { it.pnmlId = edge.pnmlId }
     }
     
     inhibitorEdges.forEach { edge ->
         this.removeArc(edge.source, edge.target)
         this.addInhibitorArc(edge.source, edge.target, edge.label)
+                .also { it.pnmlId = edge.pnmlId }
     }
 }
-
 
 
 private class PnmlIdDelegate {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): String {
         return (thisRef as AttributeMapOwner).attributeMap["pnmlId"]?.toString() ?: "null"
     }
+    
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: String) {
         (thisRef as AttributeMapOwner).attributeMap.put("pnmlId", value)
     }
@@ -83,5 +85,15 @@ var PetrinetEdge<*, *>.pnmlId by PnmlIdDelegate()
 var PetrinetNode.pnmlId by PnmlIdDelegate()
 
 
+fun ResetInhibitorNet.makePnmlIdsFromLabels() {
+    transitions.forEach { it.pnmlId = it.label }
+    places.forEach { it.pnmlId = it.label }
+}
+
+fun List<PetrinetEdge<*, *>>.makePnmlIdsOrdinal(startFrom: Int = 1) {
+    withIndex().forEach { (i, edge) -> edge.pnmlId = "arc${i + startFrom}" }
+}
+
+//fun List<Arc>.makePnmlIdsOrdinalInArcs() = map { it as PetrinetEdge<*,*> }.makePnmlIdsOrdinal()
 
 

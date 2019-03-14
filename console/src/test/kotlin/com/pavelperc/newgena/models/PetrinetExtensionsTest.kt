@@ -28,29 +28,25 @@ class PetrinetExtensionsTest {
         
         
         val arcs = mutableListOf<Arc>()
-        arcs += petrinet.addArc(p1, a) // label 1
-        arcs += petrinet.addArc(a, p2) // label 2
-        arcs += petrinet.addArc(p2, b) // label 3
-        arcs += petrinet.addArc(p2, c) // label 4
-        arcs += petrinet.addArc(b, p3) // label 5
-        arcs += petrinet.addArc(c, p3) // label 6
-        arcs += petrinet.addArc(p3, d) // label 7
-        arcs += petrinet.addArc(d, p4) // label 8
+        arcs += petrinet.addArc(p1, a) // pnmlId = arc1
+        arcs += petrinet.addArc(a, p2) // pnmlId = arc2
+        arcs += petrinet.addArc(p2, b) // pnmlId = arc3
+        arcs += petrinet.addArc(p2, c) // pnmlId = arc4
+        arcs += petrinet.addArc(b, p3) // pnmlId = arc5
+        arcs += petrinet.addArc(c, p3) // pnmlId = arc6
+        arcs += petrinet.addArc(p3, d) // pnmlId = arc7
+        arcs += petrinet.addArc(d, p4) // pnmlId = arc8
+        
+        petrinet.makePnmlIdsFromLabels()
+        arcs.makePnmlIdsOrdinal()
         //                  B
         //               /     \
         // p1 -> A -> p2 -> C -> p3 -> D -> p4
         
-        arcs.withIndex().forEach { (i, arc) ->
-            val lbl = (i + 1).toString()
-            arc.attributeMap.put("ProM_Vis_attr_label", lbl)
-            
-            arc.label shouldEqual lbl
-        }
-        
         
         // arc 9 should not be found.
         assertFailsWith<IllegalArgumentException> {
-            petrinet.markInhResetArcsByIds(inhibitorArcIds = listOf("1", "9"))
+            petrinet.markInhResetArcsByIds(inhibitorArcIds = listOf("arc1", "arc9"))
         }.also { println(it) }
         
         
@@ -59,8 +55,8 @@ class PetrinetExtensionsTest {
         
         
         petrinet.markInhResetArcsByIds(
-                inhibitorArcIds = listOf("1"),
-                resetArcIds = listOf("4")
+                inhibitorArcIds = listOf("arc1"),
+                resetArcIds = listOf("arc4")
         )
         
         petrinet.getArc(p1, a).shouldBeNull()
@@ -72,8 +68,8 @@ class PetrinetExtensionsTest {
         
         // check if we can change again already changed arcs
         petrinet.markInhResetArcsByIds(
-                resetArcIds = listOf("1"),
-                inhibitorArcIds = listOf("4")
+                resetArcIds = listOf("arc1"),
+                inhibitorArcIds = listOf("arc4")
         )
         
         petrinet.getArc(p1, a).shouldBeNull()
