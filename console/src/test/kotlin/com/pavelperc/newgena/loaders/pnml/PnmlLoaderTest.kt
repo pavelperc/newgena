@@ -1,6 +1,7 @@
 package com.pavelperc.newgena.loaders.pnml
 
 import com.pavelperc.newgena.graphviz.toGraphviz
+import com.pavelperc.newgena.models.pnmlId
 import com.pavelperc.newgena.testutils.GraphvizDrawer
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotBeEmpty
@@ -9,28 +10,37 @@ import org.junit.Test
 class PnmlLoaderTest : GraphvizDrawer(false) {
     
     @Test
-    fun loadPnml() {
+    fun testLoadPnmlOwnParser() {
         
         println(System.getProperty("user.dir"))
         
-        val (petrinet, marking) = PnmlLoader.loadPetrinet("../examples/petrinet/conjunction.pnml")
+        val (petrinet, marking) = PnmlLoader.loadPetrinetOwnParser("../examples/petrinet/simple.pnml")
         
         petrinet.places.shouldNotBeEmpty()
         petrinet.transitions.shouldNotBeEmpty()
         
-        petrinet.places.map { it.label } shouldContainSame listOf("place5", "place6", "place7", "place8")
+        petrinet.places.map { it.pnmlId } shouldContainSame listOf(1, 2, 3, 4).map { "place$it" }
         
-        petrinet.transitions.map { it.label } shouldContainSame listOf("transition1", "transition2")
+        petrinet.transitions.map { it.pnmlId } shouldContainSame listOf(1, 3, 4, 5).map { "transition$it" }
         
-        petrinet.edges.map { it.label } shouldContainSame listOf("arc3", "arc4", "arc5", "arc6", "arc7")
+        petrinet.edges.map { it.pnmlId } shouldContainSame listOf(1, 2, 4, 5, 6, 9, 10, 11).map { "arc$it" }
         
-        forDrawing += petrinet.toGraphviz(marking) to "loadPnml/conjunction.svg"
+        petrinet.edges.map { it.source.pnmlId to it.target.pnmlId } shouldContainSame listOf(
+                "place1" to "transition3",
+                "transition3" to "place2",
+                "place2" to "transition1",
+                "transition1" to "place3",
+                "place3" to "transition4",
+                "place2" to "transition5",
+                "transition4" to "place4",
+                "transition5" to "place3"
+        )
         
+        forDrawing += petrinet.toGraphviz(marking) to "loadPnml/simple.svg"
         
-        println(petrinet)
         
     }
-    
+
 //    @Test
 //    fun testLip6() {
 //        // http://pnml.lip6.fr/documentation.html
