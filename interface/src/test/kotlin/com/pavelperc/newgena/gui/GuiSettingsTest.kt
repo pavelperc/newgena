@@ -1,14 +1,8 @@
 package com.pavelperc.newgena.gui
 
 import com.pavelperc.newgena.gui.customfields.*
-import com.pavelperc.newgena.models.markInhResetArcsByIds
 import com.pavelperc.newgena.utils.propertyinitializers.NonNegativeInt
-import javafx.util.StringConverter
 import org.junit.Test
-import org.processmining.models.graphbased.directed.petrinet.PetrinetEdge
-import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
-import org.processmining.models.graphbased.directed.petrinet.elements.Place
-import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import tornadofx.*
 
 class GuiSettingsTest : App(UISettings::class) {
@@ -61,17 +55,16 @@ class GuiSettingsTest : App(UISettings::class) {
         override val root = form {
             fieldset {
                 
-                myStringField(p::name)
-                myStringField(p::surname)
+//                myStringField(p::name)
+//                myStringField(p::surname)
+//                myIntField(p::age)
                 
+                myStringField(p::name)
+                
+                myStringFieldNullable(p::surname)
                 myIntField(p::age)
                 
-                
-                MyStringField(p::name).attachTo(this)
-                MyStringFieldNullable(p::surname).attachTo(this)
-                MyIntField(p::age).attachTo(this)
-                
-                MyBooleanField(p::isUsingBody).attachTo(this)
+                myBooleanField(p::isUsingBody)
                 
 //                field("body") {
 //                    textfield(pm.body, )

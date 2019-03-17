@@ -4,7 +4,6 @@ import javafx.event.EventTarget
 import javafx.scene.control.CheckBox
 import javafx.scene.control.TextField
 import javafx.scene.control.Tooltip
-import javafx.scene.layout.Pane
 import javafx.util.StringConverter
 import javafx.util.converter.DefaultStringConverter
 import javafx.util.converter.IntegerStringConverter
@@ -16,15 +15,19 @@ typealias Checker<T> = (newValue: T) -> Unit
 typealias OnSuccess<T> = (newValue: T) -> Unit
 typealias Converter<A, B> = (A) -> B
 
+interface Validatable {
+    val isDirty: Boolean
+}
+
 
 /**
  * [P] is property type. [F] is field type.
  */
-abstract class MyPropertyPane<P : Any?, F : Any?>(
+abstract class MyPropertyWrapper<P : Any?, F : Any?>(
         val prop: KMutableProperty<out P>,
-        val onSuccess: OnSuccess<P> = { },
-        val checker: Checker<P> = { }
-) : Pane() {
+        var onSuccess: OnSuccess<P> = { },
+        var checker: Checker<P> = { }
+) : Validatable {
     
     
     /** Null converters as well. */
@@ -35,6 +38,9 @@ abstract class MyPropertyPane<P : Any?, F : Any?>(
     
     var lastError: String? = null
         protected set
+    
+    override val isDirty: Boolean
+        get() = lastError != null
     
     /**
      * Sets [newValue] to [prop] with all checkers.
@@ -68,17 +74,25 @@ abstract class MyPropertyPane<P : Any?, F : Any?>(
     }
 }
 
+abstract class MyPropertyLabeled<P, F>(
+        prop: KMutableProperty<out P>
+) : MyPropertyWrapper<P, F>(prop) {
+    val labelField: Field
+    
+    init {
+        var label = prop.name
+        if (prop.returnType.isMarkedNullable)
+            label += "?"
+        
+        labelField = Field(label)
+    }
+}
 
 open class MyPropertyTextField<P : Any?>(
         prop: KMutableProperty<out P>,
-        onSuccess: OnSuccess<P>,
-        checker: Checker<P>,
         val converter: StringConverter<P>
-) : MyPropertyPane<P, String>(prop, onSuccess, checker) {
-    
-    
+) : MyPropertyLabeled<P, String>(prop) {
     val textField: TextField
-    val labelField: Field
     
     override fun convertToProp(newValue: String): P {
         if (newValue == "null" && prop.returnType.isMarkedNullable)
@@ -100,25 +114,22 @@ open class MyPropertyTextField<P : Any?>(
     init {
         val initial = converter.toString(prop.call())
         textField = TextField(initial)
+        var label = prop.name
+        if (prop.returnType.isMarkedNullable)
+            label += "?"
         
-        labelField = field(prop.name) {
-            textField.attachTo(this) {
-                textProperty().addListener { observable, oldValue, newValue ->
-                    setToProp(newValue)
-                }
+        textField.attachTo(labelField) {
+            textProperty().addListener { observable, oldValue, newValue ->
+                setToProp(newValue)
             }
         }
-        
     }
 }
 
 class MyBooleanField(
-        prop: KMutableProperty<Boolean>,
-        onSuccess: OnSuccess<Boolean> = {},
-        checker: Checker<Boolean> = {}
-) : MyPropertyPane<Boolean, Boolean>(prop, onSuccess, checker) {
+        prop: KMutableProperty<Boolean>
+) : MyPropertyLabeled<Boolean, Boolean>(prop) {
     val checkBox: CheckBox
-    val labelField: Field
     
     override fun convertToProp(newValue: Boolean) = newValue
     
@@ -135,206 +146,143 @@ class MyBooleanField(
     init {
         checkBox = CheckBox()
         
-        labelField = field(prop.name) {
-            checkBox.attachTo(this) {
-                selectedProperty().addListener { observable, oldValue, newValue ->
-                    setToProp(newValue)
-                }
+        checkBox.attachTo(labelField) {
+            selectedProperty().addListener { observable, oldValue, newValue ->
+                setToProp(newValue)
             }
         }
     }
-    
 }
 
 class MyIntField(
-        prop: KMutableProperty<out Int>,
-        onSuccess: OnSuccess<Int> = {},
-        checker: Checker<Int> = {}
+        prop: KMutableProperty<out Int>
 ) : MyPropertyTextField<Int>(
         prop,
-        onSuccess,
-        checker,
         IntegerStringConverter()
 )
 
 class MyStringFieldNullable(
-        prop: KMutableProperty<String?>,
-        onSuccess: OnSuccess<String?> = {},
-        checker: Checker<String?> = {}
+        prop: KMutableProperty<String?>
 ) : MyPropertyTextField<String?>(
         prop,
-        onSuccess,
-        checker,
         DefaultStringConverter()
 )
 
 class MyStringField(
-        prop: KMutableProperty<String>,
-        onSuccess: OnSuccess<String> = {},
-        checker: Checker<String> = {}
+        prop: KMutableProperty<String>
 ) : MyPropertyTextField<String>(
         prop,
-        onSuccess,
-        checker,
         DefaultStringConverter()
 )
 
-// =================
-// as it was before:
-// =================
+fun EventTarget.myStringField(
+        prop: KMutableProperty<String>,
+        op: MyStringField.() -> Unit = {}
+): MyStringField {
+    val myField = MyStringField(prop)
+    myField.op()
+    myField.labelField.attachTo(this)
+    return myField
+}
 
-fun <T : String?> EventTarget.myStringField(
-        prop: KMutableProperty<T>
-) = myTextField(prop, DefaultStringConverter())
+
+fun EventTarget.myStringFieldNullable(
+        prop: KMutableProperty<String?>,
+        op: MyStringFieldNullable.() -> Unit = {}
+): MyStringFieldNullable {
+    val myField = MyStringFieldNullable(prop)
+    myField.op()
+    myField.labelField.attachTo(this)
+    return myField
+}
 
 fun EventTarget.myIntField(
-        prop: KMutableProperty<Int>
-) = myTextField(prop, IntegerStringConverter())
-
-
-fun <T> EventTarget.myTextField(
-        prop: KMutableProperty<out T>,
-        converter: StringConverter<T>,
-        onSuccess: OnSuccess<String> = { },
-        checker: Checker<String> = { }
-): Field {
-    
-    return field(prop.name) {
-        val initial = converter.toString(prop.call())
-        
-        textfield(initial) {
-            val textfield = this
-            var lastError: String? = null
-            
-            textProperty().addListener { observable, oldValue, newValue ->
-                try {
-                    checker(newValue)
-                    // ??????
-                    val nullableValue =
-                            if (newValue == "null" && prop.returnType.isMarkedNullable) null
-                            else newValue
-                    
-                    prop.setter.call(converter.fromString(nullableValue))
-                    
-                    // we fixed an error
-                    lastError?.also { le ->
-                        lastError = null
-                        
-                        println("${prop.name}: fixed error: $le")
-                        
-                        textfield.style = "-fx-background-color: white;"
-                        textfield.tooltip = null
-                    }
-                    
-                    onSuccess(newValue)
-                } catch (e: Exception) {
-                    lastError = e.message ?: e.cause?.message ?: e.cause?.cause?.message ?: "unknown error"
-                    
-                    if (e is NumberFormatException)
-                        lastError = "Bad Number Format: $lastError"
-                    
-                    println("${prop.name}: error: $lastError")
-//                    e.printStackTrace()
-                    
-                    textfield.style = "-fx-background-color: red;"
-                    
-                    textfield.tooltip = Tooltip(lastError)
-                }
-            }
-            
-            
-        }
-    }
+        prop: KMutableProperty<Int>,
+        op: MyIntField.() -> Unit = {}
+): MyIntField {
+    val myField = MyIntField(prop)
+    myField.op()
+    myField.labelField.attachTo(this)
+    return myField
 }
+
+fun EventTarget.myBooleanField(
+        prop: KMutableProperty<Boolean>,
+        op: MyBooleanField.() -> Unit = {}
+): MyBooleanField {
+    val myField = MyBooleanField(prop)
+    myField.op()
+    myField.labelField.attachTo(this)
+    return myField
+}
+
+
+
+// =================
+// how it was before:
+// =================
 //
-//fun <T, R> handleProperty(
-//        control: Control,
-//        property: Property<T>,
-//        checker: Checker<T>,
-//        onSuccess: OnSuccess<Boolean>
+//fun <T : String?> EventTarget.myStringField(
+//        prop: KMutableProperty<T>
+//) = myTextField(prop, DefaultStringConverter())
+//
+//fun EventTarget.myIntField(
+//        prop: KMutableProperty<Int>
+//) = myTextField(prop, IntegerStringConverter())
+//
+//
+//fun <T> EventTarget.myTextField(
+//        prop: KMutableProperty<out T>,
+//        converter: StringConverter<T>,
+//        onSuccess: OnSuccess<String> = { },
+//        checker: Checker<String> = { }
+//): Field {
+//    
+//    return field(prop.name) {
+//        val initial = converter.toString(prop.call())
 //        
-//) {
-//    var lastError: String? = null
-//    property.addListener { observable, oldValue, newValue ->
-//        try {
-//            checker(newValue)
-//            // ??????
-//            val nullableValue =
-//                    if (newValue == "null" && prop.returnType.isMarkedNullable) null
-//                    else newValue
+//        textfield(initial) {
+//            val textfield = this
+//            var lastError: String? = null
 //            
-//            prop.setter.call(converter.fromString(nullableValue))
-//            
-//            // we fixed an error
-//            lastError?.also { le ->
-//                lastError = null
-//                
-//                println("${prop.name}: fixed error: $le")
-//                
-//                textfield.style = "-fx-background-color: white;"
-//                textfield.tooltip = null
+//            textProperty().addListener { observable, oldValue, newValue ->
+//                try {
+//                    checker(newValue)
+//                    // ??????
+//                    val nullableValue =
+//                            if (newValue == "null" && prop.returnType.isMarkedNullable) null
+//                            else newValue
+//                    
+//                    prop.setter.call(converter.fromString(nullableValue))
+//                    
+//                    // we fixed an error
+//                    lastError?.also { le ->
+//                        lastError = null
+//                        
+//                        println("${prop.name}: fixed error: $le")
+//                        
+//                        textfield.style = "-fx-background-color: white;"
+//                        textfield.tooltip = null
+//                    }
+//                    
+//                    onSuccess(newValue)
+//                } catch (e: Exception) {
+//                    lastError = e.message ?: e.cause?.message ?: e.cause?.cause?.message ?: "unknown error"
+//                    
+//                    if (e is NumberFormatException)
+//                        lastError = "Bad Number Format: $lastError"
+//                    
+//                    println("${prop.name}: error: $lastError")
+////                    e.printStackTrace()
+//                    
+//                    textfield.style = "-fx-background-color: red;"
+//                    
+//                    textfield.tooltip = Tooltip(lastError)
+//                }
 //            }
 //            
-//            onSuccess(newValue)
-//        } catch (e: Exception) {
-//            lastError = e.message ?: e.cause?.message ?: e.cause?.cause?.message ?: "unknown error"
 //            
-//            if (e is NumberFormatException)
-//                lastError = "Bad Number Format: $lastError"
-//            
-//            println("${prop.name}: error: $lastError")
-////                    e.printStackTrace()
-//            
-//            textfield.style = "-fx-background-color: red;"
-//            
-//            textfield.tooltip = Tooltip(lastError)
 //        }
 //    }
-//    
-//}
-//
-//
-//fun EventTarget.myBoolField(
-//        prop: KMutableProperty<Boolean>,
-//        onSuccess: OnSuccess<Boolean> = { },
-//        checker: Checker<Boolean> = { }
-//) = checkbox(prop.name) {
-//    
-//    val checkBox = this
-//    checkBox.isSelected = prop.call()
-//    
-//    var lastError: String? = null
-//    
-//    selectedProperty().addListener { observable, oldValue, newValue ->
-//        try {
-//            checker(newValue)
-//            prop.setter.call(newValue)
-//            
-//            // we fixed an error
-//            lastError?.also { le ->
-//                lastError = null
-//                
-//                println("${prop.name}: fixed error: $le")
-//                
-//                checkBox.style = "-fx-background-color: white;"
-//                checkBox.tooltip = null
-//            }
-//        } catch (e: Exception) {
-//            lastError = e.message ?: e.cause?.message ?: e.cause?.cause?.message ?: "unknown error"
-//            
-//            if (e is NumberFormatException)
-//                lastError = "Bad Number Format: $lastError"
-//            
-//            println("${prop.name}: error: $lastError")
-////                    e.printStackTrace()
-//            
-//            checkBox.style = "-fx-background-color: red;"
-//            
-//            checkBox.tooltip = Tooltip(lastError)
-//        }
-//    }
-//    
-//    
-//}
 //}
 
