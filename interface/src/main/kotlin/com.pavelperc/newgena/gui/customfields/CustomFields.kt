@@ -1,7 +1,13 @@
 package com.pavelperc.newgena.gui.customfields
 
+import com.pavelperc.newgena.gui.views.ArrayEditor
+import javafx.beans.property.SimpleStringProperty
+import javafx.collections.FXCollections
+import javafx.collections.ListChangeListener
+import javafx.collections.ObservableList
 import javafx.event.EventTarget
 import javafx.scene.control.*
+import javafx.stage.StageStyle
 import javafx.util.StringConverter
 import javafx.util.converter.DefaultStringConverter
 import javafx.util.converter.IntegerStringConverter
@@ -12,8 +18,9 @@ import kotlin.reflect.KMutableProperty
 
 open class MyPropertyTextField<P : Any?>(
         prop: KMutableProperty<out P>,
-        val converter: StringConverter<P>
-) : MyPropertyLabeled<P, String>(prop) {
+        val converter: StringConverter<P>,
+        customLabel: String? = null
+) : MyPropertyLabeled<P, String>(prop, customLabel) {
     val textField: TextField
     
     override fun convertToProp(newValue: String): P {
@@ -36,9 +43,6 @@ open class MyPropertyTextField<P : Any?>(
     init {
         val initial = converter.toString(prop.call())
         textField = TextField(initial)
-        var label = prop.name
-        if (prop.returnType.isMarkedNullable)
-            label += "?"
         
         textField.attachTo(labelField) {
             textProperty().addListener { observable, oldValue, newValue ->
@@ -85,6 +89,7 @@ class MyComplexPropertyFieldSet<P>(
     
     init {
         fieldSet.createFields(prop.call())
+        fieldSet.attachTo(labelField)
     }
     
     override fun convertToProp(newValue: Nothing): P = TODO()
@@ -120,18 +125,40 @@ class ArrayStringConverter<E>(val itemConverter: StringConverter<E>) : StringCon
 // todo: improve performance for large fields!!
 open class MyArrayField<E>(
         prop: KMutableProperty<out List<E>?>,
-        converter: StringConverter<E>
+        converter: StringConverter<E>,
+        customLabel: String? = null
 ) : MyPropertyWrapper<List<E>?, String>(prop) {
-    val myPropertyTextField = MyPropertyTextField(prop, ArrayStringConverter<E>(converter))
+    
+    /** Using aggregation instead of extension. Hides textField and synchronization with prop. */
+    val myPropertyTextField: MyPropertyTextField<List<E>?>
     
     val labelField: Field
         get() = myPropertyTextField.labelField
     
+    
+    val observableList = FXCollections.observableArrayList<String>()
+    
     init {
+        var label = prop.name + "[]"
+        if (prop.returnType.isMarkedNullable)
+            label += "?"
+        
+        myPropertyTextField = MyPropertyTextField(prop, ArrayStringConverter<E>(converter), customLabel ?: label)
+        
+        observableList.setAll(prop.call()?.map { converter.toString(it) }?: mutableListOf())
+        
+        observableList.addListener { listCangeListener: ListChangeListener.Change<out String> -> 
+            myPropertyTextField.textField.text(observableList.toList().joinToString(", "))
+        }
+        
         val button = Button("|||")
         button.attachTo(labelField) {
             action {
-                alert(Alert.AlertType.INFORMATION, "Not implemented.")
+                
+//                ArrayEditor(observableList)
+//                        .openModal(StageStyle.UTILITY)
+                
+//                alert(Alert.AlertType.INFORMATION, "Not implemented.")
             }
         }
     }
@@ -142,6 +169,9 @@ open class MyArrayField<E>(
     override fun onFixed() = myPropertyTextField.onFixed()
     override fun onBroken(error: String) = myPropertyTextField.onBroken(error)
 }
+
+
+
 
 // =================
 // final own fields:
@@ -181,3 +211,46 @@ class MyStringArrayFieldNullable(
         prop,
         DefaultStringConverter()
 )
+
+
+/** [E] - Enum */
+class MyEnumField<E : Enum<E>>(
+        prop: KMutableProperty<E>,
+        val stringToEnum: (String) -> E,
+        val enumValues: List<String>
+) : MyPropertyLabeled<E, String>(prop) {
+    
+    val comboBox: ComboBox<String>
+    
+    override fun convertToProp(newValue: String): E {
+        return stringToEnum(newValue)
+    }
+    
+    override fun onBroken(error: String) {
+        comboBox.style = "-fx-background-color: red;"
+        comboBox.tooltip = Tooltip(error)
+    }
+    
+    override fun onFixed() {
+        comboBox.style = "-fx-background-color: white;"
+        comboBox.tooltip = null
+    }
+    
+    init {
+        val list = enumValues.observable()
+        val selectedProperty = SimpleStringProperty()
+        selectedProperty.set(prop.call().name)
+        
+        comboBox = ComboBox()
+        comboBox.attachTo(labelField) {
+            items = list
+            bind(selectedProperty)
+        }
+        
+        selectedProperty.onChange { newValue ->
+            setToProp(newValue ?: "")
+        }
+    }
+    
+    
+}

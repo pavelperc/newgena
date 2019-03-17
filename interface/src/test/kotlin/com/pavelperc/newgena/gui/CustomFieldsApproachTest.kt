@@ -5,17 +5,15 @@ import com.pavelperc.newgena.utils.propertyinitializers.NonNegativeInt
 import org.junit.Test
 import tornadofx.*
 
-class GuiSettingsTest : App(UISettings::class) {
+class CustomFieldsApproachTest : App(UISettings::class) {
     
     
     class Person {
         class Body {
             enum class Skin { White, Black }
             
-            val skin = Skin.White
-            val height = 25.0
-            
-            
+            var skin = Skin.White
+            var height = 25
             
             override fun toString() = "Body(skin=$skin, height=$height)"
         }
@@ -35,7 +33,7 @@ class GuiSettingsTest : App(UISettings::class) {
         
         var isUsingBody = true
         
-        var body: Body? = Body()
+        var body: Body = Body()
         
         override fun toString() =
                 "Person(name='$name', surname=$surname, body=$body, age=$age, isUsingBody=$isUsingBody, friends=$friends)"
@@ -74,6 +72,10 @@ class GuiSettingsTest : App(UISettings::class) {
 //                    textfield(pm.body, )
 //                }
                 
+                myComplexPropertyFieldSet(p::body) { body ->
+                    myIntField(body::height)
+                    myEnumField(body::skin)
+                }
                 
                 button("print") {
                     action {
@@ -89,6 +91,8 @@ class GuiSettingsTest : App(UISettings::class) {
     
     @Test
     fun testCustomFieldExtensions() {
-        launch<GuiSettingsTest>()
+        launch<CustomFieldsApproachTest>()
+        
+        
     }
 }

@@ -49,6 +49,15 @@ fun EventTarget.myBooleanField(
     return myField
 }
 
+fun <P> EventTarget.myComplexPropertyFieldSet(
+        prop: KMutableProperty<P>,
+        createFields: EventTarget.(complex: P) -> Unit
+): MyComplexPropertyFieldSet<P> {
+    val myField = MyComplexPropertyFieldSet(prop, createFields)
+    myField.labelField.attachTo(this)
+    return myField
+}
+
 fun EventTarget.myStringArrayField(
         prop: KMutableProperty<List<String>>,
         op: MyStringArrayField.() -> Unit = {}
@@ -69,6 +78,19 @@ fun EventTarget.myStringArrayFieldNullable(
     return myField
 }
 
+inline fun <reified E : Enum<E>> EventTarget.myEnumField(
+        prop: KMutableProperty<E>,
+        op: MyEnumField<E>.() -> Unit = {}
+): MyEnumField<E> {
+    val myField = MyEnumField(
+            prop,
+            { string -> enumValueOf<E>(string) },
+            enumValues<E>().map { it.name }
+    )
+    myField.op()
+    myField.labelField.attachTo(this)
+    return myField
+}
 
 
 // =================

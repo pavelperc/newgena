@@ -1,8 +1,5 @@
 package com.pavelperc.newgena.gui.customfields
 
-import javafx.scene.control.TextField
-import javafx.scene.control.Tooltip
-import javafx.util.StringConverter
 import tornadofx.*
 import kotlin.reflect.KMutableProperty
 
@@ -69,7 +66,8 @@ abstract class MyPropertyWrapper<P : Any?, F : Any?>(
 }
 
 abstract class MyPropertyLabeled<P, F>(
-        prop: KMutableProperty<out P>
+        prop: KMutableProperty<out P>,
+        customLabel: String? = null
 ) : MyPropertyWrapper<P, F>(prop) {
     val labelField: Field
     
@@ -78,7 +76,7 @@ abstract class MyPropertyLabeled<P, F>(
         if (prop.returnType.isMarkedNullable)
             label += "?"
         
-        labelField = Field(label)
+        labelField = Field(customLabel ?: label)
     }
 }
 
