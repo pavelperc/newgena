@@ -31,12 +31,14 @@ class GuiSettingsTest : App(UISettings::class) {
         
         var age by NonNegativeInt(25)
         
+        var friends: MutableList<String>? = mutableListOf("Friend1", "Friend2")
+        
         var isUsingBody = true
         
         var body: Body? = Body()
         
         override fun toString() =
-                "Person(name='$name', surname=$surname, body=$body, age=$age)"
+                "Person(name='$name', surname=$surname, body=$body, age=$age, isUsingBody=$isUsingBody, friends=$friends)"
         
         
     }
@@ -65,6 +67,8 @@ class GuiSettingsTest : App(UISettings::class) {
                 myIntField(p::age)
                 
                 myBooleanField(p::isUsingBody)
+                
+                myStringArrayFieldNullable(p::friends)
                 
 //                field("body") {
 //                    textfield(pm.body, )
