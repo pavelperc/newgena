@@ -4,14 +4,15 @@ import com.pavelperc.newgena.gui.controller.SettingsUIController
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.property.Property
+import javafx.beans.property.SimpleStringProperty
+import javafx.collections.ObservableList
 import javafx.event.EventTarget
 import javafx.geometry.Orientation
-import javafx.scene.control.TextField
-import javafx.scene.control.TextInputControl
+import javafx.scene.control.*
 import javafx.util.StringConverter
 import tornadofx.*
 import tornadofx.Form
-import java.io.File
+import java.util.regex.Pattern
 
 
 class QuitIntConverter : StringConverter<Int>() {
@@ -74,9 +75,39 @@ fun EventTarget.intField(
     fieldOp()
 }
 
-fun EventTarget.checkboxField(property: Property<Boolean>) = field(property.name) {
-    checkbox(property = property)
-}
+fun EventTarget.checkboxField(property: Property<Boolean>, op: CheckBox.() -> Unit = {}) =
+        field(property.name) {
+            checkbox(property = property, op = op)
+        }
+
+fun EventTarget.arrayField(property: Property<ObservableList<String>>) =
+        field(property.name) {
+            val list = property.value
+            
+            val textProp = SimpleStringProperty(list.joinToString("; "))
+            val splitPattern = Pattern.compile("""\s*[;,]\s*""")
+            textProp.addListener { observable, oldValue, newValue ->
+                val splitted = newValue
+                        .trim('[', ']', '{', '}')
+                        .trimIndent()
+                        .split(splitPattern)
+                        .toMutableList()
+                list.setAll(splitted)
+            }
+            
+            textfield(textProp)
+            
+            button(graphic = FontAwesomeIconView(FontAwesomeIcon.EXPAND)) {
+                action {
+                    val arrayEditor = ArrayEditor(property.value.toList(), onSuccess = { changedObjects ->
+                        // set to textProp, textProp sets to list
+                        textProp.value = changedObjects.joinToString("; ")
+                    })
+                    
+                    arrayEditor.openModal()
+                }
+            }
+        }
 
 fun <A, B> Property<A>.bindWithConverter(other: Property<B>, toOther: (me: A) -> B, fromOther: (he: B) -> A) {
     // recursion????
@@ -94,6 +125,8 @@ class SettingsView : View("Settings") {
     private val controller by inject<SettingsUIController>()
     
     private val settings = controller.settingsModel
+    private val petrinetSetup = controller.petrinetSetupModel
+    private val marking = controller.markingModel
     
     override val root = Form()
     
@@ -119,18 +152,55 @@ class SettingsView : View("Settings") {
                 
                 checkboxField(settings.isUsingNoise)
                 
-                checkboxField(settings.isUsingStaticPriorities)
                 
-                checkboxField(settings.isUsingTime)
+                checkboxField(settings.isUsingStaticPriorities) {
+                    action {
+                        if (isSelected)
+                            settings.isUsingTime.value = false
+                    }
+                }
+                checkboxField(settings.isUsingTime) {
+                    action {
+                        if (isSelected)
+                            settings.isUsingStaticPriorities.value = false
+                    }
+                }
+                
+                
+                fieldset("petrinetSetup") {
+                    field("petrinetFile") {
+                        textfield(petrinetSetup.petrinetFile).required()
+                        
+                        button(graphic = FontAwesomeIconView(FontAwesomeIcon.FILE)) {
+                            action {
+                                controller.requestPetrinetFileChooseDialog()
+                            }
+                            isFocusTraversable = false
+                        }
+                        button("Load model") {
+                            action {
+                                alert(Alert.AlertType.INFORMATION, "Not implemented.")
+                            }
+                            isFocusTraversable = false
+                        }
+                        
+                    }
+                    
+                    
+                    arrayField(petrinetSetup.inhibitorArcIds)
+                    arrayField(petrinetSetup.resetArcIds)
+                }
+                
+                
                 
                 button("Commit and print") {
-                    enableWhen(settings.valid)
+                    enableWhen(controller.allModelsAreValid)
                     action {
                         settings.commit()
                         println(settings.item)
                     }
                 }
-            }   
+            }
         }
     }
     
