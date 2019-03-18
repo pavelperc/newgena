@@ -2,6 +2,9 @@ package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.gui.app.Styles
 import javafx.collections.ObservableList
+import javafx.scene.control.Button
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
 import tornadofx.*
 
@@ -23,15 +26,24 @@ class ArrayEditor(
             addClass(Styles.addItemRoot)
             label("Add: ")
             textfield {
+                promptText = "Click enter to add."
                 action {
-                    promptText = "Click enter to add."
-                    
                     val text = textProperty().value
-                    objects.add(text)
-                    selectAll()
+                    
+                    if (text.isNotEmpty()) {
+                        objects.add(text)
+                        selectAll()
+                    }
                 }
             }
             button("save") {
+                addEventFilter(KeyEvent.KEY_PRESSED) {
+                    if (it.code == KeyCode.ENTER) {
+//                        if (it.target is Button && !it.isControlDown)
+//                            return@addEventFilter
+                        fire()
+                    }
+                }
                 action {
                     onSuccess(objects)
                     close()

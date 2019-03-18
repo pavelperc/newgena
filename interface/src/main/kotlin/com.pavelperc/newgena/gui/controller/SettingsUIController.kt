@@ -22,7 +22,7 @@ class SettingsUIController : Controller() {
     
     fun requestOutputFolderChooseDialog() {
         val cwd = File(System.getProperty("user.dir"))
-        println(cwd.absolutePath)
+//        println(cwd.absolutePath)
     
         val directoryChooser = DirectoryChooser()
         directoryChooser.initialDirectory = cwd
@@ -38,7 +38,7 @@ class SettingsUIController : Controller() {
     
     fun requestPetrinetFileChooseDialog() {
         val cwd = File(System.getProperty("user.dir"))
-        println(cwd.absolutePath)
+//        println(cwd.absolutePath)
         
         val fileChooser = FileChooser()
         fileChooser.initialDirectory = cwd
