@@ -11,7 +11,6 @@ import org.processmining.models.time_driven_behavior.GranularityTypes
 import org.processmining.models.time_driven_behavior.NoiseEvent
 import java.time.Instant
 import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.full.memberProperties
 
 /** Json representation of all generation settings.
  * Represents all adjustable(!) parameters.
@@ -30,7 +29,7 @@ class JsonSettings() {
     @JsonCreator
     constructor(
             outputFolder: String,
-            petrinetSetup: JsonPetrinet,
+            petrinetSetup: JsonPetrinetSetup,
             numberOfLogs: Int,
             numberOfTraces: Int,
             maxNumberOfSteps: Int,
@@ -60,39 +59,35 @@ class JsonSettings() {
     
     // ----------------------------- VARIABLES: ---------------------------
     var outputFolder = "xes-out"
-    
-    
-    var petrinetSetup = JsonPetrinet()
+    var petrinetSetup = JsonPetrinetSetup()
     
     var numberOfLogs by NonNegativeInt(5)
     var numberOfTraces by NonNegativeInt(10)
-    
     var maxNumberOfSteps by NonNegativeInt(100)
     
     var isRemovingEmptyTraces = true
-    
     var isRemovingUnfinishedTraces = true
     
     var isUsingNoise by ExclusiveBoolean(::isUsingStaticPriorities)
-    
     var noiseDescription: JsonNoise? = JsonNoise()
     
     var isUsingStaticPriorities: Boolean by ExclusiveBoolean(::isUsingStaticPriorities)
-    
     var staticPriorities: JsonStaticPriorities? = JsonStaticPriorities()
     
     var isUsingTime by ExclusiveBoolean(::isUsingStaticPriorities)
-    
     var timeDescription: JsonTimeDescription? = JsonTimeDescription()
     
     companion object {}
     
-    override fun toString(): String {
-        return this::class.declaredMemberProperties.joinToString(",\n\t", "Settings:(\n", "\n)") { "${it.name}: ${it.call(this).toString()}" }
-    }
-    
-    
+    override fun toString() = reflectionToString(this)
 }
+
+fun reflectionToString(any: Any) =
+        any::class.declaredMemberProperties
+                .joinToString(",\n", "${any::class.simpleName}(\n", "\n)") { prop ->
+                    "${prop.name}: ${prop.call(any)}".prependIndent()
+                }
+
 
 class JsonMarking() {
     @JsonCreator
@@ -106,10 +101,12 @@ class JsonMarking() {
     var finalPlaceIds = mutableListOf<String>()
     
     var isUsingInitialMarkingFromPnml = false
+    
+    override fun toString() = reflectionToString(this)
 }
 
 @JsonPropertyOrder(value = ["petrinetFile"], alphabetic = true)
-class JsonPetrinet() {
+class JsonPetrinetSetup() {
     
     @JsonCreator
     constructor(
@@ -128,6 +125,8 @@ class JsonPetrinet() {
     var marking = JsonMarking()
     var inhibitorArcIds: MutableList<String> = mutableListOf()
     var resetArcIds: MutableList<String> = mutableListOf()
+    
+    override fun toString() = reflectionToString(this)
 }
 
 
@@ -158,6 +157,8 @@ class JsonNoise() {
     
     var internalTransitionIds = mutableSetOf<String>()
     var existingNoiseEvents = mutableListOf(NoiseEvent("NoiseEvent"))
+    
+    override fun toString() = reflectionToString(this)
 }
 
 class JsonStaticPriorities() {
@@ -170,6 +171,8 @@ class JsonStaticPriorities() {
     var maxPriority: Int = 1
     /** Ids with larger numbers go first. Default priority is 1.*/
     var transitionIdsToPriorities = mutableMapOf<String, Int>()
+    
+    override fun toString() = reflectionToString(this)
 }
 
 class JsonTimeDrivenNoise() {
@@ -194,6 +197,8 @@ class JsonTimeDrivenNoise() {
     var isUsingTimeGranularity: Boolean = true
     var maxTimestampDeviationSeconds: Int = 0
     var granularityType: GranularityTypes = GranularityTypes.MINUTES_5
+    
+    override fun toString() = reflectionToString(this)
 }
 
 /** Json representation of TimeDescription */
@@ -228,6 +233,8 @@ class JsonTimeDescription {
     var transitionIdsToResources = mutableMapOf<String, JsonResources.ResourceMapping>()
     
     var timeDrivenNoise: JsonTimeDrivenNoise? = JsonTimeDrivenNoise()
+    
+    override fun toString() = reflectionToString(this)
 }
 
 /** Json representation of resources */
@@ -241,6 +248,8 @@ object JsonResources {
         
         var name: String = "role"
         var resources = mutableListOf<Resource>(Resource())
+    
+        override fun toString() = reflectionToString(this)
     }
     
     class Resource() {
@@ -256,6 +265,8 @@ object JsonResources {
         var willBeFreed by NonNegativeLong(0L)
         var minDelayBetweenActionsMillis by NonNegativeLong(15 * 60 * 1000)
         var maxDelayBetweenActionsMillis by NonNegativeLong(20 * 60 * 1000)
+    
+        override fun toString() = reflectionToString(this)
     }
     
     class Group() {
@@ -267,6 +278,8 @@ object JsonResources {
         
         var name: String = "group"
         var roles = mutableListOf<Role>(Role())
+    
+        override fun toString() = reflectionToString(this)
     }
     
     class ResourceMapping() {
@@ -284,5 +297,7 @@ object JsonResources {
         
         var fullResourceNames = mutableListOf<FullResourceName>()
         var simplifiedResourceNames = mutableListOf<String>()
+    
+        override fun toString() = reflectionToString(this)
     }
 }

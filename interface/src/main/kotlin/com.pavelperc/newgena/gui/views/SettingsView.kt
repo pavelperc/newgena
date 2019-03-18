@@ -1,39 +1,99 @@
 package com.pavelperc.newgena.gui.views
 
-import com.pavelperc.newgena.gui.model.SettingsModel
-import com.pavelperc.newgena.loaders.settings.JsonSettings
-import com.sun.glass.ui.CommonDialogs
+import com.pavelperc.newgena.gui.controller.SettingsUIController
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
-import javafx.beans.binding.Bindings
 import javafx.beans.property.Property
 import javafx.event.EventTarget
 import javafx.geometry.Orientation
 import javafx.scene.control.TextField
-import javafx.stage.DirectoryChooser
-import javafx.stage.FileChooser
+import javafx.scene.control.TextInputControl
 import javafx.util.StringConverter
-import javafx.util.converter.NumberStringConverter
 import tornadofx.*
 import tornadofx.Form
 import java.io.File
-import java.nio.file.Paths
-import kotlin.reflect.full.memberProperties
+
 
 class QuitIntConverter : StringConverter<Int>() {
     override fun toString(obj: Int?) = obj.toString()
     override fun fromString(string: String) = if (string.isInt()) string.toInt() else 0
 }
 
-fun EventTarget.intfield(
+typealias Validator<T> = ValidationContext.(T) -> ValidationMessage?
+
+fun TextInputControl.validInt(
+        nextValidator: Validator<Int> = { null }
+) {
+    this.validator { value ->
+        when {
+            value == null -> error("Null")
+            !value.isInt() -> error("Not an Int")
+            else -> nextValidator(value.toInt())
+        }
+    }
+    
+}
+
+fun TextInputControl.validUint(
+        nextValidator: Validator<Int> = { null }
+) {
+    validInt { value ->
+        when {
+            value < 0 -> error("Should be positive")
+            else -> nextValidator(value)
+        }
+    }
+}
+
+fun TextInputControl.validRangeInt(
+        intRange: IntRange,
+        nextValidator: Validator<Int> = { null }
+) {
+    validInt { value ->
+        when {
+            value !in intRange -> error("Should be in $intRange")
+            else -> nextValidator(value)
+        }
+    }
+}
+
+
+fun EventTarget.intField(
         property: Property<Int>,
+//        sliderRange: IntRange? = null,
+        fieldOp: Field.() -> Unit = {},
         op: TextField.() -> Unit = {}
-) = textfield(property, QuitIntConverter(), op)
+) = field(property.name, Orientation.HORIZONTAL) {
+    textfield(property, QuitIntConverter(), op)
+//    if (sliderRange != null) {
+//        slider(sliderRange, property.value) {
+//            blockIncrement = 1.0
+//            valueProperty().bindWithConverter(property, { me -> me.toInt() }, { he -> he.toDouble() })
+//        }
+//    }
+    fieldOp()
+}
+
+fun EventTarget.checkboxField(property: Property<Boolean>) = field(property.name) {
+    checkbox(property = property)
+}
+
+fun <A, B> Property<A>.bindWithConverter(other: Property<B>, toOther: (me: A) -> B, fromOther: (he: B) -> A) {
+    // recursion????
+    this.onChange { changed ->
+        other.value = toOther(changed!!)
+    }
+    other.onChange { changed ->
+        this.value = fromOther(changed!!)
+    }
+}
 
 
 class SettingsView : View("Settings") {
     
-    val settings = SettingsModel(JsonSettings())
+    private val controller by inject<SettingsUIController>()
+    
+    private val settings = controller.settingsModel
     
     override val root = Form()
     
@@ -41,48 +101,36 @@ class SettingsView : View("Settings") {
         with(root) {
             fieldset {
                 field("outputFolder") {
-                    textfield(settings.outputFolder) {
-                        required()
-                    }
+                    textfield(settings.outputFolder)
                     
                     button(graphic = FontAwesomeIconView(FontAwesomeIcon.FOLDER)) {
                         action {
-                            val cwd = File(System.getProperty("user.dir"))
-                            println(cwd.absolutePath)
-                            
-                            val directoryChooser = DirectoryChooser()
-                            directoryChooser.initialDirectory = cwd
-                            
-                            var path = directoryChooser.showDialog(null)?.path
-                            if (path != null) {
-                                if (path.startsWith(cwd.path))
-                                    path = path.substringAfter(cwd.path + "\\")
-                                
-                                settings.outputFolder.value = path
-                            }
+                            controller.requestOutputFolderChooseDialog()
                         }
+                        isFocusTraversable = false
                     }
                 }
-                field("maxNumberOfSteps", Orientation.VERTICAL) {
-                    textfield(settings.maxNumberOfSteps, QuitIntConverter()) {
-                        required()
-                    }
-                    slider(0..100, settings.maxNumberOfSteps.value) {
-                        blockIncrement = 1.0
-                        
-                        valueProperty().onChange { num -> settings.maxNumberOfSteps.value = num.toInt() }
-                        settings.maxNumberOfSteps.onChange { num -> valueProperty().value = num?.toDouble() ?: 0.0 }
-                    }
-                }
+                intField(settings.numberOfLogs) { validUint() }
+                intField(settings.numberOfTraces) { validUint() }
+                intField(settings.maxNumberOfSteps) { validUint() }
                 
-                button("Save and print") {
+                checkboxField(settings.isRemovingEmptyTraces)
+                checkboxField(settings.isRemovingUnfinishedTraces)
+                
+                checkboxField(settings.isUsingNoise)
+                
+                checkboxField(settings.isUsingStaticPriorities)
+                
+                checkboxField(settings.isUsingTime)
+                
+                button("Commit and print") {
                     enableWhen(settings.valid)
                     action {
                         settings.commit()
                         println(settings.item)
                     }
                 }
-            }
+            }   
         }
     }
     
