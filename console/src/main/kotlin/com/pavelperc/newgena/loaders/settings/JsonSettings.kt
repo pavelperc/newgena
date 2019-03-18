@@ -10,6 +10,8 @@ import org.processmining.models.GenerationDescription
 import org.processmining.models.time_driven_behavior.GranularityTypes
 import org.processmining.models.time_driven_behavior.NoiseEvent
 import java.time.Instant
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.memberProperties
 
 /** Json representation of all generation settings.
  * Represents all adjustable(!) parameters.
@@ -83,7 +85,13 @@ class JsonSettings() {
     
     var timeDescription: JsonTimeDescription? = JsonTimeDescription()
     
-    companion object
+    companion object {}
+    
+    override fun toString(): String {
+        return this::class.declaredMemberProperties.joinToString(",\n\t", "Settings:(\n", "\n)") { "${it.name}: ${it.call(this).toString()}" }
+    }
+    
+    
 }
 
 class JsonMarking() {
