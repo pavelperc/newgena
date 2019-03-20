@@ -5,17 +5,25 @@ import com.pavelperc.newgena.loaders.settings.JsonPetrinetSetup
 import com.pavelperc.newgena.loaders.settings.JsonSettings
 import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.BooleanProperty
+import javafx.beans.property.IntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import tornadofx.*
 import kotlin.reflect.KMutableProperty
+import kotlin.reflect.KMutableProperty1
 
 fun <T> KMutableProperty<out List<T>>.listProp(): SimpleObjectProperty<ObservableList<T>> {
     // when the caller object is null????
     val list = this.call()?.observable() ?: FXCollections.observableArrayList()
     return SimpleObjectProperty(list, this.name)
 }
+
+/** Binds mutableList to [ItemViewModel] as observableList property.*/
+fun <T, S> ItemViewModel<T>.bindList(prop: KMutableProperty1<T, out List<S>>) =
+        bind {
+            SimpleObjectProperty(null, prop.name, item?.let { prop.call(it) }?.observable() ?: observableList())
+        }
 
 
 /**
@@ -64,12 +72,9 @@ class PetrinetSetupModel(initial: JsonPetrinetSetup)
     
     val petrinetFile = bind(JsonPetrinetSetup::petrinetFile, autocommit = true)
     
-    val inhibitorArcIds = bind {
-        SimpleObjectProperty(null, "inhibitorArcIds", item?.inhibitorArcIds?.observable() ?: observableList())
-    }
-    val resetArcIds = bind {
-        SimpleObjectProperty(null, "resetArcIds", item?.resetArcIds?.observable() ?: observableList())
-    }
+    val inhibitorArcIds = bindList(JsonPetrinetSetup::inhibitorArcIds)
+    
+    val resetArcIds = bindList(JsonPetrinetSetup::resetArcIds)
     
     // ---INNER MODELS:
     val markingModel = MarkingModel(initial.marking)
@@ -91,9 +96,8 @@ class MarkingModel(initial: JsonMarking)
     : ItemViewModel<JsonMarking>(initial) {
     
     val isUsingInitialMarkingFromPnml = bind(JsonMarking::isUsingInitialMarkingFromPnml)
-//    val initialPlaceIds = bind(JsonMarking::initialPlaceIds)
-//    val finalPlaceIds = bind(JsonMarking::finalPlaceIds)
-    
+    val initialPlaceIds = bindList(JsonMarking::initialPlaceIds)
+    val finalPlaceIds = bindList(JsonMarking::finalPlaceIds)
 }
 
 

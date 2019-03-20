@@ -19,18 +19,33 @@ class PetrinetImageView : Fragment("Petrinet Viewer.") {
     val controller by inject<SettingsUIController>()
     
     init {
-        title = controller.petrinet!!.label
+        title = controller.petrinet?.label ?: "No petrinet loaded."
         
-        val graph = controller.petrinet!!.toGraphviz(controller.jsonSettingsController.initialMarking)
-        val bufferedImage = graph.toGraphviz().render(Format.SVG).toImage()
-        val img = SwingFXUtils.toFXImage(bufferedImage, null)
+        val graph = controller.petrinet?.toGraphviz(
+                controller.jsonSettingsController.initialMarking
+        )
         
         with(root) {
-            imageview(img) {
-                isPreserveRatio = true
-                fitWidthProperty().bind(root.widthProperty())
-                fitHeightProperty().bind(root.heightProperty())
+            
+            if (graph != null) {
+                val bufferedImage = graph.toGraphviz().render(Format.SVG).toImage()
+                val img = SwingFXUtils.toFXImage(bufferedImage, null)
+                
+                imageview(img) {
+                    isPreserveRatio = true
+                    fitWidthProperty().bind(root.widthProperty())
+                    fitHeightProperty().bind(root.heightProperty())
+                }
+                
+            } else {
+                label("No Petrinet loaded.") {
+                    style {
+                        fontSize = 10.em
+                    }
+                }
             }
+            
+            
         }
         
     }

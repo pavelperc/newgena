@@ -1,10 +1,8 @@
 package com.pavelperc.newgena.gui.examplewithviewmodel
 
 import com.pavelperc.newgena.gui.app.Styles
-import com.pavelperc.newgena.gui.customfields.ArrayStringConverter
 import com.pavelperc.newgena.gui.views.ArrayEditor
 import javafx.beans.property.SimpleStringProperty
-import javafx.collections.ListChangeListener
 import tornadofx.*
 import ui.model.Body
 import ui.model.Person

@@ -1,163 +1,117 @@
 package com.pavelperc.newgena.gui.customfields
 
+import com.pavelperc.newgena.gui.views.ArrayEditor
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import javafx.beans.property.Property
+import javafx.beans.property.SimpleStringProperty
+import javafx.collections.ObservableList
 import javafx.event.EventTarget
+import javafx.geometry.Orientation
+import javafx.scene.control.CheckBox
+import javafx.scene.control.TextField
+import javafx.scene.control.TextInputControl
+import javafx.util.StringConverter
 import tornadofx.*
-import kotlin.reflect.KMutableProperty
 
 
-// ===================
-// extension builders:
-
-fun EventTarget.myStringField(
-        prop: KMutableProperty<String>,
-        op: MyStringField.() -> Unit = {}
-): MyStringField {
-    val myField = MyStringField(prop)
-    myField.op()
-    myField.labelField.attachTo(this)
-    return myField
+class QuiteIntConverter : StringConverter<Int>() {
+    override fun toString(obj: Int?) = obj.toString()
+    override fun fromString(string: String) = if (string.isInt()) string.toInt() else 0
 }
 
+typealias Validator<T> = ValidationContext.(T) -> ValidationMessage?
 
-fun EventTarget.myStringFieldNullable(
-        prop: KMutableProperty<String?>,
-        op: MyStringFieldNullable.() -> Unit = {}
-): MyStringFieldNullable {
-    val myField = MyStringFieldNullable(prop)
-    myField.op()
-    myField.labelField.attachTo(this)
-    return myField
+fun TextInputControl.validInt(
+        nextValidator: Validator<Int> = { null }
+) {
+    this.validator { value ->
+        when {
+            value == null -> error("Null")
+            !value.isInt() -> error("Not an Int")
+            else -> nextValidator(value.toInt())
+        }
+    }
+    
 }
 
-fun EventTarget.myIntField(
-        prop: KMutableProperty<Int>,
-        op: MyIntField.() -> Unit = {}
-): MyIntField {
-    val myField = MyIntField(prop)
-    myField.op()
-    myField.labelField.attachTo(this)
-    return myField
+fun TextInputControl.validUint(
+        nextValidator: Validator<Int> = { null }
+) {
+    validInt { value ->
+        when {
+            value < 0 -> error("Should be positive")
+            else -> nextValidator(value)
+        }
+    }
 }
 
-fun EventTarget.myBooleanField(
-        prop: KMutableProperty<Boolean>,
-        op: MyBooleanField.() -> Unit = {}
-): MyBooleanField {
-    val myField = MyBooleanField(prop)
-    myField.op()
-    myField.labelField.attachTo(this)
-    return myField
+fun TextInputControl.validRangeInt(
+        intRange: IntRange,
+        nextValidator: Validator<Int> = { null }
+) {
+    validInt { value ->
+        when {
+            value !in intRange -> error("Should be in $intRange")
+            else -> nextValidator(value)
+        }
+    }
 }
 
-fun <P> EventTarget.myComplexPropertyFieldSet(
-        prop: KMutableProperty<P>,
-        createFields: EventTarget.(complex: P) -> Unit
-): MyComplexPropertyFieldSet<P> {
-    val myField = MyComplexPropertyFieldSet(prop, createFields)
-    myField.labelField.attachTo(this)
-    return myField
+/** Int validators for textfield are not included!! add them in [op] lambda. */
+fun EventTarget.intField(
+        property: Property<Int>,
+//        sliderRange: IntRange? = null,
+        fieldOp: Field.() -> Unit = {},
+        op: TextField.() -> Unit = {}
+) = field(property.name, Orientation.HORIZONTAL) {
+    textfield(property, QuiteIntConverter(), op)
+//    slider(1..100, property.value) {
+//        blockIncrement = 1.0
+//        valueProperty().bindBidirectional(property as IntegerProperty)
+//    }
+    fieldOp()
 }
 
-fun EventTarget.myStringArrayField(
-        prop: KMutableProperty<List<String>>,
-        op: MyStringArrayField.() -> Unit = {}
-): MyStringArrayField {
-    val myField = MyStringArrayField(prop)
-    myField.op()
-    myField.labelField.attachTo(this)
-    return myField
-}
+fun EventTarget.checkboxField(property: Property<Boolean>, op: CheckBox.() -> Unit = {}) =
+        field(property.name) {
+            checkbox(property = property, op = op)
+        }
 
-fun EventTarget.myStringArrayFieldNullable(
-        prop: KMutableProperty<out List<String>?>,
-        op: MyStringArrayFieldNullable.() -> Unit = {}
-): MyStringArrayFieldNullable {
-    val myField = MyStringArrayFieldNullable(prop)
-    myField.op()
-    myField.labelField.attachTo(this)
-    return myField
-}
+fun EventTarget.arrayField(prop: Property<ObservableList<String>>) =
+        field(prop.name) {
+            val list = prop.value
+            
+            val textProp = SimpleStringProperty(list.joinToString("; "))
+            textProp.onChange { value ->
+                val splitted = (value ?: "")
+                        .trim('[', ']', '{', '}', ';', ',')
+                        .split(';', ',')
+                        .map { it.trimIndent() }
+                        .toMutableList()
+                list.setAll(splitted)
+            }
+            textfield(textProp)
+            
+            button(graphic = FontAwesomeIconView(FontAwesomeIcon.EXPAND)) {
+                action {
+                    // make a copy of the list, because we can cancel editing.
+                    val arrayEditor = ArrayEditor(prop.value.toList(), onSuccess = { changedObjects ->
+                        // set to textProp, textProp sets to list
+                        textProp.value = changedObjects.joinToString("; ")
+                    })
+                     
+                    arrayEditor.openModal()
+                }
+            }
+        }
 
-inline fun <reified E : Enum<E>> EventTarget.myEnumField(
-        prop: KMutableProperty<E>,
-        op: MyEnumField<E>.() -> Unit = {}
-): MyEnumField<E> {
-    val myField = MyEnumField(
-            prop,
-            { string -> enumValueOf<E>(string) },
-            enumValues<E>().map { it.name }
-    )
-    myField.op()
-    myField.labelField.attachTo(this)
-    return myField
-}
-
-
-// =================
-// how it was before:
-// =================
-//
-//fun <T : String?> EventTarget.myStringField(
-//        prop: KMutableProperty<T>
-//) = myTextField(prop, DefaultStringConverter())
-//
-//fun EventTarget.myIntField(
-//        prop: KMutableProperty<Int>
-//) = myTextField(prop, IntegerStringConverter())
-//
-//
-//fun <T> EventTarget.myTextField(
-//        prop: KMutableProperty<out T>,
-//        converter: StringConverter<T>,
-//        onSuccess: OnSuccess<String> = { },
-//        checker: Checker<String> = { }
-//): Field {
-//    
-//    return field(prop.name) {
-//        val initial = converter.toString(prop.call())
-//        
-//        textfield(initial) {
-//            val textfield = this
-//            var lastError: String? = null
-//            
-//            textProperty().addListener { observable, oldValue, newValue ->
-//                try {
-//                    checker(newValue)
-//                    // ??????
-//                    val nullableValue =
-//                            if (newValue == "null" && prop.returnType.isMarkedNullable) null
-//                            else newValue
-//                    
-//                    prop.setter.call(converter.fromString(nullableValue))
-//                    
-//                    // we fixed an error
-//                    lastError?.also { le ->
-//                        lastError = null
-//                        
-//                        println("${prop.name}: fixed error: $le")
-//                        
-//                        textfield.style = "-fx-background-color: white;"
-//                        textfield.tooltip = null
-//                    }
-//                    
-//                    onSuccess(newValue)
-//                } catch (e: Exception) {
-//                    lastError = e.message ?: e.cause?.message ?: e.cause?.cause?.message ?: "unknown error"
-//                    
-//                    if (e is NumberFormatException)
-//                        lastError = "Bad Number Format: $lastError"
-//                    
-//                    println("${prop.name}: error: $lastError")
-////                    e.printStackTrace()
-//                    
-//                    textfield.style = "-fx-background-color: red;"
-//                    
-//                    textfield.tooltip = Tooltip(lastError)
-//                }
-//            }
-//            
-//            
-//        }
+//fun <A, B> Property<A>.bindWithConverter(other: Property<B>, toOther: (me: A) -> B, fromOther: (he: B) -> A) {
+//    // recursion????
+//    this.onChange { changed ->
+//        other.value = toOther(changed!!)
+//    }
+//    other.onChange { changed ->
+//        this.value = fromOther(changed!!)
 //    }
 //}
-
