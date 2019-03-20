@@ -62,7 +62,7 @@ class SettingsModel(initial: JsonSettings) : ItemViewModel<JsonSettings>(initial
 class PetrinetSetupModel(initial: JsonPetrinetSetup)
     : ItemViewModel<JsonPetrinetSetup>(initial) {
     
-    val petrinetFile = bind(JsonPetrinetSetup::petrinetFile)
+    val petrinetFile = bind(JsonPetrinetSetup::petrinetFile, autocommit = true)
     
     val inhibitorArcIds = bind {
         SimpleObjectProperty(null, "inhibitorArcIds", item?.inhibitorArcIds?.observable() ?: observableList())

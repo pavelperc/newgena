@@ -22,7 +22,7 @@ fun main(args: Array<String>) {
             else "examples/petrinet/simpleExample/settings.json"
     
     val settingsController = JsonSettingsController.createFromFilePath(settingsFilePath)
-    settingsController.updateInhResetArcsFromSettings()
+//    settingsController.updateInhResetArcsFromSettings()
     
     val generationKit = settingsController.getGenerationKit()
     
@@ -57,7 +57,7 @@ fun main(args: Array<String>) {
 //    logArray.toList().map { it.eventNames() }.joinToString("\n").also { println(it) }
     
     with(settingsController) {
-        logArray.exportXml("${jsonSettings.outputFolder}/${petrinet.label}.xes")
+        logArray.exportXml("${jsonSettings.outputFolder}/${generationKit.petrinet.label}.xes")
     }
     
     println("Done!")

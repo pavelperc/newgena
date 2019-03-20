@@ -7,8 +7,9 @@ import org.processmining.models.GenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.semantics.petrinet.Marking
 import java.io.File
+import java.lang.UnsupportedOperationException
 
-class JsonSettingsController(val jsonSettings: JsonSettings) {
+class JsonSettingsController(var jsonSettings: JsonSettings) {
     
     companion object {
         fun createFromFilePath(settingsFilePath: String): JsonSettingsController {
@@ -19,36 +20,51 @@ class JsonSettingsController(val jsonSettings: JsonSettings) {
         }
     }
     
-    private val pnmlMarking: Marking
+    var petrinet: ResetInhibitorNet? = null
     
-    val petrinet: ResetInhibitorNet
+    /** Marking, loaded from petrinet model.*/
+    private var pnmlMarking: Marking? = null
     
-    init {
+    val initialMarking: Marking
+        get() =// what about concurrency??
+            if (jsonSettings.petrinetSetup.marking.isUsingInitialMarkingFromPnml) {
+                pnmlMarking ?: Marking()
+            } else {
+                petrinet?.let { petrinet ->
+                    JsonSettingsBuilder(petrinet, jsonSettings).buildMarking().first
+                } ?: Marking()
+            }
+    
+    val finalMarking: Marking
+        get() = petrinet?.let { petrinet ->
+            JsonSettingsBuilder(petrinet, jsonSettings).buildMarking().second
+        } ?: Marking()
+    
+    
+    /** Tries to load petrinet, selected in settings. */
+    fun loadPetrinet() {
         PnmlLoader.loadPetrinetWithOwnParser(jsonSettings.petrinetSetup.petrinetFile).also { result ->
             petrinet = result.first
             pnmlMarking = result.second
         }
-        // todo: save initial arc state
-        
-        updateInhResetArcsFromSettings()
     }
     
-    fun updateInhResetArcsFromSettings() {
+    /** Changes the [petrinet]. */
+    private fun updateInhResetArcsFromSettings() {
         with(jsonSettings.petrinetSetup) {
-            petrinet.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
+            petrinet?.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
         }
     }
     
     /** When we are ready for generation. */
     fun getGenerationKit(): PetrinetGenerators.GenerationKit<GenerationDescription> {
+        val petrinet = petrinet
+                ?: throw UnsupportedOperationException("Can not get GenerationKit. Petrinet is not loaded.")
+        
+        updateInhResetArcsFromSettings()
         
         val builder = JsonSettingsBuilder(petrinet, jsonSettings)
         val generationDescription = builder.buildDescription()
-    
-        var (initialMarking, finalMarking) = builder.buildMarking()
-        if (jsonSettings.petrinetSetup.marking.isUsingInitialMarkingFromPnml) {
-            initialMarking = pnmlMarking
-        }
         
         return PetrinetGenerators.GenerationKit(petrinet, initialMarking, finalMarking, generationDescription)
     }

@@ -1,5 +1,6 @@
 package com.pavelperc.newgena.gui.views
 
+import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
@@ -134,7 +135,7 @@ class SettingsView : View("Settings") {
         with(root) {
             fieldset {
                 field("outputFolder") {
-                    textfield(settings.outputFolder)
+                    textfield(settings.outputFolder).required()
                     
                     button(graphic = FontAwesomeIconView(FontAwesomeIcon.FOLDER)) {
                         action {
@@ -166,9 +167,9 @@ class SettingsView : View("Settings") {
                     }
                 }
                 
-                
                 fieldset("petrinetSetup") {
                     field("petrinetFile") {
+                        
                         textfield(petrinetSetup.petrinetFile).required()
                         
                         button(graphic = FontAwesomeIconView(FontAwesomeIcon.FILE)) {
@@ -178,8 +179,14 @@ class SettingsView : View("Settings") {
                             isFocusTraversable = false
                         }
                         button("Load model") {
+                            toggleClass(Styles.redButton, controller.isPetrinetDirty)
+//                            toggleClass(Styles.greenButton, isPetrinetUpdated)
+                            
                             action {
-                                alert(Alert.AlertType.INFORMATION, "Not implemented.")
+                                // may crash
+                                controller.loadPetrinet()
+                                println("loaded petrinet")
+//                                alert(Alert.AlertType.INFORMATION, "Not implemented.")
                             }
                             isFocusTraversable = false
                         }
