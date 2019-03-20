@@ -4,6 +4,7 @@ import com.pavelperc.newgena.gui.model.PetrinetSetupModel
 import com.pavelperc.newgena.gui.model.SettingsModel
 import com.pavelperc.newgena.loaders.settings.JsonSettings
 import com.pavelperc.newgena.loaders.settings.JsonSettingsController
+import guru.nidi.graphviz.engine.Graphviz
 import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
@@ -44,6 +45,8 @@ class SettingsUIController : Controller() {
     
     
     init {
+        Graphviz.useDefaultEngines()
+        
         petrinetSetupModel.petrinetFile.onChange { value ->
             if (loadedPetrinetFilePath == value) {
                 isPetrinetUpdated.set(false)
