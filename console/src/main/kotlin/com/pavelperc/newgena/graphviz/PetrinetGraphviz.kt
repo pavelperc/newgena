@@ -1,5 +1,6 @@
 package com.pavelperc.newgena.graphviz
 
+import com.pavelperc.newgena.models.pnmlId
 import guru.nidi.graphviz.attribute.RankDir
 import guru.nidi.graphviz.attribute.Shape
 import guru.nidi.graphviz.*
@@ -24,15 +25,21 @@ private fun convert(petrinet: PetrinetGraph, marking: List<Place>, graphLabel: S
         graph["label" eq graphLabel]
         
         val places = petrinet.places.map {
-            val label = Label.of(it.label)
+            val label = Label.of(it.pnmlId)
             mutNode(label).add(Shape.CIRCLE, label.external())
         }
         
-        val transitions = petrinet.transitions.map { mutNode(it.label).add(Shape.RECTANGLE) }
+        val transitions = petrinet.transitions.map {
+            mutNode(it.pnmlId).add(
+                    Shape.RECTANGLE,
+//                    Label.of("${it.label}(${it.pnmlId})")
+                    Label.of(it.label)
+            )
+        }
         
         // drawing arcs
         petrinet.edges.forEach { edge ->
-            val arc = edge.source.label - edge.target.label
+            val arc = (edge.source.pnmlId - edge.target.pnmlId)[Label.of("${edge.label}(${edge.pnmlId})")]
             when (edge) {
                 is InhibitorArc -> arc[Arrow.DOT.open()]
                 is ResetArc -> arc[Arrow.NORMAL.and(Arrow.NORMAL)]
@@ -49,7 +56,7 @@ private fun convert(petrinet: PetrinetGraph, marking: List<Place>, graphLabel: S
 
 private fun drawTokens(allPlaceNodes: List<MutableNode>, marking: List<Place>) {
     // No token
-    allPlaceNodes.forEach { it[Label.of("   ")]}
+    allPlaceNodes.forEach { it[Label.of("   ")] }
     
     // grouping places by labels
     val counts = marking.groupBy { it.label!! }.mapValues { it.value.size }

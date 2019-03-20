@@ -15,7 +15,7 @@ import java.io.File
 
 class SettingsUIController : Controller() {
     
-    val jsonSettingsController = JsonSettingsController(JsonSettings())
+    val jsonSettingsController = JsonSettingsController.createFromFilePath("examples/petrinet/simpleExample/settings.json")
     
     var jsonSettings: JsonSettings
         get() = jsonSettingsController.jsonSettings
@@ -68,7 +68,8 @@ class SettingsUIController : Controller() {
         }
     }
     
-    fun requestPetrinetFileChooseDialog() {
+    /** Returns if the dialog was not cancelled. */
+    fun requestPetrinetFileChooseDialog(): Boolean {
         val cwd = File(System.getProperty("user.dir"))
 //        println(cwd.absolutePath)
         val prev = File(petrinetSetupModel.petrinetFile.value).parentFile
@@ -86,7 +87,9 @@ class SettingsUIController : Controller() {
                 path = path.substringAfter(cwd.path + "\\")
             
             petrinetSetupModel.petrinetFile.value = path
+            return true
         }
+        return false
     }
     
     fun loadPetrinet() {

@@ -171,14 +171,19 @@ class SettingsView : View("Settings") {
                     field("petrinetFile") {
                         
                         textfield(petrinetSetup.petrinetFile).required()
-                        
+                        var btnLoadModel: Button? = null
+                        // select file
                         button(graphic = FontAwesomeIconView(FontAwesomeIcon.FILE)) {
                             action {
-                                controller.requestPetrinetFileChooseDialog()
+                                if (controller.requestPetrinetFileChooseDialog()) {
+                                    btnLoadModel?.fire()
+                                }
                             }
                             isFocusTraversable = false
                         }
-                        button("Load model") {
+                        btnLoadModel = button("Load model") {
+                            enableWhen(controller.isPetrinetDirty)
+                            
                             toggleClass(Styles.redButton, controller.isPetrinetDirty)
 //                            toggleClass(Styles.greenButton, isPetrinetUpdated)
                             
@@ -189,6 +194,13 @@ class SettingsView : View("Settings") {
 //                                alert(Alert.AlertType.INFORMATION, "Not implemented.")
                             }
                             isFocusTraversable = false
+                        }
+                        button("draw") {
+                            enableWhen(controller.isPetrinetUpdated)
+                            action {
+                                val petrinetImage = PetrinetImageView()
+                                petrinetImage.openWindow()
+                            }
                         }
                         
                     }

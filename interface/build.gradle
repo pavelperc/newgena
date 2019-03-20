@@ -23,6 +23,12 @@ dependencies {
     
     compile 'no.tornado:tornadofx:1.7.18'
 
+    // graphviz
+    implementation "ch.qos.logback:logback-classic:1.2.3"
+//    implementation "org.apache.logging.log4j:log4j-core:2.11.1"
+//    implementation "org.apache.logging.log4j:log4j-slf4j-impl:2.11.1"
+    implementation "guru.nidi:graphviz-kotlin:0.7.0"
+    
     // tests
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.amshove.kluent:kluent:1.48'
