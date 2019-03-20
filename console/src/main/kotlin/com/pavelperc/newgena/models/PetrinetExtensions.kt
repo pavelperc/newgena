@@ -1,6 +1,5 @@
 package com.pavelperc.newgena.models
 
-import org.processmining.models.graphbased.AbstractGraphElement
 import org.processmining.models.graphbased.AttributeMapOwner
 import org.processmining.models.graphbased.directed.petrinet.*
 import org.processmining.models.graphbased.directed.petrinet.elements.*
@@ -12,6 +11,7 @@ import kotlin.reflect.KProperty
  * Arcs are given as ids.
  * @throws IllegalArgumentException if one of given edges not found in petrinet
  */
+@Throws(IllegalArgumentException::class)
 fun ResetInhibitorNet.markInhResetArcsByIds(
         inhibitorArcIds: List<String> = listOf(),
         resetArcIds: List<String> = listOf()
@@ -23,14 +23,12 @@ fun ResetInhibitorNet.markInhResetArcsByIds(
         throw IllegalArgumentException("Inhibitor and Reset arc ids for replacing intersect: " +
                 "inhibitorARcIds=$inhibitorArcIds, inhibitorARcIds=$resetArcIds")
     
-    // map from pair of ids to petrinet edge
+    // map from id to petrinet edge
     val inEdges = this.transitions
             .flatMap { transition -> this.getInEdges(transition) }
             .map { edge ->
                 // warning is because of type erasure!!
                 // can not do safe cast..
-                
-                
                 edge.pnmlId to edge as PetrinetEdge<Place, Transition>
             }
             .toMap()
@@ -59,9 +57,28 @@ fun ResetInhibitorNet.markInhResetArcsByIds(
 }
 
 
+fun ResetInhibitorNet.deleteAllInhibitorResetArcs() {
+    this.transitions
+            .flatMap { transition -> this.getInEdges(transition) }
+            .filter { it is ResetArc || it is InhibitorArc }
+            .forEach { edge ->
+                when (edge) {
+                    is ResetArc -> removeResetArc(edge.source, edge.target)
+                    is InhibitorArc -> removeInhibitorArc(edge.source, edge.target)
+                }
+                addArc(edge.source as Place,
+                        edge.target as Transition,
+                        edge.label.toIntOrNull() ?: 1)
+                        .also { it.pnmlId = edge.pnmlId }
+            }
+    
+    
+}
+
+
 private class PnmlIdDelegate {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): String {
-        return (thisRef as AttributeMapOwner).attributeMap["pnmlId"]?.toString() ?: "null"
+        return (thisRef as AttributeMapOwner).attributeMap["pnmlId"]?.toString() ?: "noPnmlId"
     }
     
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: String) {
@@ -97,6 +114,7 @@ fun ResetInhibitorNet.makePnmlIdsFromLabels() {
     places.forEach { it.pnmlId = it.label }
 }
 
+/** Fills [pnmlId] for arcs from labels. */
 fun List<PetrinetEdge<*, *>>.makePnmlIdsOrdinal(startFrom: Int = 1) {
     withIndex().forEach { (i, edge) -> edge.pnmlId = "arc${i + startFrom}" }
 }

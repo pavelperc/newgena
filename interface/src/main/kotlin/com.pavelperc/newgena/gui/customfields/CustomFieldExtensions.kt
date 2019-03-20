@@ -78,7 +78,7 @@ fun EventTarget.checkboxField(property: Property<Boolean>, op: CheckBox.() -> Un
             checkbox(property = property, op = op)
         }
 
-fun EventTarget.arrayField(prop: Property<ObservableList<String>>) =
+fun EventTarget.arrayField(prop: Property<ObservableList<String>>, op: TextField.() -> Unit = {}) =
         field(prop.name) {
             val list = prop.value
             
@@ -89,9 +89,11 @@ fun EventTarget.arrayField(prop: Property<ObservableList<String>>) =
                         .split(';', ',')
                         .map { it.trimIndent() }
                         .toMutableList()
-                list.setAll(splitted)
+//                list.setAll(splitted)
+                // replace the whole list!!!!
+                prop.value = splitted.observable()
             }
-            textfield(textProp)
+            textfield(textProp, op)
             
             button(graphic = FontAwesomeIconView(FontAwesomeIcon.EXPAND)) {
                 action {

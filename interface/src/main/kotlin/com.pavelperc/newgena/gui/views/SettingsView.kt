@@ -3,11 +3,17 @@ package com.pavelperc.newgena.gui.views
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
+import com.pavelperc.newgena.models.markInhResetArcsByIds
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.event.EventTarget
+import javafx.geometry.Pos
+import javafx.scene.control.Alert
 import javafx.scene.control.Button
+import javafx.util.Duration
+import org.controlsfx.control.Notifications
 import tornadofx.*
+import java.lang.Exception
 
 
 class SettingsView : View("Settings") {
@@ -111,8 +117,36 @@ class SettingsView : View("Settings") {
             }
             
             
-            arrayField(petrinetSetup.inhibitorArcIds)
+            arrayField(petrinetSetup.inhibitorArcIds) {
+                val textField = this
+                // catch only replacing the whole list
+//                petrinetSetup.inhibitorArcIds.addValidator(textField) {value->
+//                    
+//                }
+            }
             arrayField(petrinetSetup.resetArcIds)
+            field(" ") { 
+                button("update arcs in petrinet") {
+                    enableWhen(controller.isPetrinetUpdated)
+                    action {
+                        try {
+                            // what if it deletes old, but fails with adding new?
+                            controller.updateInhResetArcsFromModel()
+                            
+                            Notifications
+                                    .create()
+                                    .title("Arcs are updated.")
+                                    .owner(this)
+                                    .hideAfter(Duration(1000.0))
+                                    .position(Pos.TOP_CENTER)
+                                    .show()
+        
+                        } catch (e: Exception) {
+                            alert(Alert.AlertType.ERROR, "Failed to update arcs, but previous arcs are reset.", e.message)
+                        }
+                    }
+                }
+            }
         }
     }
     

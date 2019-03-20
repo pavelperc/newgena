@@ -4,6 +4,8 @@ import com.pavelperc.newgena.gui.model.PetrinetSetupModel
 import com.pavelperc.newgena.gui.model.SettingsModel
 import com.pavelperc.newgena.loaders.settings.JsonSettings
 import com.pavelperc.newgena.loaders.settings.JsonSettingsController
+import com.pavelperc.newgena.models.deleteAllInhibitorResetArcs
+import com.pavelperc.newgena.models.markInhResetArcsByIds
 import guru.nidi.graphviz.engine.Graphviz
 import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.BooleanProperty
@@ -48,9 +50,7 @@ class SettingsUIController : Controller() {
         Graphviz.useDefaultEngines()
         
         petrinetSetupModel.petrinetFile.onChange { value ->
-            if (loadedPetrinetFilePath == value) {
-                isPetrinetUpdated.set(false)
-            }
+            isPetrinetUpdated.set(loadedPetrinetFilePath == value)
         }
     }
     
@@ -97,8 +97,21 @@ class SettingsUIController : Controller() {
     
     fun loadPetrinet() {
         jsonSettingsController.loadPetrinet()
+        // autocommitted with item model
         loadedPetrinetFilePath = jsonSettings.petrinetSetup.petrinetFile
         isPetrinetUpdated.set(true)
+    }
+    
+    
+    fun updateInhResetArcsFromModel() {
+        petrinet?.also { petrinet ->
+            val resetArcIds = petrinetSetupModel.resetArcIds.value.toList()
+            val inhibitorArcIds = petrinetSetupModel.inhibitorArcIds.value.toList()
+            
+            // what if we fail after deleting?
+            petrinet.deleteAllInhibitorResetArcs()
+            petrinet.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
+        } ?: IllegalStateException("Petrinet is not loaded.")
     }
     
 }
