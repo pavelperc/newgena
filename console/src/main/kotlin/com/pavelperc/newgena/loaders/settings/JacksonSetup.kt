@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.databind.cfg.MapperConfig
 import com.fasterxml.jackson.databind.introspect.AnnotatedField
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod
+import java.io.File
 
 
 /**
@@ -54,11 +55,17 @@ fun JsonSettings.Companion.fromJson(json: String): JsonSettings {
     return mapper.readValue<JsonSettings>(json, JsonSettings::class.java)
 }
 
+fun JsonSettings.Companion.fromFilePath(filePath: String): JsonSettings {
+    val jsonSettingsStr = File(filePath).readText()
+    return JsonSettings.fromJson(jsonSettingsStr)
+}
+
 inline fun <reified T> fromJson(json: String): T {
     return mapper.readValue<T>(json, T::class.java)
 }
 
-fun Any.toJson(): String {
+
+fun JsonSettings.toJson(): String {
     return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this)
 
 //        val gson = GsonBuilder().setPrettyPrinting().create()

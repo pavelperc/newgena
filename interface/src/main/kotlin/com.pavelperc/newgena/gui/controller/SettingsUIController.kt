@@ -1,39 +1,57 @@
 package com.pavelperc.newgena.gui.controller
 
-import com.pavelperc.newgena.gui.model.PetrinetSetupModel
 import com.pavelperc.newgena.gui.model.SettingsModel
+import com.pavelperc.newgena.loaders.pnml.PnmlLoader
 import com.pavelperc.newgena.loaders.settings.JsonSettings
-import com.pavelperc.newgena.loaders.settings.JsonSettingsController
+import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
+import com.pavelperc.newgena.loaders.settings.fromFilePath
 import com.pavelperc.newgena.models.deleteAllInhibitorResetArcs
 import com.pavelperc.newgena.models.markInhResetArcsByIds
 import guru.nidi.graphviz.engine.Graphviz
 import javafx.beans.binding.BooleanBinding
-import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
+import org.processmining.models.semantics.petrinet.Marking
 import tornadofx.*
 import java.io.File
 
 class SettingsUIController : Controller() {
+
+//    val jsonSettingsController = JsonSettingsController.createFromFilePath("examples/petrinet/simpleExample/settings.json")
     
-    val jsonSettingsController = JsonSettingsController.createFromFilePath("examples/petrinet/simpleExample/settings.json")
+    var jsonSettings = JsonSettings.fromFilePath("examples/petrinet/simpleExample/settings.json")
     
-    var jsonSettings: JsonSettings
-        get() = jsonSettingsController.jsonSettings
-        set(value) {
-            jsonSettingsController.jsonSettings = value
+    var petrinet: ResetInhibitorNet? = null
+        private set
+    
+    private var pnmlMarking: Marking = Marking()
+    
+    val markings: Pair<Marking, Marking>
+        get() {
+            markingModel.commit(true, false, markingModel.initialPlaceIds)
+            markingModel.commit(true, false, markingModel.finalPlaceIds)
+            
+            val fromSettings = petrinet?.let { petrinet ->
+                JsonSettingsBuilder(petrinet, jsonSettings).buildMarking()
+            } ?: return Marking() to Marking()
+            
+            if (markingModel.isUsingInitialMarkingFromPnml.value)
+                return pnmlMarking to fromSettings.second
+            
+            return fromSettings
         }
     
-    val petrinet: ResetInhibitorNet?
-        get() = jsonSettingsController.petrinet
-    
-    
+    // --- javafx properties:
     val isPetrinetUpdated = SimpleBooleanProperty(false)
     val isPetrinetDirty = isPetrinetUpdated.not()
+    
     private var loadedPetrinetFilePath: String? = null
     
+    
+    val jsonSettingsPath = SimpleStringProperty(null)
     
     // --- MODELS:
     val settingsModel = SettingsModel(jsonSettings)
@@ -47,6 +65,7 @@ class SettingsUIController : Controller() {
     
     
     init {
+        // grephviz: speedup first draw
         Graphviz.useDefaultEngines()
         
         petrinetSetupModel.petrinetFile.onChange { value ->
@@ -56,7 +75,6 @@ class SettingsUIController : Controller() {
     
     fun requestOutputFolderChooseDialog() {
         val cwd = File(System.getProperty("user.dir"))
-//        println(cwd.absolutePath)
         val prev = File(settingsModel.outputFolder.value)
         
         val directoryChooser = DirectoryChooser()
@@ -71,10 +89,9 @@ class SettingsUIController : Controller() {
         }
     }
     
-    /** Returns if the dialog was not cancelled. */
+    /** @return if the dialog was not cancelled. */
     fun requestPetrinetFileChooseDialog(): Boolean {
         val cwd = File(System.getProperty("user.dir"))
-//        println(cwd.absolutePath)
         val prev = File(petrinetSetupModel.petrinetFile.value).parentFile
         
         val fileChooser = FileChooser()
@@ -96,12 +113,27 @@ class SettingsUIController : Controller() {
     }
     
     fun loadPetrinet() {
-        jsonSettingsController.loadPetrinet()
-        // autocommitted with item model
-        loadedPetrinetFilePath = jsonSettings.petrinetSetup.petrinetFile
+        PnmlLoader.loadPetrinetWithOwnParser(petrinetSetupModel.petrinetFile.value).also { result ->
+            petrinet = result.first
+            pnmlMarking = result.second
+        }
+        
+        loadedPetrinetFilePath = petrinetSetupModel.petrinetFile.value
         isPetrinetUpdated.set(true)
     }
     
+    fun loadJsonSettings() {
+        val cwd = File(System.getProperty("user.dir"))
+        val prev = File(petrinetSetupModel.petrinetFile.value).parentFile
+        
+        val fileChooser = FileChooser()
+        fileChooser.initialDirectory = if (prev != null && prev.isDirectory) prev else cwd
+        fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("Settings in json", "*.json"))
+        
+        val file = fileChooser.showOpenDialog(null)
+        
+        
+    }
     
     fun updateInhResetArcsFromModel() {
         petrinet?.also { petrinet ->

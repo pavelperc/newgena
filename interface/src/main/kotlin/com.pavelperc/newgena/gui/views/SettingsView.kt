@@ -3,17 +3,12 @@ package com.pavelperc.newgena.gui.views
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
-import com.pavelperc.newgena.models.markInhResetArcsByIds
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.event.EventTarget
-import javafx.geometry.Pos
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
-import javafx.util.Duration
-import org.controlsfx.control.Notifications
 import tornadofx.*
-import java.lang.Exception
 
 
 class SettingsView : View("Settings") {
@@ -82,26 +77,25 @@ class SettingsView : View("Settings") {
             field("petrinetFile") {
                 
                 textfield(petrinetSetup.petrinetFile).required()
-                var btnLoadModel: Button? = null
+                var btnLoadPetrinet: Button? = null
                 // select file
                 button(graphic = FontAwesomeIconView(FontAwesomeIcon.FILE)) {
                     action {
                         if (controller.requestPetrinetFileChooseDialog()) {
-                            btnLoadModel?.fire()
+                            btnLoadPetrinet?.fire()
                         }
                     }
                     isFocusTraversable = false
                 }
-                btnLoadModel = button("Load model") {
+                btnLoadPetrinet = button("Load model") {
                     enableWhen(controller.isPetrinetDirty)
                     
                     toggleClass(Styles.redButton, controller.isPetrinetDirty)
 //                            toggleClass(Styles.greenButton, isPetrinetUpdated)
-                    
                     action {
                         // may crash
                         controller.loadPetrinet()
-                        println("loaded petrinet")
+                        notification("Petrinet loaded", "okey, okey...")
 //                                alert(Alert.AlertType.INFORMATION, "Not implemented.")
                     }
                     isFocusTraversable = false
@@ -133,13 +127,8 @@ class SettingsView : View("Settings") {
                             // what if it deletes old, but fails with adding new?
                             controller.updateInhResetArcsFromModel()
                             
-                            Notifications
-                                    .create()
-                                    .title("Arcs are updated.")
-                                    .owner(this)
-                                    .hideAfter(Duration(1000.0))
-                                    .position(Pos.TOP_CENTER)
-                                    .show()
+                            notification { text("Arcs are updated.") }
+                            
         
                         } catch (e: Exception) {
                             alert(Alert.AlertType.ERROR, "Failed to update arcs, but previous arcs are reset.", e.message)

@@ -8,10 +8,13 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
 import javafx.event.EventTarget
 import javafx.geometry.Orientation
+import javafx.geometry.Pos
 import javafx.scene.control.CheckBox
 import javafx.scene.control.TextField
 import javafx.scene.control.TextInputControl
+import javafx.util.Duration
 import javafx.util.StringConverter
+import org.controlsfx.control.Notifications
 import tornadofx.*
 
 
@@ -102,7 +105,7 @@ fun EventTarget.arrayField(prop: Property<ObservableList<String>>, op: TextField
                         // set to textProp, textProp sets to list
                         textProp.value = changedObjects.joinToString("; ")
                     })
-                     
+                    
                     arrayEditor.openModal()
                 }
             }
@@ -117,3 +120,16 @@ fun EventTarget.arrayField(prop: Property<ObservableList<String>>, op: TextField
 //        this.value = fromOther(changed!!)
 //    }
 //}
+
+
+fun View.notification(title: String = "", text: String = "", op: Notifications.() -> Unit = {}) {
+    val builder = Notifications.create()
+    builder.owner(this.root)
+    builder.title(title)
+    builder.text(text)
+    builder.position(Pos.TOP_CENTER)
+    builder.hideAfter(Duration(1500.0))
+    
+    builder.op()
+    builder.show()
+}

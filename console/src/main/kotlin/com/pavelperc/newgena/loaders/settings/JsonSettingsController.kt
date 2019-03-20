@@ -6,17 +6,12 @@ import com.pavelperc.newgena.models.markInhResetArcsByIds
 import org.processmining.models.GenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.semantics.petrinet.Marking
-import java.io.File
-import java.lang.UnsupportedOperationException
 
 class JsonSettingsController(var jsonSettings: JsonSettings) {
     
     companion object {
         fun createFromFilePath(settingsFilePath: String): JsonSettingsController {
-            val jsonSettingsStr = File(settingsFilePath).readText()
-            val jsonSettings = JsonSettings.fromJson(jsonSettingsStr)
-            
-            return JsonSettingsController(jsonSettings)
+            return JsonSettingsController(JsonSettings.fromFilePath(settingsFilePath))
         }
     }
     
@@ -59,7 +54,7 @@ class JsonSettingsController(var jsonSettings: JsonSettings) {
     /** When we are ready for generation. */
     fun getGenerationKit(): PetrinetGenerators.GenerationKit<GenerationDescription> {
         val petrinet = petrinet
-                ?: throw UnsupportedOperationException("Can not get GenerationKit. Petrinet is not loaded.")
+                ?: throw IllegalStateException("Can not get GenerationKit. Petrinet is not loaded.")
         
         updateInhResetArcsFromSettings()
         

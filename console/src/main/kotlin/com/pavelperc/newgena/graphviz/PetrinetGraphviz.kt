@@ -59,7 +59,7 @@ private fun drawTokens(allPlaceNodes: List<MutableNode>, marking: List<Place>) {
     allPlaceNodes.forEach { it[Label.of("   ")] }
     
     // grouping places by labels
-    val counts = marking.groupBy { it.label!! }.mapValues { it.value.size }
+    val counts = marking.groupBy { it.pnmlId }.mapValues { it.value.size }
     counts.forEach { label, count ->
         val node = mutNode(label)
         // circles
