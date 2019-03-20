@@ -5,6 +5,7 @@ import com.pavelperc.newgena.loaders.pnml.PnmlLoader
 import com.pavelperc.newgena.loaders.settings.JsonSettings
 import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
 import com.pavelperc.newgena.loaders.settings.fromFilePath
+import com.pavelperc.newgena.loaders.settings.toJson
 import com.pavelperc.newgena.models.deleteAllInhibitorResetArcs
 import com.pavelperc.newgena.models.markInhResetArcsByIds
 import guru.nidi.graphviz.engine.Graphviz
@@ -19,10 +20,9 @@ import tornadofx.*
 import java.io.File
 
 class SettingsUIController : Controller() {
-
-//    val jsonSettingsController = JsonSettingsController.createFromFilePath("examples/petrinet/simpleExample/settings.json")
     
-    var jsonSettings = JsonSettings.fromFilePath("examples/petrinet/simpleExample/settings.json")
+    val jsonSettings: JsonSettings
+        get() = settingsModel.item!!
     
     var petrinet: ResetInhibitorNet? = null
         private set
@@ -54,7 +54,7 @@ class SettingsUIController : Controller() {
     val jsonSettingsPath = SimpleStringProperty(null)
     
     // --- MODELS:
-    val settingsModel = SettingsModel(jsonSettings)
+    val settingsModel = SettingsModel(JsonSettings()) // start from default jsonSettings.
     val petrinetSetupModel = settingsModel.petrinetSetupModel
     val markingModel = petrinetSetupModel.markingModel
     
@@ -63,14 +63,21 @@ class SettingsUIController : Controller() {
                 .and(petrinetSetupModel.valid)
                 .and(markingModel.valid)
     
+    val someModelIsDirty: BooleanBinding
+        get() = settingsModel.dirty
+                .or(petrinetSetupModel.dirty)
+                .or(markingModel.dirty)
+    
     
     init {
         // grephviz: speedup first draw
-        Graphviz.useDefaultEngines()
+//        Graphviz.useDefaultEngines()
         
         petrinetSetupModel.petrinetFile.onChange { value ->
             isPetrinetUpdated.set(loadedPetrinetFilePath == value)
         }
+        
+        loadJsonSettingsFromPath("examples/petrinet/simpleExample/settings.json")
     }
     
     fun requestOutputFolderChooseDialog() {
@@ -89,6 +96,19 @@ class SettingsUIController : Controller() {
         }
     }
     
+    
+    /** Almost relative path.. Works only for inner folders. */
+    private val File.relativePath: String
+        get() {
+            val cwd = File(System.getProperty("user.dir"))
+            val absPath = absolutePath
+            
+            return if (absPath.startsWith(cwd.path + "\\"))
+                absPath.substringAfter(cwd.path + "\\")
+            else
+                absPath
+        }
+    
     /** @return if the dialog was not cancelled. */
     fun requestPetrinetFileChooseDialog(): Boolean {
         val cwd = File(System.getProperty("user.dir"))
@@ -101,11 +121,9 @@ class SettingsUIController : Controller() {
                 FileChooser.ExtensionFilter("Petrinet file format", "*.pnml")
         )
         
-        var path = fileChooser.showOpenDialog(null)?.path
+        val path = fileChooser.showOpenDialog(null)?.relativePath
+        
         if (path != null) {
-            if (path.startsWith(cwd.path))
-                path = path.substringAfter(cwd.path + "\\")
-            
             petrinetSetupModel.petrinetFile.value = path
             return true
         }
@@ -124,16 +142,63 @@ class SettingsUIController : Controller() {
     
     fun loadJsonSettings() {
         val cwd = File(System.getProperty("user.dir"))
-        val prev = File(petrinetSetupModel.petrinetFile.value).parentFile
+        val prev = File(jsonSettingsPath.value?:"").parentFile
         
         val fileChooser = FileChooser()
         fileChooser.initialDirectory = if (prev != null && prev.isDirectory) prev else cwd
         fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("Settings in json", "*.json"))
         
-        val file = fileChooser.showOpenDialog(null)
+        val path = fileChooser.showOpenDialog(null)?.relativePath
         
+        if (path != null) {
+            loadJsonSettingsFromPath(path)
+        }
+    }
+    
+    fun loadJsonSettingsFromPath(path: String) {
+        settingsModel.itemProperty.value = JsonSettings.fromFilePath(path)
+        
+        jsonSettingsPath.value = path
         
     }
+    
+    /** @return if the dialog was not cancelled. */
+    fun saveJsonSettingsAs(): Boolean {
+        val cwd = File(System.getProperty("user.dir"))
+        val prev = File(jsonSettingsPath.value).parentFile
+        
+        val fileChooser = FileChooser()
+        fileChooser.initialDirectory = if (prev != null && prev.isDirectory) prev else cwd
+        fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("Settings in json", "*.json"))
+        
+        val path = fileChooser.showSaveDialog(null)?.relativePath
+        
+        if (path != null) {
+            jsonSettingsPath.value = path
+            return saveJsonSettings(path)
+        }
+        // when canceled
+        return false
+    }
+    
+    fun saveJsonSettings(path: String): Boolean {
+        if (!settingsModel.commit())
+            throw IllegalStateException("Can not save. Model is not valid.")
+        
+        
+        val jsonString = jsonSettings.toJson()
+        val file = File(path)
+        
+        file.writeText(jsonString)
+        return true
+    }
+    
+    
+    fun makeNewSettings() {
+        settingsModel.itemProperty.value = JsonSettings()
+        jsonSettingsPath.value = null
+    }
+    
     
     fun updateInhResetArcsFromModel() {
         petrinet?.also { petrinet ->

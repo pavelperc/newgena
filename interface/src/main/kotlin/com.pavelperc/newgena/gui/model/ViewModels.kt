@@ -13,15 +13,11 @@ import tornadofx.*
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KMutableProperty1
 
-fun <T> KMutableProperty<out List<T>>.listProp(): SimpleObjectProperty<ObservableList<T>> {
-    // when the caller object is null????
-    val list = this.call()?.observable() ?: FXCollections.observableArrayList()
-    return SimpleObjectProperty(list, this.name)
-}
 
 /** Binds mutableList to [ItemViewModel] as observableList property.*/
 fun <T, S> ItemViewModel<T>.bindList(prop: KMutableProperty1<T, out List<S>>) =
         bind {
+//            println("In rebind!!!!!!")
             SimpleObjectProperty(null, prop.name, item?.let { prop.call(it) }?.observable() ?: observableList())
         }
 
@@ -55,6 +51,7 @@ class SettingsModel(initial: JsonSettings) : ItemViewModel<JsonSettings>(initial
     val petrinetSetupModel = PetrinetSetupModel(item.petrinetSetup)
     
     override fun onCommit() {
+        println("SettingsModel committed")
         super.onCommit()
         petrinetSetupModel.commit()
     }
@@ -80,6 +77,7 @@ class PetrinetSetupModel(initial: JsonPetrinetSetup)
     val markingModel = MarkingModel(initial.marking)
     
     override fun onCommit() {
+        println("PetrinetSetupModel committed")
         super.onCommit()
         markingModel.commit()
     }

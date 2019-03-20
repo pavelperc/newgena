@@ -81,27 +81,32 @@ fun EventTarget.checkboxField(property: Property<Boolean>, op: CheckBox.() -> Un
             checkbox(property = property, op = op)
         }
 
-fun EventTarget.arrayField(prop: Property<ObservableList<String>>, op: TextField.() -> Unit = {}) =
-        field(prop.name) {
-            val list = prop.value
+fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextField.() -> Unit = {}) =
+        field(listProp.name) {
+            val textProp = SimpleStringProperty(listProp.value.joinToString("; "))
             
-            val textProp = SimpleStringProperty(list.joinToString("; "))
+            // bind bidirectional:
+            listProp.onChange { list ->
+                textProp.value = list?.joinToString("; ") ?: ""
+            }
+            
             textProp.onChange { value ->
                 val splitted = (value ?: "")
                         .trim('[', ']', '{', '}', ';', ',')
                         .split(';', ',')
                         .map { it.trimIndent() }
                         .toMutableList()
-//                list.setAll(splitted)
                 // replace the whole list!!!!
-                prop.value = splitted.observable()
+                listProp.value = splitted.observable()
+                println("New listProp: ${listProp.value.toList()}")
             }
             textfield(textProp, op)
             
             button(graphic = FontAwesomeIconView(FontAwesomeIcon.EXPAND)) {
+                isFocusTraversable = false
                 action {
                     // make a copy of the list, because we can cancel editing.
-                    val arrayEditor = ArrayEditor(prop.value.toList(), onSuccess = { changedObjects ->
+                    val arrayEditor = ArrayEditor(listProp.value.toList(), onSuccess = { changedObjects ->
                         // set to textProp, textProp sets to list
                         textProp.value = changedObjects.joinToString("; ")
                     })

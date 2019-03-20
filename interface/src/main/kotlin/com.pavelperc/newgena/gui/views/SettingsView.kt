@@ -34,7 +34,7 @@ class SettingsView : View("Settings") {
                         isFocusTraversable = false
                     }
                 }
-                petrinetsetup()
+                petrinetSetupPanel()
                 
                 intField(settings.numberOfLogs) { validUint() }
                 intField(settings.numberOfTraces) { validUint() }
@@ -58,19 +58,69 @@ class SettingsView : View("Settings") {
                             settings.isUsingStaticPriorities.value = false
                     }
                 }
-                
-                button("Commit and print") {
-                    enableWhen(controller.allModelsAreValid)
-                    action {
-                        settings.commit()
-                        println(settings.item)
-                    }
-                }
+                settingsLoadingPanel()
             }
         }
     }
     
-    fun EventTarget.petrinetsetup() {
+    fun EventTarget.settingsLoadingPanel() {
+        hbox {
+            button("Commit, save and print") {
+                shortcut("Ctrl+Shift+S")
+                
+                enableWhen(controller.allModelsAreValid
+                        .and(controller.someModelIsDirty))
+                action {
+                    if (controller.saveJsonSettingsAs())
+                        notification("Settings were saved.")
+                    
+                    println(settings.item)
+                }
+            }
+            button("Fast Save") {
+                shortcut("Ctrl+S")
+                
+                enableWhen(controller.allModelsAreValid
+                        .and(controller.jsonSettingsPath.isNotNull)
+                        .and(controller.someModelIsDirty))
+                
+                action {
+                    if (controller.saveJsonSettings(controller.jsonSettingsPath.value))
+                        notification("Settings were saved.")
+                    println(settings.item)
+                }
+            }
+            button("New settings") {
+                action {
+                    
+                    if (controller.someModelIsDirty.value) {
+                        confirm("Model is not saved.", "Continue?") {
+                            controller.makeNewSettings()
+                        }
+                    } else {
+                        controller.makeNewSettings()
+                    }
+                }
+            }
+            button("Load settings") {
+                action {
+                    controller.loadJsonSettings()
+                }
+            }
+            
+        }
+        
+        hbox {
+            label("Loaded settings: ")
+            label(controller.jsonSettingsPath)
+            visibleWhen(controller.jsonSettingsPath.isNotNull)
+        }
+        label("Unsaved Settings") {
+            visibleWhen(controller.jsonSettingsPath.isNull)
+        }
+    }
+    
+    fun EventTarget.petrinetSetupPanel() {
         fieldset("petrinetSetup") {
             addClass(Styles.innerFieldset)
             
@@ -112,14 +162,13 @@ class SettingsView : View("Settings") {
             
             
             arrayField(petrinetSetup.inhibitorArcIds) {
-                val textField = this
                 // catch only replacing the whole list
 //                petrinetSetup.inhibitorArcIds.addValidator(textField) {value->
 //                    
 //                }
             }
             arrayField(petrinetSetup.resetArcIds)
-            field(" ") { 
+            field {
                 button("update arcs in petrinet") {
                     enableWhen(controller.isPetrinetUpdated)
                     action {
@@ -127,9 +176,11 @@ class SettingsView : View("Settings") {
                             // what if it deletes old, but fails with adding new?
                             controller.updateInhResetArcsFromModel()
                             
-                            notification { text("Arcs are updated.") }
+                            notification {
+                                title("Arcs are updated.")
+                                text("Wow, Nothing crashed!")
+                            }
                             
-        
                         } catch (e: Exception) {
                             alert(Alert.AlertType.ERROR, "Failed to update arcs, but previous arcs are reset.", e.message)
                         }

@@ -1,6 +1,6 @@
 {
   "petrinetSetup" : {
-    "petrinetFile" : "petrinet.pnml",
+    "petrinetFile" : "some_file.pnml",
     "inhibitorArcIds" : [ ],
     "marking" : {
       "initialPlaceIds" : [ "p1", "p2", "p3" ],

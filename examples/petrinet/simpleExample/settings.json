@@ -1,22 +1,24 @@
 {
-  "outputFolder" : "xes-out/simple",
-  //  "marking": null,
   "petrinetSetup" : {
-    "marking" : {
-      "initialPlaceIds" : [ "place3", "place3", "place2"],
-      "finalPlaceIds" : [ "place4", "place4" ],
-      "isUsingInitialMarkingFromPnml": false
-    },
     "petrinetFile" : "examples/petrinet/simpleExample/simple.pnml",
-    "inhibitorArcIds" : ["arc1"],
-    "resetArcIds" : ["arc6"]
+    "inhibitorArcIds" : [ "arc1" ],
+    "marking" : {
+      "initialPlaceIds" : [ "place3", "place3", "place2" ],
+      "finalPlaceIds" : [ "place4", "place4" ],
+      "isUsingInitialMarkingFromPnml" : false
+    },
+    "resetArcIds" : [ "arc6" ]
   },
+  "outputFolder" : "xes-out/simple",
   "isRemovingEmptyTraces" : true,
   "isRemovingUnfinishedTraces" : true,
   "isUsingNoise" : false,
   "isUsingStaticPriorities" : false,
   "isUsingTime" : false,
   "maxNumberOfSteps" : 100,
+  "noiseDescription" : null,
   "numberOfLogs" : 5,
-  "numberOfTraces" : 10
+  "numberOfTraces" : 10,
+  "staticPriorities" : null,
+  "timeDescription" : null
 }
