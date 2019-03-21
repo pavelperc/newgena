@@ -16,8 +16,8 @@ class Styles : Stylesheet() {
         
         val greenButton by cssclass()
         val redButton by cssclass()
-        val innerFieldset by cssclass()
-    
+        val mainSettingsPanel by cssclass()
+        
         fun closeIcon() = FontAwesomeIconView(FontAwesomeIcon.CLOSE).apply {
             glyphSize = 22
             addClass(closeIcon)
@@ -70,13 +70,15 @@ class Styles : Stylesheet() {
 //                backgroundColor += Color.RED.brighter().brighter()
 //            }
         }
-    
-        innerFieldset {
-            borderColor += box(Color.GRAY.brighter())
-            borderRadius += box(5.px)
-            borderWidth += box(1.px)
-            borderInsets += box(4.px, 0.px)
-            padding = box(4.px, 8.px)
+        
+        mainSettingsPanel {
+            fieldset {
+                borderColor += box(Color.GRAY.brighter())
+                borderRadius += box(5.px)
+                borderWidth += box(1.px)
+                borderInsets += box(4.px, 0.px)
+                padding = box(4.px, 8.px)
+            }
         }
         
     }

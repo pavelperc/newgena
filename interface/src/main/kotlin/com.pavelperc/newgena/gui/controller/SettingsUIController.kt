@@ -8,6 +8,7 @@ import com.pavelperc.newgena.loaders.settings.fromFilePath
 import com.pavelperc.newgena.loaders.settings.toJson
 import com.pavelperc.newgena.models.deleteAllInhibitorResetArcs
 import com.pavelperc.newgena.models.markInhResetArcsByIds
+import com.pavelperc.newgena.models.pnmlId
 import guru.nidi.graphviz.engine.Graphviz
 import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.SimpleBooleanProperty
@@ -25,7 +26,21 @@ class SettingsUIController : Controller() {
         get() = settingsModel.item!!
     
     var petrinet: ResetInhibitorNet? = null
+        private set(value) {
+            placeIds = value?.places?.map { it.pnmlId }?.toSet() ?: emptySet()
+            edgeIds = value?.edges?.map { it.pnmlId }?.toSet() ?: emptySet()
+            field = value
+        }
+    
+    /** Place pnml ids of loaded petrinet, or empty set */
+    var placeIds: Set<String> = emptySet()
         private set
+    
+    /** Arc pnml ids of loaded petrinet, or empty set */
+    var edgeIds: Set<String> = emptySet()
+        private set
+    
+    
     
     private var pnmlMarking: Marking = Marking()
     

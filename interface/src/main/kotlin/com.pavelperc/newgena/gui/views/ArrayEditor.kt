@@ -7,6 +7,7 @@ import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
 import tornadofx.*
+import tornadofx.Stylesheet.Companion.cell
 
 
 class ArrayEditor(
@@ -51,6 +52,12 @@ class ArrayEditor(
             }
         }
         listview(objects) {
+            addEventFilter(KeyEvent.KEY_PRESSED) {
+                if (it.code == KeyCode.DELETE && selectedItem != null) {
+                    objects.remove(selectedItem)
+                }
+            }
+            
             isEditable = true
             cellFormat { value ->
                 // -------- ONE CELL --------

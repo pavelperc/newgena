@@ -14,8 +14,8 @@ import java.util.ArrayList
 abstract class PetriNetGenerationHelper<T : Place<*>, K : Transition<*>, F : Token>(
         initialMarking: Collection<T>,
         finalMarking: Collection<T>,
-        allTransitions: Collection<K>,
-        allPlaces: Collection<T>,
+        allTransitions: Collection<K>, // allMovables
+        allPlaces: Collection<T>,// allTokenables
         description: GenerationDescription
 ) : BaseGenerationHelper<T, K, F>(initialMarking, finalMarking, allTransitions, allPlaces, description) {
     

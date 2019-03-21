@@ -10,8 +10,13 @@ import javafx.event.EventTarget
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
 import javafx.scene.control.CheckBox
+import javafx.scene.control.ScrollPane
 import javafx.scene.control.TextField
 import javafx.scene.control.TextInputControl
+import javafx.scene.layout.BorderPane
+import javafx.scene.layout.BorderStrokeStyle
+import javafx.scene.layout.StackPane
+import javafx.scene.paint.Color
 import javafx.util.Duration
 import javafx.util.StringConverter
 import org.controlsfx.control.Notifications
@@ -61,6 +66,19 @@ fun TextInputControl.validRangeInt(
     }
 }
 
+
+fun Form.scrollablefieldset(op: EventTarget.() -> Unit) {
+    scrollpane {
+        form {
+            fieldset {
+//        prefHeightProperty().bind(scrollPane.heightProperty()) 
+//        prefWidthProperty().bind(scrollPane.widthProperty())
+                op()
+            }
+        }
+    }
+}
+
 /** Int validators for textfield are not included!! add them in [op] lambda. */
 fun EventTarget.intField(
         property: Property<Int>,
@@ -85,7 +103,7 @@ fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextF
         field(listProp.name) {
             val textProp = SimpleStringProperty(listProp.value.joinToString("; "))
             
-            // bind bidirectional:
+            // bind bidirectional listProp and textProp:
             listProp.onChange { list ->
                 textProp.value = list?.joinToString("; ") ?: ""
             }
@@ -95,11 +113,11 @@ fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextF
                         .trim('[', ']', '{', '}', ';', ',')
                         .split(';', ',')
                         .map { it.trimIndent() }
+                        .filter { it.isNotEmpty() }
                         .toMutableList()
-                // replace the whole list!!!!
-//                listProp.value = splitted.observable()
+                // don't replace the whole list!
                 listProp.value.setAll(splitted)
-                println("New listProp: ${listProp.value.toList()}")
+//                println("New listProp: ${listProp.value.toList()}")
             }
             textfield(textProp, op)
             

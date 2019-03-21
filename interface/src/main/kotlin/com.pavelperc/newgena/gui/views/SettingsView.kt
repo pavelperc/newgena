@@ -5,10 +5,14 @@ import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import javafx.beans.property.Property
+import javafx.collections.ObservableList
 import javafx.event.EventTarget
+import javafx.geometry.Pos
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
-import org.apache.xpath.operations.Bool
+import javafx.scene.control.TextField
+import javafx.util.Duration
 import tornadofx.*
 
 
@@ -22,9 +26,21 @@ class SettingsView : View("Settings") {
     
     override val root = Form()
     
+    override fun onDock() {
+        super.onDock()
+        runAsync {
+            runLater(Duration(200.0)) {
+                notification("Hello!") {
+                    position(Pos.TOP_CENTER)
+                }
+            }
+        }
+    }
+    
     init {
         with(root) {
             fieldset {
+                addClass(Styles.mainSettingsPanel)
                 field("outputFolder") {
                     textfield(settings.outputFolder).required()
                     
@@ -36,6 +52,32 @@ class SettingsView : View("Settings") {
                     }
                 }
                 petrinetSetupPanel()
+                
+                // marking:
+                
+                fieldset("Marking") {
+                    
+                    fun TextField.validatePlaces(prop: Property<ObservableList<String>>) {
+                        prop.addValidator(this, ValidationTrigger.OnChange(300)) { value ->
+                            val input = value?.toSet() ?: emptySet()
+                            val unknown = input - input.intersect(controller.placeIds)
+                            if (controller.petrinet != null && unknown.isNotEmpty()) {
+                                warning("Not found places: $unknown")
+                            } else null
+                        }
+                    }
+                    
+                    
+                    
+                    checkboxField(marking.isUsingInitialMarkingFromPnml)
+                    arrayField(marking.initialPlaceIds) {
+                        validatePlaces(marking.initialPlaceIds)
+                    }
+                    arrayField(marking.finalPlaceIds) {
+                        validatePlaces(marking.finalPlaceIds)
+                    }
+                }
+                
                 
                 intField(settings.numberOfLogs) { validUint() }
                 intField(settings.numberOfTraces) { validUint() }
@@ -115,7 +157,6 @@ class SettingsView : View("Settings") {
     
     fun EventTarget.petrinetSetupPanel() {
         fieldset("petrinetSetup") {
-            addClass(Styles.innerFieldset)
             
             field("petrinetFile") {
                 
@@ -138,7 +179,7 @@ class SettingsView : View("Settings") {
                     action {
                         // may crash
                         controller.loadPetrinet()
-                        notification("Petrinet loaded", "okey, okey...")
+                        notification("Petrinet loaded", "okey, okey...") { hideAfter(Duration(2000.0)) }
 //                                alert(Alert.AlertType.INFORMATION, "Not implemented.")
                     }
                     isFocusTraversable = false
@@ -153,8 +194,18 @@ class SettingsView : View("Settings") {
                 
             }
             
-            arrayField(petrinetSetup.inhibitorArcIds)
-            arrayField(petrinetSetup.resetArcIds)
+            fun TextField.validateEdges(prop: Property<ObservableList<String>>) {
+                prop.addValidator(this, ValidationTrigger.OnChange(300)) { value ->
+                    val input = value?.toSet() ?: emptySet()
+                    val unknown = input - input.intersect(controller.edgeIds)
+                    if (controller.petrinet != null && unknown.isNotEmpty()) {
+                        warning("Not found edges: $unknown")
+                    } else null
+                }
+            }
+            
+            arrayField(petrinetSetup.inhibitorArcIds) { validateEdges(petrinetSetup.inhibitorArcIds) }
+            arrayField(petrinetSetup.resetArcIds) { validateEdges(petrinetSetup.resetArcIds) }
             
             field {
                 button("update arcs in petrinet") {

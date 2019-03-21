@@ -11,8 +11,8 @@ import java.util.*
 /**
  * @param <T> type of objects which can contain tokens, for example, places in Petri nets
  * @param <K> type of objects it's possible to move through. For example, transitions in Petri nets
- * @param <F> type of additional movables possible during a replay
-</F></K></T> */
+ * @param <F> type of additional movables possible during a replay </F></K></T>
+ */
 abstract class BaseGenerationHelper<T : Tokenable<*>, K : Movable, F : Movable>(
         initialMarking: Collection<T>,
         finalMarking: Collection<T>,
