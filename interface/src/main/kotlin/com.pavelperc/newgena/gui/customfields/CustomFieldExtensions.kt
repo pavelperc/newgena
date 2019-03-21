@@ -97,7 +97,8 @@ fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextF
                         .map { it.trimIndent() }
                         .toMutableList()
                 // replace the whole list!!!!
-                listProp.value = splitted.observable()
+//                listProp.value = splitted.observable()
+                listProp.value.setAll(splitted)
                 println("New listProp: ${listProp.value.toList()}")
             }
             textfield(textProp, op)

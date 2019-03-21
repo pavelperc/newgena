@@ -8,6 +8,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.event.EventTarget
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
+import org.apache.xpath.operations.Bool
 import tornadofx.*
 
 
@@ -65,31 +66,23 @@ class SettingsView : View("Settings") {
     
     fun EventTarget.settingsLoadingPanel() {
         hbox {
-            button("Commit, save and print") {
-                shortcut("Ctrl+Shift+S")
-                
-                enableWhen(controller.allModelsAreValid
-                        .and(controller.someModelIsDirty))
-                action {
-                    if (controller.saveJsonSettingsAs())
-                        notification("Settings were saved.")
-                    
-                    println(settings.item)
-                }
-            }
-            button("Fast Save") {
+            button("Save model") {
                 shortcut("Ctrl+S")
-                
                 enableWhen(controller.allModelsAreValid
-                        .and(controller.jsonSettingsPath.isNotNull)
                         .and(controller.someModelIsDirty))
-                
                 action {
-                    if (controller.saveJsonSettings(controller.jsonSettingsPath.value))
+                    val result: Boolean
+                    if (controller.jsonSettingsPath.value == null) {
+                        result = controller.saveJsonSettingsAs()
+                    } else {
+                        result = controller.saveJsonSettings(controller.jsonSettingsPath.value)
+                    }
+                    
+                    if (result)
                         notification("Settings were saved.")
-                    println(settings.item)
                 }
             }
+            
             button("New settings") {
                 action {
                     
@@ -160,14 +153,9 @@ class SettingsView : View("Settings") {
                 
             }
             
-            
-            arrayField(petrinetSetup.inhibitorArcIds) {
-                // catch only replacing the whole list
-//                petrinetSetup.inhibitorArcIds.addValidator(textField) {value->
-//                    
-//                }
-            }
+            arrayField(petrinetSetup.inhibitorArcIds)
             arrayField(petrinetSetup.resetArcIds)
+            
             field {
                 button("update arcs in petrinet") {
                     enableWhen(controller.isPetrinetUpdated)

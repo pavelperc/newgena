@@ -1,7 +1,7 @@
 {
   "petrinetSetup" : {
     "petrinetFile" : "some_file.pnml",
-    "inhibitorArcIds" : [ ],
+    "inhibitorArcIds" : [ "hello1" ],
     "marking" : {
       "initialPlaceIds" : [ "p1", "p2", "p3" ],
       "finalPlaceIds" : [ "p4" ],
@@ -52,12 +52,12 @@
       "maxTimestampDeviationSeconds" : 0,
       "granularityType" : "MINUTES_5"
     },
-    "isUsingLifecycle" : false,
-    "isUsingResources" : false,
-    "isUsingComplexResourceSettings" : true,
     "isUsingSynchronizationOnResources" : true,
-    "isSeparatingStartAndFinish" : true,
+    "isUsingComplexResourceSettings" : true,
     "minimumIntervalBetweenActions" : 10,
+    "isSeparatingStartAndFinish" : true,
+    "isUsingResources" : false,
+    "isUsingLifecycle" : false,
     "maximumIntervalBetweenActions" : 20
   }
 }

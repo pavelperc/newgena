@@ -76,8 +76,8 @@ class SettingsUIController : Controller() {
         petrinetSetupModel.petrinetFile.onChange { value ->
             isPetrinetUpdated.set(loadedPetrinetFilePath == value)
         }
-        
-        loadJsonSettingsFromPath("examples/petrinet/simpleExample/settings.json")
+
+//        loadJsonSettingsFromPath("examples/petrinet/simpleExample/settings.json")
     }
     
     fun requestOutputFolderChooseDialog() {
@@ -142,7 +142,7 @@ class SettingsUIController : Controller() {
     
     fun loadJsonSettings() {
         val cwd = File(System.getProperty("user.dir"))
-        val prev = File(jsonSettingsPath.value?:"").parentFile
+        val prev = File(jsonSettingsPath.value ?: "").parentFile
         
         val fileChooser = FileChooser()
         fileChooser.initialDirectory = if (prev != null && prev.isDirectory) prev else cwd
@@ -165,7 +165,7 @@ class SettingsUIController : Controller() {
     /** @return if the dialog was not cancelled. */
     fun saveJsonSettingsAs(): Boolean {
         val cwd = File(System.getProperty("user.dir"))
-        val prev = File(jsonSettingsPath.value).parentFile
+        val prev = File(jsonSettingsPath.value ?: "").parentFile
         
         val fileChooser = FileChooser()
         fileChooser.initialDirectory = if (prev != null && prev.isDirectory) prev else cwd
@@ -184,7 +184,11 @@ class SettingsUIController : Controller() {
     fun saveJsonSettings(path: String): Boolean {
         if (!settingsModel.commit())
             throw IllegalStateException("Can not save. Model is not valid.")
-        
+
+//        petrinetSetupModel.commit(force = true)
+//        markingModel.commit(force = true)
+//        println("Check1 ===:  "+ (jsonSettings.petrinetSetup === petrinetSetupModel.item))
+//        println("Dirty:  "+ (petrinetSetupModel.inhibitorArcIds.isDirty))
         
         val jsonString = jsonSettings.toJson()
         val file = File(path)

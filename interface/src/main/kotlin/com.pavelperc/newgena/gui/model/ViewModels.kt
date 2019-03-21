@@ -53,7 +53,7 @@ class SettingsModel(initial: JsonSettings) : ItemViewModel<JsonSettings>(initial
     override fun onCommit() {
         println("SettingsModel committed")
         super.onCommit()
-        petrinetSetupModel.commit()
+        println("PetrinetSetupModel commit: " + petrinetSetupModel.commit())
     }
     
     init {
@@ -67,7 +67,7 @@ class SettingsModel(initial: JsonSettings) : ItemViewModel<JsonSettings>(initial
 class PetrinetSetupModel(initial: JsonPetrinetSetup)
     : ItemViewModel<JsonPetrinetSetup>(initial) {
     
-    val petrinetFile = bind(JsonPetrinetSetup::petrinetFile, autocommit = true)
+    val petrinetFile = bind(JsonPetrinetSetup::petrinetFile)
     
     val inhibitorArcIds = bindList(JsonPetrinetSetup::inhibitorArcIds)
     
