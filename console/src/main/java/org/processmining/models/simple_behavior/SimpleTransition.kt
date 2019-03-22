@@ -40,6 +40,7 @@ class SimpleTransition(
         }
     
     override fun move(trace: XTrace): MovementResult<*>? {
+        // TODO: pavel - simplify move in simpleTransition
         consumeTokens()
         
         if (shouldDistortEvent()) {
@@ -62,7 +63,7 @@ class SimpleTransition(
                 logNoiseAndTransition(trace)
             }
         } else {
-            logTransition(trace)
+            logTransition(trace) 
         }
         
         produceTokens()
