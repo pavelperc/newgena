@@ -59,6 +59,7 @@ class SettingsUIController : Controller() {
         }
     
     // --- javafx properties:
+    /** True if the loaded petrinet is from file path form the settings.*/
     val isPetrinetUpdated = SimpleBooleanProperty(false)
     val isPetrinetDirty = isPetrinetUpdated.not()
     
@@ -144,7 +145,7 @@ class SettingsUIController : Controller() {
         return false
     }
     
-    fun loadPetrinet() {
+    fun loadPetrinet(): ResetInhibitorNet {
         PnmlLoader.loadPetrinetWithOwnParser(petrinetSetupModel.petrinetFile.value).also { result ->
             petrinet = result.first
             pnmlMarking = result.second
@@ -152,6 +153,8 @@ class SettingsUIController : Controller() {
         
         loadedPetrinetFilePath = petrinetSetupModel.petrinetFile.value
         isPetrinetUpdated.set(true)
+        
+        return petrinet!!
     }
     
     fun loadJsonSettings() {
@@ -198,11 +201,6 @@ class SettingsUIController : Controller() {
     fun saveJsonSettings(path: String): Boolean {
         if (!settingsModel.commit())
             throw IllegalStateException("Can not save. Model is not valid.")
-
-//        petrinetSetupModel.commit(force = true)
-//        markingModel.commit(force = true)
-//        println("Check1 ===:  "+ (jsonSettings.petrinetSetup === petrinetSetupModel.item))
-//        println("Dirty:  "+ (petrinetSetupModel.inhibitorArcIds.isDirty))
         
         val jsonString = jsonSettings.toJson()
         val file = File(path)
@@ -233,16 +231,10 @@ class SettingsUIController : Controller() {
     fun prepareGenerationKit(): PetrinetGenerators.GenerationKit<*> {
         if (!settingsModel.commit())
             throw IllegalStateException("Can not generate. Model is not valid.")
-        if (petrinet == null) {
-            loadPetrinet()
-        }
-        val petrinet = petrinet!!
         
-        // just copy all actions with json settings.
-        petrinet.deleteAllInhibitorResetArcs()
-        with(jsonSettings.petrinetSetup) {
-            petrinet.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
-        }
+        val petrinet = petrinet?:loadPetrinet()
+        updateInhResetArcsFromModel()
+        
         val builder = JsonSettingsBuilder(petrinet, jsonSettings)
         
         val generationDescription = builder.buildDescription()

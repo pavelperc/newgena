@@ -113,7 +113,7 @@ class SettingsView : View("Settings") {
                     shortcut("Ctrl+G")
                     tooltip("Ctrl+G")
                     
-                    action { 
+                    action {
                         try {
                             val generationKit = controller.prepareGenerationKit()
                             
@@ -144,7 +144,7 @@ class SettingsView : View("Settings") {
                     println(controller.jsonSettings)
                 }
             }
-            button("Save model") {
+            button("Save settings") {
                 shortcut("Ctrl+S")
                 enableWhen(controller.allModelsAreValid
                         .and(controller.someModelIsDirty))
@@ -165,7 +165,7 @@ class SettingsView : View("Settings") {
                 action {
                     
                     if (controller.someModelIsDirty.value) {
-                        confirm("Model is not saved.", "Continue?") {
+                        confirm("Settings are not saved.", "Continue?") {
                             controller.makeNewSettings()
                         }
                     } else {
@@ -175,7 +175,22 @@ class SettingsView : View("Settings") {
             }
             button("Load settings") {
                 action {
-                    controller.loadJsonSettings()
+                    try {
+                        controller.loadJsonSettings()
+                    } catch (e: Exception) {
+                        error("Broken json settings:", e.message)
+                        return@action
+                    }
+                    
+                    try {
+                        controller.loadPetrinet()
+                        notification {
+                            title("Settings and petrinet are loaded.")
+                            text("Wow, Nothing crashed!")
+                        }
+                    } catch (e: Exception) {
+                        error("Failed to load petrinet:", e.message)
+                    }
                 }
             }
             
@@ -214,16 +229,27 @@ class SettingsView : View("Settings") {
 //                            toggleClass(Styles.greenButton, isPetrinetUpdated)
                     action {
                         // may crash
-                        controller.loadPetrinet()
-                        notification("Petrinet loaded", "okey, okey...") { hideAfter(Duration(2000.0)) }
+                        try {
+                            controller.loadPetrinet()
+                            notification("Petrinet loaded", "okey, okey...") { hideAfter(Duration(2000.0)) }
+                        } catch (e: Exception) {
+                            error("Failed to load model:", e.message)
+                        }
                     }
                     isFocusTraversable = false
                 }
                 button("draw") {
                     enableWhen(controller.isPetrinetUpdated)
                     action {
-                        val petrinetImage = PetrinetImageView()
-                        petrinetImage.openWindow()
+                        try {
+                            controller.updateInhResetArcsFromModel()
+                            
+                            val petrinetImage = PetrinetImageView()
+                            petrinetImage.openWindow()
+                            
+                        } catch (e: Exception) {
+                            alert(Alert.AlertType.ERROR, "Failed to update arcs, previous arcs are reset to normal.", e.message)
+                        }
                     }
                 }
                 
@@ -241,26 +267,26 @@ class SettingsView : View("Settings") {
             
             arrayField(petrinetSetup.inhibitorArcIds) { validateEdges(petrinetSetup.inhibitorArcIds) }
             arrayField(petrinetSetup.resetArcIds) { validateEdges(petrinetSetup.resetArcIds) }
-            
-            field {
-                button("update arcs in petrinet") {
-                    enableWhen(controller.isPetrinetUpdated)
-                    action {
-                        try {
-                            // what if it deletes old, but fails with adding new?
-                            controller.updateInhResetArcsFromModel()
-                            
-                            notification {
-                                title("Arcs are updated.")
-                                text("Wow, Nothing crashed!")
-                            }
-                            
-                        } catch (e: Exception) {
-                            alert(Alert.AlertType.ERROR, "Failed to update arcs, previous arcs are reset to normal.", e.message)
-                        }
-                    }
-                }
-            }
+
+//            field {
+//                button("update arcs in petrinet") {
+//                    enableWhen(controller.isPetrinetUpdated)
+//                    action {
+//                        try {
+//                            // what if it deletes old, but fails with adding new?
+//                            controller.updateInhResetArcsFromModel()
+//                            
+//                            notification {
+//                                title("Arcs are updated.")
+//                                text("Wow, Nothing crashed!")
+//                            }
+//                            
+//                        } catch (e: Exception) {
+//                            alert(Alert.AlertType.ERROR, "Failed to update arcs, previous arcs are reset to normal.", e.message)
+//                        }
+//                    }
+//                }
+//            }
         }
     }
     
