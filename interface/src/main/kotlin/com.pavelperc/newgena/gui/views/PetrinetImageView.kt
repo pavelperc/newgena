@@ -46,7 +46,7 @@ class PetrinetImageView : Fragment("Petrinet Viewer.") {
                     fitWidthProperty().bind(root.widthProperty())
                     fitHeightProperty().bind(root.heightProperty())
                 }
-                bottom = button("save to file") {
+                bottom = button("save image to file") {
                     
                     action {
                         val fileStr = controller.petrinetSetupModel.petrinetFile.value?.replace(".pnml", ".svg")

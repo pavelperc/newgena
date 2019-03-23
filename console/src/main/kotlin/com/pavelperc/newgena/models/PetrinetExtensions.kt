@@ -87,25 +87,12 @@ private class PnmlIdDelegate {
 }
 
 /** Id, that was stored in original pnml file.*/
-var Transition.pnmlId by PnmlIdDelegate()
-
-/** Id, that was stored in original pnml file.*/
-var Place.pnmlId by PnmlIdDelegate()
-
-/** Id, that was stored in original pnml file.*/
-var Arc.pnmlId by PnmlIdDelegate()
-
-/** Id, that was stored in original pnml file.*/
-var ResetArc.pnmlId by PnmlIdDelegate()
-
-/** Id, that was stored in original pnml file.*/
-var InhibitorArc.pnmlId by PnmlIdDelegate()
-
-/** Id, that was stored in original pnml file.*/
 var PetrinetEdge<*, *>.pnmlId by PnmlIdDelegate()
 
 /** Id, that was stored in original pnml file.*/
 var PetrinetNode.pnmlId by PnmlIdDelegate()
+
+
 
 
 /** Fills [pnmlId] for [Transition]s and [Place]s from labels. */

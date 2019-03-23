@@ -111,10 +111,11 @@ object PnmlOwnParser {
                     else -> {
                         if (arcType != "normal")
                             println("arc ${arc.textContent.replace("\n", "")} has unknown type $arcType. Used as normal arc.")
+                        val weight = name?.toIntOrNull() ?: 1
                         if (srcNode is Place) {
-                            petrinet.addArc(srcNode, trgNode as Transition)
+                            petrinet.addArc(srcNode, trgNode as Transition, weight)
                         } else {
-                            petrinet.addArc(srcNode as Transition, trgNode as Place)
+                            petrinet.addArc(srcNode as Transition, trgNode as Place, weight)
                         }
                     }
                 }

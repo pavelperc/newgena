@@ -39,38 +39,4 @@ open class BaseTransition(
         // inputInhibitorArcPlaces have no tokens
         inputResetArcPlaces.forEach { place -> while(place.hasTokens()) place.consumeToken() }
     }
-    
-    companion object {
-        
-        fun build(transition: org.processmining.models.graphbased.directed.petrinet.elements.Transition,
-                  description: GenerationDescription, init: BaseTransitionBuilder.() -> Unit): BaseTransition {
-            return BaseTransitionBuilder(transition, description).apply { init() }.build()
-        }
-        
-        // TODO pavel: remove builder at all
-        class BaseTransitionBuilder(
-                private val transition: org.processmining.models.graphbased.directed.petrinet.elements.Transition,
-                private val description: GenerationDescription/*TODO ужен свой тип?*/
-        ) {
-            private val inputPlaces = ArrayList<Place<Token>>()
-            private val outputPlaces = ArrayList<Place<Token>>()
-            
-            fun inputPlace(inputPlace: Place<Token>): BaseTransitionBuilder {
-                inputPlaces.add(inputPlace)
-                return this
-            }
-            
-            fun outputPlace(outputPlace: Place<Token>): BaseTransitionBuilder {
-                outputPlaces.add(outputPlace)
-                return this
-            }
-            
-            fun build(): BaseTransition {
-                val inputPlacesArray = inputPlaces
-                val outputPlacesArray = outputPlaces
-                
-                return BaseTransition(transition, description, inputPlacesArray, outputPlacesArray)
-            }
-        }
-    }
 }

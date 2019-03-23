@@ -1,6 +1,6 @@
 {
   "petrinetSetup" : {
-    "petrinetFile" : "examples\\petrinet\\cycle1.pnml",
+    "petrinetFile" : "examples\\petrinet\\cycle1\\cycle1.pnml",
     "inhibitorArcIds" : [ "arc6" ],
     "marking" : {
       "initialPlaceIds" : [ "place5", "place1", "place1" ],

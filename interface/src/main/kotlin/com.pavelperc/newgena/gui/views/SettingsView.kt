@@ -137,8 +137,7 @@ class SettingsView : View("Settings") {
     fun EventTarget.settingsLoadingPanel() {
         hbox {
             button("print") {
-                enableWhen(controller.allModelsAreValid
-                        .and(controller.someModelIsDirty))
+                enableWhen(controller.allModelsAreValid)
                 action {
                     settings.commit()
                     println(controller.jsonSettings)
@@ -176,7 +175,8 @@ class SettingsView : View("Settings") {
             button("Load settings") {
                 action {
                     try {
-                        controller.loadJsonSettings()
+                        if(!controller.loadJsonSettings())
+                            return@action
                     } catch (e: Exception) {
                         error("Broken json settings:", e.message)
                         return@action
@@ -223,7 +223,7 @@ class SettingsView : View("Settings") {
                     isFocusTraversable = false
                 }
                 btnLoadPetrinet = button("Load model") {
-                    enableWhen(controller.isPetrinetDirty)
+//                    enableWhen(controller.isPetrinetDirty)
                     
                     toggleClass(Styles.redButton, controller.isPetrinetDirty)
 //                            toggleClass(Styles.greenButton, isPetrinetUpdated)

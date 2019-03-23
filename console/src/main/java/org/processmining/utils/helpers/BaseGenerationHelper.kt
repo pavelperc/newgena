@@ -14,19 +14,14 @@ import java.util.*
  * @param <F> type of additional movables possible during a replay </F></K></T>
  */
 abstract class BaseGenerationHelper<T : Tokenable<*>, K : Movable, F : Movable>(
-        initialMarking: Collection<T>,
-        finalMarking: Collection<T>,
+        private val initialMarking: Collection<T>,
+        private val finalMarking: Collection<T>,
         allModelMovables: Collection<K>,
-        allTokenables: Collection<T>,
+        private val allTokenables: Collection<T>,
         override val generationDescription: GenerationDescription
 ) : GenerationHelper<K, F> {
     
     // everything is immutable
-    
-    private val initialMarking = initialMarking
-    private val finalMarking = finalMarking
-    
-    private val allTokenables = allTokenables.toList()
     
     override val allModelMovables = allModelMovables.toList()
     override val extraMovables = LinkedList<F>()
@@ -34,10 +29,6 @@ abstract class BaseGenerationHelper<T : Tokenable<*>, K : Movable, F : Movable>(
     init {
         moveToInitialState()
     }
-
-//    override fun getGenerationDescription(): GenerationDescription {
-//        return description
-//    }
     
     protected abstract fun putInitialToken(place: T)
     

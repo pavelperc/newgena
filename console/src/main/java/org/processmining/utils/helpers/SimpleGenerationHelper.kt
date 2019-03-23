@@ -5,11 +5,13 @@ import org.processmining.models.abstract_net_representation.Token
 import org.processmining.models.graphbased.directed.petrinet.Petrinet
 import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.models.descriptions.SimpleGenerationDescription
+import org.processmining.models.graphbased.NodeID
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.graphbased.directed.petrinet.elements.Arc
 import org.processmining.models.graphbased.directed.petrinet.elements.InhibitorArc
 import org.processmining.models.graphbased.directed.petrinet.elements.ResetArc
+import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.models.simple_behavior.SimpleTransition
 
 /**
@@ -46,24 +48,9 @@ open class SimpleGenerationHelper protected constructor(
             
             
             val allTransitions = petrinet.transitions.map { transition ->
-                val outPlaces = petrinet
-                        .getOutEdges(transition)
-                        .mapNotNull { edge -> idsToLoggablePlaces[edge.target.id] }
                 
-                val inPlaces = petrinet
-                        .getInEdges(transition)
-                        .filter { it is Arc }
-                        .mapNotNull { edge -> idsToLoggablePlaces[edge.source.id] }
-                
-                val inResetArcPlaces = petrinet
-                        .getInEdges(transition)
-                        .filter { it is ResetArc }
-                        .mapNotNull { idsToLoggablePlaces[it.source.id] }
-                
-                val inInhibitorArcPlaces = petrinet
-                        .getInEdges(transition)
-                        .filter { it is InhibitorArc }
-                        .mapNotNull { idsToLoggablePlaces[it.source.id] }
+                val (outPlaces, inPlaces, inResetArcPlaces, inInhibitorArcPlaces)
+                        = arcsToLoggablePlaces(idsToLoggablePlaces, transition, petrinet)
                 
                 
                 SimpleTransition(transition, description, inPlaces, outPlaces, inInhibitorArcPlaces, inResetArcPlaces)

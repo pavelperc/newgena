@@ -65,25 +65,8 @@ class StaticPrioritiesGenerationHelper protected constructor(
             val finalPlaces = finalMarking.mapNotNull { idsToLoggablePlaces[it.id] }
             
             val allTransitions = petrinet.transitions.map { transition ->
-                val outPlaces = petrinet
-                        .getOutEdges(transition)
-                        .mapNotNull { edge -> idsToLoggablePlaces[edge.target.id] }
-                
-                val inPlaces = petrinet
-                        .getInEdges(transition)
-                        .filter { it is Arc }
-                        .mapNotNull { edge -> idsToLoggablePlaces[edge.source.id] }
-                
-                val inResetArcPlaces = petrinet
-                        .getInEdges(transition)
-                        .filter { it is ResetArc }
-                        .mapNotNull { idsToLoggablePlaces[it.source.id] }
-                
-                val inInhibitorArcPlaces = petrinet
-                        .getInEdges(transition)
-                        .filter { it is InhibitorArc }
-                        .mapNotNull { idsToLoggablePlaces[it.source.id] }
-                
+                val (outPlaces, inPlaces, inResetArcPlaces, inInhibitorArcPlaces)
+                        = arcsToLoggablePlaces(idsToLoggablePlaces, transition, petrinet)
                 
                 BaseTransition(transition, description, inPlaces, outPlaces, inInhibitorArcPlaces, inResetArcPlaces)
             }

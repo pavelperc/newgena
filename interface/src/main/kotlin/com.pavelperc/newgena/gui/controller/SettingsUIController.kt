@@ -157,7 +157,7 @@ class SettingsUIController : Controller() {
         return petrinet!!
     }
     
-    fun loadJsonSettings() {
+    fun loadJsonSettings(): Boolean {
         val cwd = File(System.getProperty("user.dir"))
         val prev = File(jsonSettingsPath.value ?: "").parentFile
         
@@ -165,11 +165,10 @@ class SettingsUIController : Controller() {
         fileChooser.initialDirectory = if (prev != null && prev.isDirectory) prev else cwd
         fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("Settings in json", "*.json"))
         
-        val path = fileChooser.showOpenDialog(null)?.relativePath
-        
-        if (path != null) {
-            loadJsonSettingsFromPath(path)
-        }
+        val path = fileChooser.showOpenDialog(null)?.relativePath ?: return false
+    
+        loadJsonSettingsFromPath(path)
+        return true
     }
     
     fun loadJsonSettingsFromPath(path: String) {

@@ -23,8 +23,8 @@ abstract class Transition<P : Place<*>> @JvmOverloads protected constructor(
     
     /* Check if we can move this [Movable].*/
     override fun checkAvailability() =
-            (inputPlaces + inputResetArcPlaces).all { place -> place.hasTokens() } 
-                    && inputInhibitorArcPlaces.all {place -> !place.hasTokens() }
+            (inputPlaces).all { place -> place.hasTokens() } // reset arcs doesn't affect transition availability
+                    && inputInhibitorArcPlaces.all { place -> !place.hasTokens() }
     
     companion object {
         @JvmStatic

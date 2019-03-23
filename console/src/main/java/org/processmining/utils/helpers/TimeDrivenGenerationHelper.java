@@ -1,5 +1,6 @@
 package org.processmining.utils.helpers;
 
+import kotlin.random.Random;
 import org.processmining.models.Movable;
 import org.processmining.models.abstract_net_representation.Transition;
 import org.processmining.models.graphbased.NodeID;
@@ -234,7 +235,7 @@ public class TimeDrivenGenerationHelper extends PetriNetGenerationHelper<TimeDri
                         }
                         else
                         {
-                            boolean useTransition = Companion.getRandom().nextBoolean();
+                            boolean useTransition = getRandom().nextBoolean();
                             if (useTransition)
                             {
                                 Map.Entry<Long, List<Transition>> entry = enabledTransitions.firstEntry();

@@ -113,28 +113,4 @@ class SimpleTransition(
     
     override val generationDescription: SimpleGenerationDescription
         get() = super.generationDescription as SimpleGenerationDescription
-    
-    companion object {
-        
-        class SimpleTransitionBuilder(private val transition: Transition, private val description: SimpleGenerationDescription) {
-            private val inputPlaces = mutableListOf<Place<Token>>()
-            private val outputPlaces = mutableListOf<Place<Token>>()
-            
-            fun inputPlace(inputPlace: Place<Token>): SimpleTransitionBuilder {
-                inputPlaces.add(inputPlace)
-                return this
-            }
-            
-            fun outputPlace(outputPlace: Place<Token>): SimpleTransitionBuilder {
-                outputPlaces.add(outputPlace)
-                return this
-            }
-            
-            fun build(): SimpleTransition {
-                val inputPlacesArray = inputPlaces
-                val outputPlacesArray = outputPlaces
-                return SimpleTransition(transition, description, inputPlacesArray, outputPlacesArray)
-            }
-        }
-    }
 }
