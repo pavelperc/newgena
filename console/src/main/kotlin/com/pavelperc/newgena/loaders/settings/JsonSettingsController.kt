@@ -15,6 +15,10 @@ class JsonSettingsController(var jsonSettings: JsonSettings) {
         }
     }
     
+    init {
+        loadPetrinet()
+    }
+    
     var petrinet: ResetInhibitorNet? = null
     
     /** Marking, loaded from petrinet model.*/

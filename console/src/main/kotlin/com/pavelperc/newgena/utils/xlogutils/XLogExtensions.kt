@@ -28,7 +28,6 @@ val XEvent.time: Date
             ?: throw IllegalStateException("No timestamp was found in event $name")
 
 
-
 var XTrace.name
     get() = attributes["concept:name"].toString()
     set(value) {
@@ -50,10 +49,13 @@ fun EventLogArray.toList() = this.toSeq().toList()
 /** Returns a list with all traces, containing only event names.*/
 fun EventLogArray.eventNames() = toList().flatMap { log -> log.eventNames() }
 
+
 fun EventLogArray.exportXml(filePath: String) {
     val serializer = XesXmlSerializer()
     val logFile = File(filePath)
-    logFile.parentFile.mkdirs()
+    val folder = logFile.parentFile
+    folder.deleteRecursively()
+    folder.mkdirs()
     
     this.exportToFile(null, logFile, serializer)
 }

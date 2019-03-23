@@ -120,7 +120,7 @@ class SimplePetrinetTests : GraphvizDrawer(false) {
         
         
         val serializer = XesXmlSerializer()
-        logArray.exportToFile(null, File("xes-out/simpleLog.xes"), serializer)
+        logArray.exportToFile(null, File("xes-out/simpleLog.xes").also { it.parentFile.mkdirs() }, serializer)
     }
     
     

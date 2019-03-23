@@ -26,12 +26,17 @@ class SettingsView : View("Settings") {
     
     override val root = Form()
     
+    private var saidHello = false
+    
     override fun onDock() {
         super.onDock()
-        runAsync {
-            runLater(Duration(200.0)) {
-                notification("Hello!") {
-                    position(Pos.TOP_CENTER)
+        if (!saidHello) {
+            saidHello = true
+            runAsync {
+                runLater(Duration(200.0)) {
+                    notification("Hello!") {
+                        position(Pos.TOP_CENTER)
+                    }
                 }
             }
         }
@@ -102,12 +107,43 @@ class SettingsView : View("Settings") {
                     }
                 }
                 settingsLoadingPanel()
+                
+                button("Generate logs!") {
+                    enableWhen(controller.allModelsAreValid)
+                    shortcut("Ctrl+G")
+                    tooltip("Ctrl+G")
+                    
+                    action { 
+                        try {
+                            val generationKit = controller.prepareGenerationKit()
+                            
+                            val view = find<GenerationView>(mapOf(
+                                    "generationKit" to generationKit,
+                                    "outputFolder" to settings.outputFolder.value)
+                            )
+                            replaceWith(view, ViewTransition.Slide(0.2.seconds))
+                            
+                        } catch (e: Exception) {
+                            alert(Alert.AlertType.ERROR, "Couldn't apply settings:", e.message)
+                        }
+                        
+                    }
+                    
+                }
             }
         }
     }
     
     fun EventTarget.settingsLoadingPanel() {
         hbox {
+            button("print") {
+                enableWhen(controller.allModelsAreValid
+                        .and(controller.someModelIsDirty))
+                action {
+                    settings.commit()
+                    println(controller.jsonSettings)
+                }
+            }
             button("Save model") {
                 shortcut("Ctrl+S")
                 enableWhen(controller.allModelsAreValid
@@ -180,7 +216,6 @@ class SettingsView : View("Settings") {
                         // may crash
                         controller.loadPetrinet()
                         notification("Petrinet loaded", "okey, okey...") { hideAfter(Duration(2000.0)) }
-//                                alert(Alert.AlertType.INFORMATION, "Not implemented.")
                     }
                     isFocusTraversable = false
                 }
@@ -197,9 +232,9 @@ class SettingsView : View("Settings") {
             fun TextField.validateEdges(prop: Property<ObservableList<String>>) {
                 prop.addValidator(this, ValidationTrigger.OnChange(300)) { value ->
                     val input = value?.toSet() ?: emptySet()
-                    val unknown = input - input.intersect(controller.edgeIds)
+                    val unknown = input - input.intersect(controller.inputEdgeIds)
                     if (controller.petrinet != null && unknown.isNotEmpty()) {
-                        warning("Not found edges: $unknown")
+                        warning("Not found input edges: $unknown")
                     } else null
                 }
             }
@@ -221,7 +256,7 @@ class SettingsView : View("Settings") {
                             }
                             
                         } catch (e: Exception) {
-                            alert(Alert.AlertType.ERROR, "Failed to update arcs, but previous arcs are reset.", e.message)
+                            alert(Alert.AlertType.ERROR, "Failed to update arcs, previous arcs are reset to normal.", e.message)
                         }
                     }
                 }

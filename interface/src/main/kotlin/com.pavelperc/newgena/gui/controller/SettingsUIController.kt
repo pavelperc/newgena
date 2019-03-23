@@ -1,6 +1,7 @@
 package com.pavelperc.newgena.gui.controller
 
 import com.pavelperc.newgena.gui.model.SettingsModel
+import com.pavelperc.newgena.launchers.PetrinetGenerators
 import com.pavelperc.newgena.loaders.pnml.PnmlLoader
 import com.pavelperc.newgena.loaders.settings.JsonSettings
 import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
@@ -9,7 +10,6 @@ import com.pavelperc.newgena.loaders.settings.toJson
 import com.pavelperc.newgena.models.deleteAllInhibitorResetArcs
 import com.pavelperc.newgena.models.markInhResetArcsByIds
 import com.pavelperc.newgena.models.pnmlId
-import guru.nidi.graphviz.engine.Graphviz
 import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
@@ -28,7 +28,7 @@ class SettingsUIController : Controller() {
     var petrinet: ResetInhibitorNet? = null
         private set(value) {
             placeIds = value?.places?.map { it.pnmlId }?.toSet() ?: emptySet()
-            edgeIds = value?.edges?.map { it.pnmlId }?.toSet() ?: emptySet()
+            inputEdgeIds = value?.transitions?.flatMap { value.getInEdges(it) }?.map { it.pnmlId }?.toSet() ?: emptySet()
             field = value
         }
     
@@ -37,9 +37,8 @@ class SettingsUIController : Controller() {
         private set
     
     /** Arc pnml ids of loaded petrinet, or empty set */
-    var edgeIds: Set<String> = emptySet()
+    var inputEdgeIds: Set<String> = emptySet()
         private set
-    
     
     
     private var pnmlMarking: Marking = Marking()
@@ -92,7 +91,7 @@ class SettingsUIController : Controller() {
             isPetrinetUpdated.set(loadedPetrinetFilePath == value)
         }
 
-//        loadJsonSettingsFromPath("examples/petrinet/simpleExample/settings.json")
+        loadJsonSettingsFromPath("examples/petrinet/simpleExample/settings.json")
     }
     
     fun requestOutputFolderChooseDialog() {
@@ -228,6 +227,28 @@ class SettingsUIController : Controller() {
             petrinet.deleteAllInhibitorResetArcs()
             petrinet.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
         } ?: IllegalStateException("Petrinet is not loaded.")
+    }
+    
+    
+    fun prepareGenerationKit(): PetrinetGenerators.GenerationKit<*> {
+        if (!settingsModel.commit())
+            throw IllegalStateException("Can not generate. Model is not valid.")
+        if (petrinet == null) {
+            loadPetrinet()
+        }
+        val petrinet = petrinet!!
+        
+        // just copy all actions with json settings.
+        petrinet.deleteAllInhibitorResetArcs()
+        with(jsonSettings.petrinetSetup) {
+            petrinet.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
+        }
+        val builder = JsonSettingsBuilder(petrinet, jsonSettings)
+        
+        val generationDescription = builder.buildDescription()
+        val (initialMarking, finalMarking) = builder.buildMarking()
+        
+        return PetrinetGenerators.GenerationKit(petrinet, initialMarking, finalMarking, generationDescription)
     }
     
 }

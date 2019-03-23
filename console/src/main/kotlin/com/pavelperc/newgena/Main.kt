@@ -31,29 +31,10 @@ fun main(args: Array<String>) {
     
     
     // TODO: pavel: make GenerationController instead of PetrinetGenerators and hide this awful code there.
-    val logArray = with(generationKit) {
-//        petrinet.toGraphviz(initialMarking, saveToSvg = "gv/simpleExample/simple.svg")
-        
-        when (description) {
-            is SimpleGenerationDescription -> PetrinetGenerators.generateSimple(
-                    petrinet,
-                    initialMarking,
-                    finalMarking,
-                    description)
-            is GenerationDescriptionWithStaticPriorities -> PetrinetGenerators.generateWithPriorities(
-                    petrinet,
-                    initialMarking,
-                    finalMarking,
-                    description)
-            is TimeDrivenGenerationDescription -> PetrinetGenerators.generateWithTime(
-                    petrinet, // TODO: pavel ADAPT TIMEDRIVEN TO INHIBITOR AND RESET NETS.
-                    initialMarking,
-                    finalMarking,
-                    description)
-            
-            else -> throw IllegalStateException("Unsupported type of generation description")
-        }
+    val logArray = PetrinetGenerators.generateFromKit(generationKit) { progress, maxProgress ->
+        println("progress: $progress from $maxProgress")
     }
+    
 //    logArray.toList().map { it.eventNames() }.joinToString("\n").also { println(it) }
     
     with(settingsController) {

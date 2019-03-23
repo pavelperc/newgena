@@ -14,17 +14,53 @@ import org.processmining.utils.helpers.SimpleGenerationHelper
 import org.processmining.utils.helpers.StaticPrioritiesGenerationHelper
 import org.processmining.utils.helpers.TimeDrivenGenerationHelper
 
+typealias CallbackOperation = (progress: Int, maxProgress: Int) -> Unit
+
 /**
  * Common class to start all generators with Petrinet.
  */
 object PetrinetGenerators {
     
+    
+    /** Generation kit for petri net */
     data class GenerationKit<G : GenerationDescription>(
             val petrinet: ResetInhibitorNet,
             val initialMarking: Marking,
             val finalMarking: Marking,
             val description: G
     )
+    
+    fun generateFromKit(generationKit: GenerationKit<*>, callbackOp: CallbackOperation = { _, _ -> }): EventLogArray {
+        val callback = generateCallback(generationKit.description, callbackOp)
+        val logArray = with(generationKit) {
+            //        petrinet.toGraphviz(initialMarking, saveToSvg = "gv/simpleExample/simple.svg")
+            
+            when (description) {
+                is SimpleGenerationDescription -> PetrinetGenerators.generateSimple(
+                        petrinet,
+                        initialMarking,
+                        finalMarking,
+                        description,
+                        callback)
+                is GenerationDescriptionWithStaticPriorities -> PetrinetGenerators.generateWithPriorities(
+                        petrinet,
+                        initialMarking,
+                        finalMarking,
+                        description,
+                        callback)
+                is TimeDrivenGenerationDescription -> PetrinetGenerators.generateWithTime(
+                        petrinet, // TODO: pavel ADAPT TIMEDRIVEN TO INHIBITOR AND RESET NETS.
+                        initialMarking,
+                        finalMarking,
+                        description,
+                        callback)
+                
+                else -> throw IllegalStateException("Unsupported type of generation description")
+            }
+        }
+        return logArray
+    }
+    
     
     fun generateSimple(
             petrinet: PetrinetGraph,
@@ -61,14 +97,14 @@ object PetrinetGenerators {
         return Generator(callback).generate(generationHelper)
     }
     
-    fun getConsoleCallback(description: GenerationDescription): ProgressBarCallback {
+    fun generateCallback(description: GenerationDescription, op: CallbackOperation): ProgressBarCallback {
         var progress = 0
         val maxProgress = description.numberOfLogs * description.numberOfTraces
         return ProgressBarCallback {
-            progress++
-            println("progress: $progress from $maxProgress")
+            op(progress++, maxProgress)
         }
     }
+    
     
     val emptyCallback = ProgressBarCallback { }
 }
