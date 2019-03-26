@@ -75,10 +75,11 @@ fun ResetInhibitorNet.deleteAllInhibitorResetArcs() {
     
 }
 
+const val DEFAULT_PNML_ID = "noPnmlId"
 
 private class PnmlIdDelegate {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): String {
-        return (thisRef as AttributeMapOwner).attributeMap["pnmlId"]?.toString() ?: "noPnmlId"
+        return (thisRef as AttributeMapOwner).attributeMap["pnmlId"]?.toString() ?: DEFAULT_PNML_ID
     }
     
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: String) {
@@ -93,17 +94,21 @@ var PetrinetEdge<*, *>.pnmlId by PnmlIdDelegate()
 var PetrinetNode.pnmlId by PnmlIdDelegate()
 
 
-
-
 /** Fills [pnmlId] for [Transition]s and [Place]s from labels. */
 fun ResetInhibitorNet.makePnmlIdsFromLabels() {
     transitions.forEach { it.pnmlId = it.label }
     places.forEach { it.pnmlId = it.label }
 }
 
+/** Fills [pnmlId] for [Arc]s in style: sourceId_targetId. */
+fun ResetInhibitorNet.makeArcPnmlIdsFromEnds() {
+    edges.forEach { edge -> edge.pnmlId = "${edge.source.pnmlId}_${edge.target.pnmlId}" }
+}
+
+
 /** Fills [pnmlId] for arcs from labels. */
-fun List<PetrinetEdge<*, *>>.makePnmlIdsOrdinal(startFrom: Int = 1) {
-    withIndex().forEach { (i, edge) -> edge.pnmlId = "arc${i + startFrom}" }
+fun List<PetrinetEdge<*, *>>.makePnmlIdsOrdinal(startFrom: Int = 1, name: String = "arc") {
+    withIndex().forEach { (i, edge) -> edge.pnmlId = "$name${i + startFrom}" }
 }
 
 //fun List<Arc>.makePnmlIdsOrdinalInArcs() = map { it as PetrinetEdge<*,*> }.makePnmlIdsOrdinal()

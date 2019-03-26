@@ -142,12 +142,13 @@ class Generator(private val callback: ProgressBarCallback) {
                 }
                 
                 // TODO pavel: update movable interface return type and implementations 
+                // can add noise tokens. 
                 val movementResult = movable.move(trace!!) as MovementResult<F>
                 
                 if (!movementResult.isActualStep) {
                     stepNumber--
                 }
-                // reached final marking
+                // check if we reached final marking, produce or consume extra tokens??
                 val assessedMovementResult = generationHelper.handleMovementResult(movementResult)
                 replayedCompletely = assessedMovementResult.isReplayCompleted
                 addTraceToLog = assessedMovementResult.isTraceEligibleForAddingToLog

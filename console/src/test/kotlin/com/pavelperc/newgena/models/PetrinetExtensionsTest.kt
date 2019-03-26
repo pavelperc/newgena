@@ -4,6 +4,7 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.Test
+import org.processmining.models.graphbased.directed.petrinet.PetrinetEdge
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.graphbased.directed.petrinet.elements.Arc
 import org.processmining.models.graphbased.directed.petrinet.impl.ResetInhibitorNetImpl
@@ -79,6 +80,38 @@ class PetrinetExtensionsTest {
         petrinet.getInhibitorArc(p2, c).shouldNotBeNull()
     }
     
+    @Test
+    fun testPnmlIdAutoFill() {
+        val petrinet: ResetInhibitorNet = ResetInhibitorNetImpl("simplePetriNet")
+    
+        val a = petrinet.addTransition("a")
+        val b = petrinet.addTransition("b")
+    
+        val p1 = petrinet.addPlace("p1")
+        val p2 = petrinet.addPlace("p2")
+        val p3 = petrinet.addPlace("p3")
+        val p4 = petrinet.addPlace("p4")
+        
+        val edges = mutableListOf<PetrinetEdge<*,*>>()
+        edges += petrinet.addResetArc(p1, a)
+        edges += petrinet.addInhibitorArc(p2, a)
+        edges += petrinet.addArc(p3, a)
+        edges += petrinet.addArc(a, p4)
+        edges += petrinet.addArc(p4, b)
+        
+        val nodes = listOf(a, b, p1, p2, p3, p4)
+        nodes.forEach { it.pnmlId shouldEqual DEFAULT_PNML_ID }
+        edges.forEach { it.pnmlId shouldEqual DEFAULT_PNML_ID }
+        
+        petrinet.makePnmlIdsFromLabels()
+        nodes.map { it.pnmlId } shouldEqual listOf("a", "b", "p1", "p2", "p3", "p4")
+        
+        edges.makePnmlIdsOrdinal()
+        edges.map { it.pnmlId } shouldEqual listOf("arc1", "arc2", "arc3", "arc4", "arc5")
+        
+        petrinet.makeArcPnmlIdsFromEnds()
+        edges.map { it.pnmlId } shouldEqual listOf("p1_a", "p2_a", "p3_a", "a_p4", "p4_b")
+    }
     
     @Test
     fun testPnmlIdProperty() {
@@ -103,11 +136,11 @@ class PetrinetExtensionsTest {
         petrinet.addArc(p3, d)
         petrinet.addArc(d, p4)
         
-        a.pnmlId shouldEqual "null"
-        p1.pnmlId shouldEqual "null"
-        arc1.pnmlId shouldEqual "null"
-        arc2.pnmlId shouldEqual "null"
-        arc3.pnmlId shouldEqual "null"
+        a.pnmlId shouldEqual DEFAULT_PNML_ID
+        p1.pnmlId shouldEqual DEFAULT_PNML_ID
+        arc1.pnmlId shouldEqual DEFAULT_PNML_ID
+        arc2.pnmlId shouldEqual DEFAULT_PNML_ID
+        arc3.pnmlId shouldEqual DEFAULT_PNML_ID
         
         a.pnmlId = "t1"
         p1.pnmlId = "p1"

@@ -2,6 +2,8 @@ package com.pavelperc.newgena.launchers
 
 import com.pavelperc.newgena.testutils.GraphvizDrawer
 import com.pavelperc.newgena.graphviz.toGraphviz
+import com.pavelperc.newgena.models.makeArcPnmlIdsFromEnds
+import com.pavelperc.newgena.models.makePnmlIdsFromLabels
 import com.pavelperc.newgena.utils.common.markingOf
 import com.pavelperc.newgena.utils.xlogutils.eventNames
 import org.amshove.kluent.*
@@ -10,10 +12,12 @@ import org.junit.Test
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.Petrinet
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl
+import org.processmining.models.graphbased.directed.petrinet.impl.ResetInhibitorNetImpl
 import org.processmining.models.semantics.petrinet.Marking
 import java.io.File
+import kotlin.math.log
 
-class SimplePetrinetTests : GraphvizDrawer(false) {
+class SimplePetrinetTests : GraphvizDrawer(true) {
     
     @Test
     fun simplePetriNet() {
@@ -202,5 +206,36 @@ class SimplePetrinetTests : GraphvizDrawer(false) {
     
 //        val serializer = XesXmlSerializer()
 //        logArray.exportToFile(null, File("xes-out/conjunctionLog.xes"), serializer)
+    }
+    
+    
+    @Test
+    fun testWeights() {
+        val petrinet = ResetInhibitorNetImpl("conjunction")
+    
+        val t1 = petrinet.addTransition("t1")
+        
+        val p1 = petrinet.addPlace("p1")
+        val p2 = petrinet.addPlace("p2")
+        val p3 = petrinet.addPlace("p3")
+    
+        petrinet.addArc(p1, t1, 3)
+        petrinet.addArc(p2, t1, 2)
+        
+        petrinet.addArc(t1, p3, 10)
+        
+        petrinet.makePnmlIdsFromLabels()
+        petrinet.makeArcPnmlIdsFromEnds()
+        
+        val initialMarking = markingOf(p1 to 6, p2 to 6)
+        val finalMarking = markingOf(p1 to 2, p3 to 20)
+        
+        val description = SimpleGenerationDescription()
+        
+        val logArray = PetrinetGenerators.generateSimple(petrinet, initialMarking, finalMarking, description)
+        
+        logArray.eventNames().forEach { it shouldEqual listOf("t1", "t1") }
+    
+        forDrawing += petrinet.toGraphviz(initialMarking) to "testWeights.svg"
     }
 }

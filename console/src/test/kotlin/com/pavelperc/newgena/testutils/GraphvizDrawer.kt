@@ -22,7 +22,7 @@ abstract class GraphvizDrawer(draw: Boolean = false) {
         /** Map of graphviz graphs to their short filenames for saving.*/
         val forDrawing = mutableMapOf<MutableGraph, String>()
     
-        private const val folder = "gv"
+        private const val folder = "../gv"
         
         // it is always reset to false in @AfterClass
         private var drawGraphviz = false
@@ -44,7 +44,7 @@ abstract class GraphvizDrawer(draw: Boolean = false) {
                 var counter = 0
                 forDrawing.forEach { graph, filename ->
                     graph.toGraphviz().render(Format.SVG).toFile(File("$folder/$filename"))
-                    println("drew: $filename (${++counter} from ${forDrawing.size})")
+                    println("drew: $folder/filename (${++counter} from ${forDrawing.size})")
                 }
             }
             drawGraphviz = false

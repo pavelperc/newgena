@@ -21,9 +21,9 @@ abstract class BaseGenerationHelper<T : Tokenable<*>, K : Movable, F : Movable>(
         override val generationDescription: GenerationDescription
 ) : GenerationHelper<K, F> {
     
-    // everything is immutable
-    
+    // allModelMovables is immutable
     override val allModelMovables = allModelMovables.toList()
+    
     override val extraMovables = LinkedList<F>()
     
     init {
