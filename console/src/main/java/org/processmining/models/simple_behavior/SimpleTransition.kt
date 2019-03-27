@@ -11,6 +11,7 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.utils.LoggingSingleton
 
 import java.util.ArrayList
+import kotlin.random.Random
 
 /**
  * Created by Ivan Shugurov on 30.10.2014.
@@ -40,7 +41,6 @@ class SimpleTransition(
         }
     
     override fun move(trace: XTrace): MovementResult<*>? {
-        // TODO: pavel - simplify move in simpleTransition
         consumeTokens()
         
         if (shouldDistortEvent()) {
@@ -58,12 +58,13 @@ class SimpleTransition(
                     }
                 } else {
                     //ignore this case in order to skip the event
+                    // (don't use any of external/internal transitions, so just skip)
                 }
             } else {
                 logNoiseAndTransition(trace)
             }
         } else {
-            logTransition(trace) 
+            logTransition(trace)
         }
         
         produceTokens()
@@ -77,6 +78,7 @@ class SimpleTransition(
             logNoiseEvent(trace)
             logTransition(trace)
         } else {
+            // duplicate transition
             LoggingSingleton.log(trace, node)
             logTransition(trace)
         }
@@ -98,12 +100,12 @@ class SimpleTransition(
         }
     }
     
+    /** @return true if we should use noise events */
     private fun shouldDistortEvent(): Boolean {
         val description = generationDescription
         if (description.isUsingNoise) {
             val noiseDescription = description.noiseDescription
-            if (noiseDescription.noisedLevel >= random.nextInt(GenerationDescriptionWithNoise.MAX_NOISE_LEVEL + 1))
-            {
+            if (noiseDescription.noisedLevel >= Random.nextInt(GenerationDescriptionWithNoise.MAX_NOISE_LEVEL + 1)) {
                 //use noise transitions
                 return true
             }

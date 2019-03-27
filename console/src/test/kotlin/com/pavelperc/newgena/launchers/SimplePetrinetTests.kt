@@ -17,7 +17,7 @@ import org.processmining.models.semantics.petrinet.Marking
 import java.io.File
 import kotlin.math.log
 
-class SimplePetrinetTests : GraphvizDrawer(true) {
+class SimplePetrinetTests : GraphvizDrawer(false) {
     
     @Test
     fun simplePetriNet() {

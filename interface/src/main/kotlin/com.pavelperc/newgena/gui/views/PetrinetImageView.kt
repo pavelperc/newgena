@@ -6,12 +6,13 @@ import com.pavelperc.newgena.gui.customfields.notification
 import guru.nidi.graphviz.engine.Format
 import guru.nidi.graphviz.engine.Renderer
 import guru.nidi.graphviz.toGraphviz
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.embed.swing.SwingFXUtils
 import javafx.geometry.Pos
 import javafx.scene.image.Image
 import javafx.scene.layout.BorderPane
-import javafx.scene.paint.Color
 import tornadofx.*
 import java.io.File
 
@@ -25,6 +26,7 @@ class PetrinetImageView : View("Petrinet Viewer.") {
     
     val imgProp = SimpleObjectProperty<Image>(null)
     
+    var drawArcIdsProp = SimpleBooleanProperty(true)
     
     fun draw() {
         controller.updateInhResetArcsFromModel()
@@ -37,7 +39,8 @@ class PetrinetImageView : View("Petrinet Viewer.") {
         val graph = controller.petrinet?.toGraphviz(
                 initialMarking = initialMarking,
                 graphLabel = "",
-                finalMarking = finalMarking
+                finalMarking = finalMarking,
+                drawArcIds = drawArcIdsProp.value
         )
         
         if (graph != null) {
@@ -56,6 +59,7 @@ class PetrinetImageView : View("Petrinet Viewer.") {
 //        draw()
         with(root) {
             top = hbox {
+                alignment = Pos.BOTTOM_LEFT
                 button("Save image to file") {
                     action {
                         val fileStr = controller.petrinetSetupModel.petrinetFile.value?.replace(".pnml", ".svg")
@@ -78,6 +82,11 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                     }
                     
                 }
+                checkbox("Show arc ids", drawArcIdsProp) {
+                    action {
+                        draw()
+                    }
+                }
             }
             
             center = pane {
@@ -90,7 +99,7 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                         isPreserveRatio = true
                         fitWidthProperty().bind(pane1.widthProperty())
                         fitHeightProperty().bind(pane1.heightProperty())
-        
+                        
                     }
                 }
             }

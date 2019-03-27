@@ -6,8 +6,8 @@ import guru.nidi.graphviz.attribute.*
 import guru.nidi.graphviz.engine.Format
 import guru.nidi.graphviz.model.Factory.mutNode
 import guru.nidi.graphviz.model.MutableGraph
-import guru.nidi.graphviz.model.MutableNode
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
+import org.processmining.models.graphbased.directed.petrinet.elements.Arc
 import org.processmining.models.graphbased.directed.petrinet.elements.InhibitorArc
 import org.processmining.models.graphbased.directed.petrinet.elements.Place
 import org.processmining.models.graphbased.directed.petrinet.elements.ResetArc
@@ -19,7 +19,8 @@ private fun convert(
         petrinet: PetrinetGraph,
         marking: List<Place>,
         finalMarking: List<Place>,
-        graphLabel: String
+        graphLabel: String,
+        drawArcIds: Boolean
 ): MutableGraph {
     
     return graph(directed = true) {
@@ -41,7 +42,13 @@ private fun convert(
         
         // drawing arcs
         petrinet.edges.forEach { edge ->
-            val arc = (edge.source.pnmlId - edge.target.pnmlId)[Label.of("${edge.label}(${edge.pnmlId})")]
+            
+            val labelStr =
+                    if (drawArcIds) "${edge.label}(${edge.pnmlId})"
+                    else if (edge.label == "1" || edge !is Arc) ""
+                    else edge.label
+            
+            val arc = (edge.source.pnmlId - edge.target.pnmlId)[Label.of(labelStr)]
             when (edge) {
                 is InhibitorArc -> arc[Arrow.DOT.open()]
                 is ResetArc -> arc[Arrow.NORMAL.and(Arrow.NORMAL)]
@@ -108,8 +115,9 @@ fun PetrinetGraph.toGraphviz(
         initialMarking: Marking = Marking(),
         graphLabel: String = this.label,
         saveToSvg: String? = null,
-        finalMarking: Marking = Marking()
-) = convert(this, initialMarking.toList(), finalMarking.toList(), graphLabel)
+        finalMarking: Marking = Marking(),
+        drawArcIds: Boolean = true
+) = convert(this, initialMarking.toList(), finalMarking.toList(), graphLabel, drawArcIds)
         .also { graph ->
             if (saveToSvg != null)
                 graph.toGraphviz().render(Format.SVG).toFile(File(saveToSvg))
