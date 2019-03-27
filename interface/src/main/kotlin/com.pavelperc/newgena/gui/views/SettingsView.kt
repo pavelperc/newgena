@@ -12,6 +12,7 @@ import javafx.geometry.Pos
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
 import javafx.scene.control.TextField
+import javafx.stage.Modality
 import javafx.util.Duration
 import tornadofx.*
 
@@ -145,8 +146,7 @@ class SettingsView : View("Settings") {
             }
             button("Save settings") {
                 shortcut("Ctrl+S")
-                enableWhen(controller.allModelsAreValid
-                        .and(controller.someModelIsDirty))
+                enableWhen(controller.allModelsAreValid)
                 action {
                     val result: Boolean
                     if (controller.jsonSettingsPath.value == null) {
@@ -242,13 +242,12 @@ class SettingsView : View("Settings") {
                     enableWhen(controller.isPetrinetUpdated)
                     action {
                         try {
-                            controller.updateInhResetArcsFromModel()
-                            
-                            val petrinetImage = PetrinetImageView()
+                            val petrinetImage = find<PetrinetImageView>()
+                            petrinetImage.draw()
                             petrinetImage.openWindow()
                             
                         } catch (e: Exception) {
-                            alert(Alert.AlertType.ERROR, "Failed to update arcs, previous arcs are reset to normal.", e.message)
+                            alert(Alert.AlertType.ERROR, "Failed to update arcs and draw.", e.message)
                         }
                     }
                 }

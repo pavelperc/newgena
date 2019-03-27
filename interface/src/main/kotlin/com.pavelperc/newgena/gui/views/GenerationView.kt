@@ -46,8 +46,15 @@ class GenerationView() : View("My View") {
                         notification("Saved to folder $outputFolder")
                     }
                 }
+                button("show petrinet") {
+                    action {
+                        find<PetrinetImageView>().also { it.draw() }.openModal()
+                    }
+                }
                 
-                listview(logArrayObservable)
+                listview(logArrayObservable) {
+                    prefHeight = 600.0
+                }
                 
             }
         }

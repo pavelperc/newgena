@@ -146,7 +146,7 @@ fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextF
 //}
 
 
-fun View.notification(title: String = "", text: String = "", op: Notifications.() -> Unit = {}) {
+fun UIComponent.notification(title: String = "", text: String = "", op: Notifications.() -> Unit = {}) {
     val builder = Notifications.create()
     builder.owner(this.root)
     builder.title(title)

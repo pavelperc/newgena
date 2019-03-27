@@ -2,24 +2,20 @@ package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.graphviz.toGraphviz
 import com.pavelperc.newgena.gui.controller.SettingsUIController
+import com.pavelperc.newgena.gui.customfields.notification
 import guru.nidi.graphviz.engine.Format
 import guru.nidi.graphviz.engine.Renderer
 import guru.nidi.graphviz.toGraphviz
-import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.embed.swing.SwingFXUtils
-import javafx.scene.control.Alert
+import javafx.geometry.Pos
+import javafx.scene.image.Image
 import javafx.scene.layout.BorderPane
-import javafx.scene.layout.StackPane
-import javafx.scene.layout.VBox
+import javafx.scene.paint.Color
 import tornadofx.*
-import javafx.scene.web.WebView
-import org.processmining.models.graphbased.directed.petrinet.Petrinet
-import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import java.io.File
-import javax.swing.text.html.ImageView
 
-class PetrinetImageView : Fragment("Petrinet Viewer.") {
+class PetrinetImageView : View("Petrinet Viewer.") {
     override val root = BorderPane()
     
     val controller by inject<SettingsUIController>()
@@ -27,8 +23,13 @@ class PetrinetImageView : Fragment("Petrinet Viewer.") {
     private val renderedImageProp = SimpleObjectProperty<Renderer>(null)
     private var renderedImage by renderedImageProp
     
+    val imgProp = SimpleObjectProperty<Image>(null)
     
-    init {
+    
+    fun draw() {
+        controller.updateInhResetArcsFromModel()
+        
+        // update window title.
         title = controller.petrinet?.label ?: "No petrinet loaded."
         
         val (initialMarking, finalMarking) = controller.markings
@@ -39,39 +40,62 @@ class PetrinetImageView : Fragment("Petrinet Viewer.") {
                 finalMarking = finalMarking
         )
         
+        if (graph != null) {
+            val renderedImage = graph.toGraphviz().render(Format.SVG)
+            val bufferedImage = renderedImage.toImage()
+            val img = SwingFXUtils.toFXImage(bufferedImage, null)
+            
+            imgProp.value = img
+        } else {
+            imgProp.value = null
+        }
+    }
+    
+    init {
+//        imgProp.value = Image("file:examples/petrinet/cycle1/cycle1.png")
+//        draw()
         with(root) {
-            if (graph != null) {
-                val renderedImage = graph.toGraphviz().render(Format.SVG)
-                val bufferedImage = renderedImage.toImage()
-                val img = SwingFXUtils.toFXImage(bufferedImage, null)
-                
-                center = imageview(img) {
-                    isPreserveRatio = true
-                    fitWidthProperty().bind(root.widthProperty())
-                    fitHeightProperty().bind(root.heightProperty())
-                }
-                bottom = button("save image to file") {
-                    
+            top = hbox {
+                button("Save image to file") {
                     action {
                         val fileStr = controller.petrinetSetupModel.petrinetFile.value?.replace(".pnml", ".svg")
                         if (fileStr != null) {
-                            renderedImage.toFile(File(fileStr))
-                            alert(Alert.AlertType.INFORMATION, "Saved to $fileStr")
+                            confirm("Save image to $fileStr?") {
+                                renderedImage.toFile(File(fileStr))
+                                notification("Saved to $fileStr")
+                            }
                         }
                     }
                 }
-                
-            } else {
-                label("No Petrinet loaded.") {
-                    style {
-                        fontSize = 10.em
+                button("Update") {
+                    action {
+                        try {
+                            draw()
+                        } catch (e: Exception) {
+                            error("Can not update image:", e.message)
+                            imgProp.value = null
+                        }
+                    }
+                    
+                }
+            }
+            
+            center = pane {
+                val pane1 = this
+                stackpane {
+                    alignment = Pos.CENTER
+                    fitToSize(pane1)
+                    
+                    imageview(imgProp) {
+                        isPreserveRatio = true
+                        fitWidthProperty().bind(pane1.widthProperty())
+                        fitHeightProperty().bind(pane1.heightProperty())
+        
                     }
                 }
             }
             
-            
         }
-        
     }
     
 }
