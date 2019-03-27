@@ -236,6 +236,6 @@ class SimplePetrinetTests : GraphvizDrawer(true) {
         
         logArray.eventNames().forEach { it shouldEqual listOf("t1", "t1") }
     
-        forDrawing += petrinet.toGraphviz(initialMarking) to "testWeights.svg"
+        forDrawing += petrinet.toGraphviz(initialMarking, finalMarking = finalMarking) to "testWeights.svg"
     }
 }

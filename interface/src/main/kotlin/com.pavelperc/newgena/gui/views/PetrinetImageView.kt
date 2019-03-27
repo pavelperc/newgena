@@ -31,8 +31,12 @@ class PetrinetImageView : Fragment("Petrinet Viewer.") {
     init {
         title = controller.petrinet?.label ?: "No petrinet loaded."
         
+        val (initialMarking, finalMarking) = controller.markings
+        
         val graph = controller.petrinet?.toGraphviz(
-                controller.markings.first
+                initialMarking = initialMarking,
+                graphLabel = "",
+                finalMarking = finalMarking
         )
         
         with(root) {

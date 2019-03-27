@@ -1,11 +1,8 @@
 package com.pavelperc.newgena.graphviz
 
 import com.pavelperc.newgena.models.pnmlId
-import guru.nidi.graphviz.attribute.RankDir
-import guru.nidi.graphviz.attribute.Shape
 import guru.nidi.graphviz.*
-import guru.nidi.graphviz.attribute.Arrow
-import guru.nidi.graphviz.attribute.Label
+import guru.nidi.graphviz.attribute.*
 import guru.nidi.graphviz.engine.Format
 import guru.nidi.graphviz.model.Factory.mutNode
 import guru.nidi.graphviz.model.MutableGraph
@@ -18,7 +15,12 @@ import org.processmining.models.semantics.petrinet.Marking
 import java.io.File
 
 
-private fun convert(petrinet: PetrinetGraph, marking: List<Place>, graphLabel: String): MutableGraph {
+private fun convert(
+        petrinet: PetrinetGraph,
+        marking: List<Place>,
+        finalMarking: List<Place>,
+        graphLabel: String
+): MutableGraph {
     
     return graph(directed = true) {
         graph[RankDir.LEFT_TO_RIGHT]
@@ -46,7 +48,11 @@ private fun convert(petrinet: PetrinetGraph, marking: List<Place>, graphLabel: S
             }
         }
         
-        drawTokens(places, marking)
+        // reset default labels.
+        places.forEach { it[Label.of("   ")] }
+        drawTokens(marking)
+        drawTokens(finalMarking, true)
+
 //        
 //        if (petrinet is ICPetrinet) {
 //            
@@ -54,24 +60,32 @@ private fun convert(petrinet: PetrinetGraph, marking: List<Place>, graphLabel: S
     }
 }
 
-private fun drawTokens(allPlaceNodes: List<MutableNode>, marking: List<Place>) {
+private fun drawTokens(marking: List<Place>, isFinalMarking: Boolean = false) {
     // No token
-    allPlaceNodes.forEach { it[Label.of("   ")] }
+//    allPlaceNodes.forEach { it[Label.of("   ")] }
     
     // grouping places by labels
     val counts = marking.groupBy { it.pnmlId }.mapValues { it.value.size }
-    counts.forEach { label, count ->
-        val node = mutNode(label)
+    counts.forEach { pnmlId, count ->
+        val node = mutNode(pnmlId)
         // circles
         val circle = "●"
 //        val circle = "•"
 //        val circle = "*"
-        val points =
-                when {
-                    count > 6 -> "$count $circle"
-                    else -> circle.repeat(count).chunked(3).joinToString("\n")
-                }
-        node[Label.raw(points)]
+        val points = when {
+            count > 3 -> "$count $circle"
+//                    else -> circle.repeat(count).chunked(3).joinToString("<br/>")
+            else -> circle.repeat(count)
+        }
+        
+        val oldLabel = (node.attrs()["label"] as? Label)?.value() ?: ""
+        val oldLabelMod = if (oldLabel.trimIndent() != "") "$oldLabel<br/>" else ""
+        val label =
+                if (isFinalMarking)
+                    Label.html("$oldLabelMod<font color=\"lightseagreen\">$points</font>")
+                else Label.html("<font color=\"black\">$points</font>")
+//        println("New label for node $pnmlId: ${label.value()}")
+        node[label]
     }
 }
 
@@ -91,10 +105,11 @@ private fun drawTokens(allPlaceNodes: List<MutableNode>, marking: List<Place>) {
 
 /** Converts petrinet to mutable graphviz graph*/
 fun PetrinetGraph.toGraphviz(
-        marking: Marking = Marking(),
+        initialMarking: Marking = Marking(),
         graphLabel: String = this.label,
-        saveToSvg: String? = null
-) = convert(this, marking.toList(), graphLabel)
+        saveToSvg: String? = null,
+        finalMarking: Marking = Marking()
+) = convert(this, initialMarking.toList(), finalMarking.toList(), graphLabel)
         .also { graph ->
             if (saveToSvg != null)
                 graph.toGraphviz().render(Format.SVG).toFile(File(saveToSvg))
