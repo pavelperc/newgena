@@ -9,5 +9,6 @@ class MyApp: App(SettingsView::class, Styles::class)
 
 
 fun main(args: Array<String>) {
+    println("Hello, starting gui.")
     launch<MyApp>(args)
 }

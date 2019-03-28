@@ -3,10 +3,9 @@ package com.pavelperc.newgena.launchers
 import com.pavelperc.newgena.graphviz.toGraphviz
 import org.junit.Test
 import com.pavelperc.newgena.testutils.GraphvizDrawer
+import com.pavelperc.newgena.utils.common.markingOf
 import com.pavelperc.newgena.utils.xlogutils.eventNames
-import org.amshove.kluent.shouldContainSame
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldNotBeEmpty
+import org.amshove.kluent.*
 import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
@@ -101,7 +100,7 @@ class InhibitorResetPetrinetTest : GraphvizDrawer(false) {
     
     @Test
     fun resetArcNet() {
-        val petrinet: ResetInhibitorNet = ResetInhibitorNetImpl("resetInhibitorNet")
+        val petrinet = ResetInhibitorNetImpl("resetInhibitorNet")
         
         val a = petrinet.addTransition("A")
 //        val b = petrinet.addTransition("B")
@@ -140,6 +139,42 @@ class InhibitorResetPetrinetTest : GraphvizDrawer(false) {
         logArray.eventNames()
                 .shouldNotBeEmpty()
                 .forEach { trace -> trace shouldEqual listOf("A") }
+    }
+    
+    
+    @Test
+    fun resetArcNetRandomFiring() {
+        val petrinet: ResetInhibitorNet = ResetInhibitorNetImpl("resetInhibitorNet")
+        
+        val a = petrinet.addTransition("A")
+        
+        val p1 = petrinet.addPlace("p1")
+        val p2 = petrinet.addPlace("p2")
+        
+        petrinet.addResetArc(p1, a)
+        petrinet.addArc(a, p2, 2)
+        
+        // p1(7) --->> A --2-> p2
+        
+        val initialMarking = markingOf(p1 to 7)
+        val finalMarking = markingOf(p2 to 4)
+        
+        
+        val description = SimpleGenerationDescription(
+                isUsingNoise = false,
+                isRemovingUnfinishedTraces = true,
+                isRemovingEmptyTraces = true,
+                maxNumberOfSteps = 4, // all steps should fire
+                numberOfTraces = 20,
+                numberOfLogs = 1
+        )
+        
+        val logArray = PetrinetGenerators.generateSimple(petrinet, initialMarking, finalMarking, description)
+        println(logArray.eventNames())
+        
+        logArray.eventNames()
+                .shouldNotBeEmpty()
+                .forEach { trace -> trace.size shouldEqual 2 } // generate two tokens twice
     }
     
     

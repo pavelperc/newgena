@@ -17,7 +17,7 @@ abstract class BaseGenerationHelper<T : Tokenable<*>, K : Movable, F : Movable>(
         private val initialMarking: Collection<T>,
         private val finalMarking: Collection<T>,
         allModelMovables: Collection<K>,
-        private val allTokenables: Collection<T>,
+        protected val allTokenables: Collection<T>,
         override val generationDescription: GenerationDescription
 ) : GenerationHelper<K, F> {
     
@@ -63,8 +63,8 @@ abstract class BaseGenerationHelper<T : Tokenable<*>, K : Movable, F : Movable>(
         return AssessedMovementResult(replayCompleted, true)
     }
     
-    //returns true if final marking was reached
-    protected open fun tokensOnlyInFinalMarking(): Boolean {
+    /** @return if [allTokenables] with tokens are a subset of final marking  */
+    protected open fun tokensOnlyInFinalMarking(): Boolean {// TODO move this implementation to bpmn
         return allTokenables.filter { it.hasTokens() }.all { finalMarking.contains(it) }
     }
     

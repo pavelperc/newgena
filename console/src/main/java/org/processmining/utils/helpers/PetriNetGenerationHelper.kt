@@ -1,5 +1,6 @@
 package org.processmining.utils.helpers
 
+import com.pavelperc.newgena.models.pnmlId
 import org.processmining.models.*
 import org.processmining.models.abstract_net_representation.Place
 import org.processmining.models.abstract_net_representation.Token
@@ -24,11 +25,21 @@ abstract class PetriNetGenerationHelper<T : Place<*>, K : Transition<*>, F : Tok
         description: GenerationDescription
 ) : BaseGenerationHelper<T, K, F>(initialMarking, finalMarking, allTransitions, allPlaces, description) {
     
+    
+    private val groupedFinalMarking = finalMarking.groupBy { it }.mapValues { it.value.size }
+    
+    fun dumpPetrinet() {
+        println("Dump petrinet:")
+        allTokenables.forEach { place ->
+            println(place.node.label + ": " + place.numberOfTokens)
+        }
+    }
+    
+    
     override fun chooseNextMovable() =
             pickRandomMovable(findEnabledTransitions() + extraMovables)
     
     protected fun findEnabledTransitions() = allModelMovables.filter { it.checkAvailability() }
-    
     
     
     companion object {
@@ -40,7 +51,7 @@ abstract class PetriNetGenerationHelper<T : Place<*>, K : Transition<*>, F : Tok
                 val inResetArcPlaces: List<Place<Token>>,
                 val inInhibitorArcPlaces: List<Place<Token>>
         )
-    
+        
         /** Used in create methods for generation helpers. */
         fun arcsToLoggablePlaces(
                 idsToLoggablePlaces: Map<NodeID, Place<Token>>,
@@ -56,7 +67,7 @@ abstract class PetriNetGenerationHelper<T : Place<*>, K : Transition<*>, F : Tok
                         List(arc.weight) { place }
                     }
                     .flatten()
-        
+            
             val inPlaces = petrinet
                     .getInEdges(transition)
                     .filter { it is Arc }
@@ -67,18 +78,24 @@ abstract class PetriNetGenerationHelper<T : Place<*>, K : Transition<*>, F : Tok
                         List(arc.weight) { place }
                     }
                     .flatten()
-        
+            
             val inResetArcPlaces = petrinet
                     .getInEdges(transition)
                     .filter { it is ResetArc }
                     .mapNotNull { idsToLoggablePlaces[it.source.id] }
-        
+            
             val inInhibitorArcPlaces = petrinet
                     .getInEdges(transition)
                     .filter { it is InhibitorArc }
                     .mapNotNull { idsToLoggablePlaces[it.source.id] }
-        
+            
             return LoggablePlacesTuple(outPlaces, inPlaces, inResetArcPlaces, inInhibitorArcPlaces)
         }
     }
+    
+    override fun tokensOnlyInFinalMarking(): Boolean =
+            allTokenables.filter { it.hasTokens() }.run {
+                size == groupedFinalMarking.size
+                        && all { place -> place.numberOfTokens == groupedFinalMarking.getOrDefault(place, 0) }
+            }
 }
