@@ -30,6 +30,14 @@ dependencies {
 //    implementation "org.apache.logging.log4j:log4j-slf4j-impl:2.11.1"
     implementation "guru.nidi:graphviz-kotlin:0.7.0"
 
+
+    implementation fileTree(dir: '../console/libs/packagelib', include: ['*.jar'])
+    implementation fileTree(dir: '../console/libs/packagelib/lib', include: ['*.jar'])
+    implementation fileTree(dir: '../console/libs/packagelib/ProM68_dist', include: ['*.jar'])
+    implementation fileTree(dir: '../console/libs/packagelib/ProM68_lib', include: ['*.jar'])
+    
+    
+    
     // tests
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.amshove.kluent:kluent:1.48'

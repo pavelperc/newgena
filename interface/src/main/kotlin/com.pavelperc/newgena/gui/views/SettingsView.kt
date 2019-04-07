@@ -244,7 +244,7 @@ class SettingsView : View("Settings") {
                         try {
                             val petrinetImage = find<PetrinetImageView>()
                             petrinetImage.draw()
-                            petrinetImage.openWindow()
+                            petrinetImage.openWindow(owner = this@SettingsView.currentStage)
                             
                         } catch (e: Exception) {
                             alert(Alert.AlertType.ERROR, "Failed to update arcs and draw.", e.message)

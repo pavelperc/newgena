@@ -48,7 +48,7 @@ class GenerationView() : View("My View") {
                 }
                 button("show petrinet") {
                     action {
-                        find<PetrinetImageView>().also { it.draw() }.openModal()
+                        find<PetrinetImageView>().also { it.draw() }.openWindow(owner = this@GenerationView.currentStage)
                     }
                 }
                 

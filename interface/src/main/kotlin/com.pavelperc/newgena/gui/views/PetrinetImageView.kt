@@ -17,12 +17,13 @@ import tornadofx.*
 import java.io.File
 
 class PetrinetImageView : View("Petrinet Viewer.") {
+    //class PetrinetImageView : Fragment("Petrinet Viewer.") {
     override val root = BorderPane()
     
     val controller by inject<SettingsUIController>()
     
     private val renderedImageProp = SimpleObjectProperty<Renderer>(null)
-    private var renderedImage by renderedImageProp
+    private var renderedImage: Renderer? by renderedImageProp
     
     val imgProp = SimpleObjectProperty<Image>(null)
     
@@ -44,8 +45,8 @@ class PetrinetImageView : View("Petrinet Viewer.") {
         )
         
         if (graph != null) {
-            val renderedImage = graph.toGraphviz().render(Format.SVG)
-            val bufferedImage = renderedImage.toImage()
+            renderedImage = graph.toGraphviz().render(Format.SVG)
+            val bufferedImage = renderedImage!!.toImage()
             val img = SwingFXUtils.toFXImage(bufferedImage, null)
             
             imgProp.value = img
@@ -65,8 +66,14 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                         val fileStr = controller.petrinetSetupModel.petrinetFile.value?.replace(".pnml", ".svg")
                         if (fileStr != null) {
                             confirm("Save image to $fileStr?") {
-                                renderedImage.toFile(File(fileStr))
-                                notification("Saved to $fileStr")
+                                
+                                if (renderedImage != null) {
+                                    renderedImage!!.toFile(File(fileStr))
+                                    notification("Saved to $fileStr")
+                                } else {
+                                    error("No Rendered image found.")
+                                }
+                                
                             }
                         }
                     }
