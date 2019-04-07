@@ -84,7 +84,7 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                             draw()
                         } catch (e: Exception) {
                             error("Can not update image:", e.message)
-                            imgProp.value = null
+//                            imgProp.value = null
                         }
                     }
                     

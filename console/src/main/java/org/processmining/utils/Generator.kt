@@ -155,6 +155,9 @@ class Generator(private val callback: ProgressBarCallback) {
                 addTraceToLog = assessedMovementResult.isTraceEligibleForAddingToLog
                 stepNumber++
                 
+                if (replayedCompletely) {
+                    println("In final Marking!!")
+                }
                 
                 (generationHelper as? PetriNetGenerationHelper<*,*,*>)?.dumpPetrinet()
             }
