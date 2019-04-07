@@ -1,26 +1,28 @@
 package org.processmining.models.simple_behavior
 
 import org.deckfour.xes.model.XTrace
+import org.processmining.models.GenerationDescription
 import org.processmining.models.MovementResult
 import org.processmining.models.abstract_net_representation.Place
 import org.processmining.models.abstract_net_representation.Token
+import org.processmining.models.abstract_net_representation.Transition
+import org.processmining.models.abstract_net_representation.WeightedPlace
 import org.processmining.models.base_implementation.BaseTransition
 import org.processmining.models.descriptions.GenerationDescriptionWithNoise
 import org.processmining.models.descriptions.SimpleGenerationDescription
-import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.utils.LoggingSingleton
-
 import java.util.ArrayList
 import kotlin.random.Random
 
+private typealias WPlace = WeightedPlace<Token, Place<Token>>
 /**
  * Created by Ivan Shugurov on 30.10.2014.
  */
 class SimpleTransition(
-        node: Transition,
-        generationDescription: SimpleGenerationDescription,
-        inputPlaces: List<Place<Token>>,
-        outputPlaces: List<Place<Token>>,
+        node: org.processmining.models.graphbased.directed.petrinet.elements.Transition,
+        generationDescription: GenerationDescription,
+        inputPlaces: List<WPlace>,
+        outputPlaces: List<WPlace>,
         inputInhibitorArcPlaces: List<Place<Token>> = listOf(),
         inputResetArcPlaces: List<Place<Token>> = listOf()
 ) : BaseTransition(node, generationDescription, inputPlaces, outputPlaces, inputInhibitorArcPlaces, inputResetArcPlaces) {

@@ -6,8 +6,7 @@ import org.processmining.models.abstract_net_representation.Place
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription
 import org.processmining.models.organizational_extension.Resource
 import org.processmining.utils.TimeDrivenLoggingSingleton
-
-import java.util.Random
+import kotlin.random.Random
 
 /**
  * Created by Ivan Shugurov on 09.10.2014.
@@ -32,13 +31,18 @@ class ReplacementToken(
         movementResult.addConsumedExtraToken(this)
         registerEvent(trace)
         
-        node.outputPlaces.forEach { outPlace -> addToken(outPlace) }
+        // TODO: pavel: how much tokens should we add in ReplacementToken? and what is it.
+        node.outputPlaces.forEach { (outPlace, weight) -> addTokens(outPlace, weight) }
         return movementResult
     }
     
-    protected fun addToken(outPlace: Place<TimeDrivenToken>) {
+    private fun addTokens(outPlace: Place<TimeDrivenToken>, amount: Int) {
+        (1..amount).forEach { addToken(outPlace) }
+    }
+    
+    private fun addToken(outPlace: Place<TimeDrivenToken>) {
         val timeBetweenActions = description.minimumIntervalBetweenActions +
-                (random.nextDouble() * (possibleTimeVariation + 1)).toLong()
+                (Random.nextDouble() * (possibleTimeVariation + 1)).toLong()
         
         val token = TimeDrivenToken(outPlace, timestamp + timeBetweenActions * 1000)
         outPlace.addToken(token)
@@ -52,9 +56,5 @@ class ReplacementToken(
         } else {
             logger.logCompleteEventWithResource(trace, recorderActivity, resource, timestamp)
         }
-    }
-    
-    companion object {
-        private val random = Random()
     }
 }

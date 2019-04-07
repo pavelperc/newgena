@@ -21,3 +21,12 @@ interface Tokenable<T : Token> {
     fun peekToken(): T
     
 }
+// made as extensions because of @JvmDefault restrictions
+
+fun <T : Token> Tokenable<T>.consumeTokens(amount: Int) {
+    (1..amount).forEach { consumeToken() }
+}
+
+fun <T : Token> Tokenable<T>.addTokens(tokens: List<T>) {
+    tokens.forEach { addToken(it) }
+}

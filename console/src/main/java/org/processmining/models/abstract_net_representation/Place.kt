@@ -15,14 +15,14 @@ open class Place<T : Token>(
         generationDescription: GenerationDescription
 ) : AbstractPetriNode(node, generationDescription), Tokenable<T> {
     
-    protected var tokens: Queue<T> = LinkedList()
+    protected open val tokens: Queue<T> = LinkedList()
     
     override val numberOfTokens: Int
         get() = tokens.size
     
-    override fun hasTokens(): Boolean {
-        return !tokens.isEmpty()
-    }
+    override fun hasTokens() = !tokens.isEmpty()
+    
+    fun hasTokens(amount: Int) = numberOfTokens >= amount
     
     
     override fun addToken(token: T) {

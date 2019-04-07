@@ -43,8 +43,8 @@ open class SimpleGenerationHelper protected constructor(
             
             val allPlaces = idsToLoggablePlaces.values
             
-            val initialPlaces = initialMarking.mapNotNull { idsToLoggablePlaces[it.id] }
-            val finalPlaces = finalMarking.mapNotNull { idsToLoggablePlaces[it.id] }
+            val initialPlaces = initialMarking.map { idsToLoggablePlaces.getValue(it.id) }
+            val finalPlaces = finalMarking.map { idsToLoggablePlaces.getValue(it.id) }
             
             
             val allTransitions = petrinet.transitions.map { transition ->

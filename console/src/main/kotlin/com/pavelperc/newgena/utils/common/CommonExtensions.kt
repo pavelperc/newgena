@@ -7,3 +7,5 @@ import org.processmining.models.semantics.petrinet.Marking
 fun markingOf(vararg places: Place) = Marking(places.asList())
 
 fun markingOf(vararg places: Pair<Place, Int>) = Marking(places.flatMap { (place, count) -> List(count) { place } })
+
+fun emptyMarking() = Marking()

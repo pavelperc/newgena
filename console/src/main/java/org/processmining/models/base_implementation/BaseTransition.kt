@@ -6,22 +6,24 @@ import org.processmining.models.MovementResult
 import org.processmining.models.abstract_net_representation.Place
 import org.processmining.models.abstract_net_representation.Token
 import org.processmining.models.abstract_net_representation.Transition
+import org.processmining.models.abstract_net_representation.WeightedPlace
+import org.processmining.models.addTokens
+import org.processmining.models.consumeTokens
 import org.processmining.utils.LoggingSingleton
 
-import java.util.ArrayList
+private typealias WPlace = WeightedPlace<Token, Place<Token>>
 
 /**
  * Created by Ivan Shugurov on 31.10.2014.
  */
-// TODO сюда добавить inhibitor and reset arcs
 open class BaseTransition(
         node: org.processmining.models.graphbased.directed.petrinet.elements.Transition,
         generationDescription: GenerationDescription,
-        inputPlaces: List<Place<Token>>,
-        outputPlaces: List<Place<Token>>,
+        inputPlaces: List<WPlace>,
+        outputPlaces: List<WPlace>,
         inputInhibitorArcPlaces: List<Place<Token>> = listOf(),
         inputResetArcPlaces: List<Place<Token>> = listOf()
-) : Transition<Place<Token>>(node, generationDescription, inputPlaces, outputPlaces, inputInhibitorArcPlaces, inputResetArcPlaces) {
+) : Transition<Token, Place<Token>>(node, generationDescription, inputPlaces, outputPlaces, inputInhibitorArcPlaces, inputResetArcPlaces) {
     
     override fun move(trace: XTrace): MovementResult<*>? {
         consumeTokens()
@@ -31,12 +33,12 @@ open class BaseTransition(
     }
     
     protected fun produceTokens() {
-        outputPlaces.forEach { place -> place.addToken(Token()) }
+        outputPlaces.forEach { (place, weight) -> place.addTokens(List(weight) { Token() }) }
     }
     
     protected fun consumeTokens() {
-        inputPlaces.forEach { place -> place.consumeToken() }
+        inputPlaces.forEach { (place, weight) -> place.consumeTokens(weight) }
         // inputInhibitorArcPlaces have no tokens
-        inputResetArcPlaces.forEach { place -> while(place.hasTokens()) place.consumeToken() }
+        inputResetArcPlaces.forEach { place -> place.removeAllTokens() }
     }
 }

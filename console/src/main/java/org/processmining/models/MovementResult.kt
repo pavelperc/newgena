@@ -50,8 +50,8 @@ class MovementResult<T : Movable> @JvmOverloads constructor(
     }
     
     val consumedExtraMovables: List<T>
-        get() = _consumedExtraMovables.toList()
+        get() = _consumedExtraMovables
     
     val producedExtraMovables: List<T>
-        get() = _producedExtraMovables.toList()
+        get() = _producedExtraMovables
 }

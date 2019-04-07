@@ -16,8 +16,8 @@ import java.util.*
 abstract class BaseGenerationHelper<T : Tokenable<*>, K : Movable, F : Movable>(
         private val initialMarking: Collection<T>,
         private val finalMarking: Collection<T>,
-        allModelMovables: Collection<K>,
-        protected val allTokenables: Collection<T>,
+        allModelMovables: Collection<K>, // transitions
+        val allTokenables: Collection<T>, // places
         override val generationDescription: GenerationDescription
 ) : GenerationHelper<K, F> {
     
@@ -48,10 +48,8 @@ abstract class BaseGenerationHelper<T : Tokenable<*>, K : Movable, F : Movable>(
     }
     
     protected fun <L : Movable> pickRandomMovable(movables: List<L>): L? =
-            if (movables.isEmpty())
-                null
-            else
-                movables.random()
+            if (movables.isEmpty()) null
+            else movables.random()
     
     
     override fun handleMovementResult(movementResult: MovementResult<F>): AssessedMovementResult {
@@ -64,12 +62,8 @@ abstract class BaseGenerationHelper<T : Tokenable<*>, K : Movable, F : Movable>(
     }
     
     /** @return if [allTokenables] with tokens are a subset of final marking  */
-    protected open fun tokensOnlyInFinalMarking(): Boolean {// TODO move this implementation to bpmn
+    protected open fun tokensOnlyInFinalMarking(): Boolean {
+        // TODO move this implementation to bpmn and make this method abstract
         return allTokenables.filter { it.hasTokens() }.all { finalMarking.contains(it) }
-    }
-    
-    companion object {
-        @JvmStatic
-        protected val random = Random()
     }
 }
