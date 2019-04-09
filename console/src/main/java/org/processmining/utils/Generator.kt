@@ -165,6 +165,8 @@ class Generator(private val callback: ProgressBarCallback) {
             maxIterations--
         } while (maxIterations > 0 && (!addTraceToLog || generationDescription.isRemovingUnfinishedTraces && !replayedCompletely))
         
+        if (!replayedCompletely && generationDescription.isRemovingUnfinishedTraces)
+            return null
         return trace
     }
     

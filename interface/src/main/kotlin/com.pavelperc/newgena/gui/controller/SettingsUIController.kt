@@ -92,7 +92,8 @@ class SettingsUIController : Controller() {
             isPetrinetUpdated.set(loadedPetrinetFilePath == value)
         }
 
-        loadJsonSettingsFromPath("examples/petrinet/simpleExample/settings.json")
+//        loadJsonSettingsFromPath("examples/petrinet/simpleExample/settings.json")
+        loadJsonSettingsFromPath("examples/petrinet/complex1/settings.json")
     }
     
     fun requestOutputFolderChooseDialog() {
