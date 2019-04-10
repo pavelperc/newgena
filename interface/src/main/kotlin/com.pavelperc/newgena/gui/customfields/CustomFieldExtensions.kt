@@ -3,20 +3,22 @@ package com.pavelperc.newgena.gui.customfields
 import com.pavelperc.newgena.gui.views.ArrayEditor
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import javafx.application.Platform
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
 import javafx.event.EventTarget
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
-import javafx.scene.control.CheckBox
-import javafx.scene.control.ScrollPane
-import javafx.scene.control.TextField
-import javafx.scene.control.TextInputControl
+import javafx.scene.Scene
+import javafx.scene.control.*
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
+import javafx.stage.Stage
+import javafx.stage.StageStyle
+import javafx.stage.Window
 import javafx.util.Duration
 import javafx.util.StringConverter
 import org.controlsfx.control.Notifications
@@ -71,7 +73,7 @@ fun Form.scrollablefieldset(op: EventTarget.() -> Unit) {
     scrollpane {
         form {
             fieldset {
-//        prefHeightProperty().bind(scrollPane.heightProperty()) 
+                //        prefHeightProperty().bind(scrollPane.heightProperty()) 
 //        prefWidthProperty().bind(scrollPane.widthProperty())
                 op()
             }
@@ -146,14 +148,55 @@ fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextF
 //}
 
 
-fun UIComponent.notification(title: String = "", text: String = "", op: Notifications.() -> Unit = {}) {
+fun UIComponent.notification(
+        title: String = "",
+        text: String = "",
+        duration: Int = 1500,
+        op: Notifications.() -> Unit = {}
+) {
     val builder = Notifications.create()
     builder.owner(this.root)
     builder.title(title)
     builder.text(text)
     builder.position(Pos.TOP_CENTER)
-    builder.hideAfter(Duration(1500.0))
+    builder.hideAfter(Duration(duration.toDouble()))
     
     builder.op()
     builder.show()
 }
+
+
+fun confirmed(
+        header: String,
+        content: String = "",
+        confirmButton: ButtonType = ButtonType.OK,
+        cancelButton: ButtonType = ButtonType.CANCEL,
+        owner: Window? = null,
+        title: String? = null
+): Boolean {
+    alert(Alert.AlertType.CONFIRMATION, header, content, confirmButton, cancelButton, owner = owner, title = title) {
+        return it == confirmButton
+    }
+    return false // not clicked at all
+}
+
+inline fun confirmIf(
+        condition: Boolean,
+        header: String,
+        content: String = "",
+        confirmButton: ButtonType = ButtonType.OK,
+        cancelButton: ButtonType = ButtonType.CANCEL,
+        owner: Window? = null,
+        title: String? = null,
+        actionFn: () -> Unit
+) {
+    if (condition) {
+        if (confirmed(header, content, confirmButton, cancelButton, owner, title)) {
+            actionFn()
+        }
+    } else {
+        actionFn()
+    }
+}
+
+

@@ -12,7 +12,6 @@ import javafx.geometry.Pos
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
 import javafx.scene.control.TextField
-import javafx.stage.Modality
 import javafx.util.Duration
 import tornadofx.*
 
@@ -35,7 +34,7 @@ class SettingsView : View("Settings") {
             saidHello = true
             runAsync {
                 runLater(Duration(200.0)) {
-                    notification("Hello!") {
+                    notification("Hello!", duration = 1000) {
                         position(Pos.TOP_CENTER)
                     }
                 }
@@ -146,10 +145,10 @@ class SettingsView : View("Settings") {
             }
             button("Save settings") {
                 shortcut("Ctrl+S")
-                enableWhen(controller.allModelsAreValid)
+                enableWhen(controller.allModelsAreValid.and(controller.settingsAreNotSaved))
                 action {
                     val result: Boolean
-                    if (controller.jsonSettingsPath.value == null) {
+                    if (controller.hasNewSettings.value) {
                         result = controller.saveJsonSettingsAs()
                     } else {
                         result = controller.saveJsonSettings(controller.jsonSettingsPath.value)
@@ -162,21 +161,24 @@ class SettingsView : View("Settings") {
             
             button("New settings") {
                 action {
-                    
-                    if (controller.someModelIsDirty.value) {
-                        confirm("Settings are not saved.", "Continue?") {
-                            controller.makeNewSettings()
-                        }
-                    } else {
+                    confirmIf(controller.settingsAreNotSaved.value,
+                            "Settings may be not saved.", "Continue?") {
+                        
                         controller.makeNewSettings()
                     }
+                    
                 }
             }
             button("Load settings") {
                 action {
+                    if (controller.settingsAreNotSaved.value
+                            && !confirmed("Settings may be not saved.", "Continue?")) {
+                        return@action
+                    }
+                    
                     try {
-                        if(!controller.loadJsonSettings())
-                            return@action
+                        if (!controller.loadJsonSettings())
+                            return@action // when we canceled the fileChooser.
                     } catch (e: Exception) {
                         error("Broken json settings:", e.message)
                         return@action
@@ -199,10 +201,10 @@ class SettingsView : View("Settings") {
         hbox {
             label("Loaded settings: ")
             label(controller.jsonSettingsPath)
-            visibleWhen(controller.jsonSettingsPath.isNotNull)
+            hiddenWhen(controller.hasNewSettings)
         }
         label("Unsaved Settings") {
-            visibleWhen(controller.jsonSettingsPath.isNull)
+            visibleWhen(controller.hasNewSettings)
         }
     }
     
@@ -223,7 +225,7 @@ class SettingsView : View("Settings") {
                     isFocusTraversable = false
                 }
                 btnLoadPetrinet = button("Load model") {
-//                    enableWhen(controller.isPetrinetDirty)
+                    //                    enableWhen(controller.isPetrinetDirty)
                     
                     toggleClass(Styles.redButton, controller.isPetrinetDirty)
 //                            toggleClass(Styles.greenButton, isPetrinetUpdated)

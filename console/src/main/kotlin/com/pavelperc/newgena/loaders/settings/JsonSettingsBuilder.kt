@@ -22,18 +22,23 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
     fun buildDescription() = jsonSettings.build()
     
     
-    /** Returns pair of initialMarking and finalMarking */
-    fun buildMarking(): Pair<Marking, Marking> {
-        return jsonSettings.petrinetSetup.marking.run {
-            
-            val idsToPlaces = petrinet.places.map { it.pnmlId to it!! }.toMap()
-            
-            val initialMarking = initialPlaceIds.map { idsToPlaces.getValue(it) }
-            val finalMarking = finalPlaceIds.map { idsToPlaces.getValue(it) }
-            
-            Marking(initialMarking) to Marking(finalMarking)
-        }
+    companion object {
+        /** Builds a marking, not using the whole [JsonSettings], but only [JsonMarking] part.
+         * @return a pair of initialMarking and finalMarking.*/
+        fun buildMarkingOnly(marking: JsonMarking, petrinet: PetrinetGraph) =
+                marking.run {
+                    val idsToPlaces = petrinet.places.map { it.pnmlId to it!! }.toMap()
+                    
+                    val initialMarking = initialPlaceIds.map { idsToPlaces.getValue(it) }
+                    val finalMarking = finalPlaceIds.map { idsToPlaces.getValue(it) }
+                    
+                    Marking(initialMarking) to Marking(finalMarking)
+                }
     }
+    
+    /** See also [JsonSettingsBuilder.buildMarkingOnly].
+     * @return a pair of initialMarking and finalMarking.*/
+    fun buildMarking(): Pair<Marking, Marking> = buildMarkingOnly(jsonSettings.petrinetSetup.marking, petrinet)
     
     private fun JsonSettings.build(): GenerationDescription {
         val description: GenerationDescription

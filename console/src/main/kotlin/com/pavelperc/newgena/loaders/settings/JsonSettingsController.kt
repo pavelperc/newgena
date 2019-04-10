@@ -3,10 +3,12 @@ package com.pavelperc.newgena.loaders.settings
 import com.pavelperc.newgena.launchers.PetrinetGenerators
 import com.pavelperc.newgena.loaders.pnml.PnmlLoader
 import com.pavelperc.newgena.models.markInhResetArcsByIds
+import com.pavelperc.newgena.utils.common.emptyMarking
 import org.processmining.models.GenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.semantics.petrinet.Marking
 
+/** Loads the model and creates a generation kit from [jsonSettings]. */
 class JsonSettingsController(var jsonSettings: JsonSettings) {
     
     companion object {
@@ -15,43 +17,37 @@ class JsonSettingsController(var jsonSettings: JsonSettings) {
         }
     }
     
-    init {
-        loadPetrinet()
-    }
-    
-    var petrinet: ResetInhibitorNet? = null
+    val petrinet: ResetInhibitorNet
     
     /** Marking, loaded from petrinet model.*/
-    private var pnmlMarking: Marking? = null
-    
-    val initialMarking: Marking
-        get() =// what about concurrency??
-            if (jsonSettings.petrinetSetup.marking.isUsingInitialMarkingFromPnml) {
-                pnmlMarking ?: Marking()
-            } else {
-                petrinet?.let { petrinet ->
-                    JsonSettingsBuilder(petrinet, jsonSettings).buildMarking().first
-                } ?: Marking()
-            }
-    
-    val finalMarking: Marking
-        get() = petrinet?.let { petrinet ->
-            JsonSettingsBuilder(petrinet, jsonSettings).buildMarking().second
-        } ?: Marking()
+    private val pnmlMarking: Marking
     
     
-    /** Tries to load petrinet, selected in settings. */
-    fun loadPetrinet() {
+    init {
+        // load petrinet
         PnmlLoader.loadPetrinetWithOwnParser(jsonSettings.petrinetSetup.petrinetFile).also { result ->
             petrinet = result.first
             pnmlMarking = result.second
         }
     }
     
+    
+    val initialMarking: Marking
+        get() = with(jsonSettings.petrinetSetup.marking) {
+            if (isUsingInitialMarkingFromPnml) // what about concurrency?? 
+                emptyMarking()
+            else
+                JsonSettingsBuilder.buildMarkingOnly(this, petrinet).first
+        }
+    
+    val finalMarking: Marking
+        get() = JsonSettingsBuilder.buildMarkingOnly(jsonSettings.petrinetSetup.marking, petrinet).second
+    
+    
     /** Changes the [petrinet]. */
     private fun updateInhResetArcsFromSettings() {
         with(jsonSettings.petrinetSetup) {
-            petrinet?.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
+            petrinet.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
         }
     }
     
