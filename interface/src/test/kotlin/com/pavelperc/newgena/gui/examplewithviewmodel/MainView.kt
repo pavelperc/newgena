@@ -1,6 +1,8 @@
 package com.pavelperc.newgena.gui.examplewithviewmodel
 
 import com.pavelperc.newgena.gui.app.Styles
+import com.pavelperc.newgena.gui.customfields.arrayField
+import com.pavelperc.newgena.gui.customfields.intMapField
 import com.pavelperc.newgena.gui.views.ArrayEditor
 import javafx.beans.property.SimpleStringProperty
 import tornadofx.*
@@ -36,36 +38,9 @@ class MainView : View("Main View") {
                     }
                 }
                 
-                field("friends") {
-                    val list = person.friends.value
-                    val textProp = SimpleStringProperty(list.joinToString("; "))
-
-//                    list.addListener { c: ListChangeListener.Change<out String> ->
-//                        textProp.value = list.joinToString("; ")
-//                    }
-                    
-                    val splitPattern = Pattern.compile("""\s*[;,]\s*""")
-                    textProp.addListener { observable, oldValue, newValue ->
-                        val splitted = newValue
-                                .trim('[', ']', '{', '}')
-                                .trimIndent()
-                                .split(splitPattern)
-                                .toMutableList()
-                        list.setAll(splitted)
-                    }
-                    
-                    textfield(textProp)
-                    
-                    button(graphic = Styles.expandIcon()) {
-                        action {
-                            val arrayEditor = ArrayEditor(person.friends.value.toList(), onSuccess = { changedObjects ->
-                                textProp.value = changedObjects.joinToString("; ")
-                            })
-                            
-                            arrayEditor.openModal()
-                        }
-                    }
-                }
+                arrayField(person.friends)
+                
+                intMapField(person.friendAges)
                 
                 field("isUsingBody") {
                     checkbox(property = person.isUsingBody)

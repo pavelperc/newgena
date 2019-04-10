@@ -1,5 +1,8 @@
 package ui.model
 
+import com.pavelperc.newgena.gui.model.bindList
+import com.pavelperc.newgena.gui.model.bindMap
+import com.pavelperc.newgena.loaders.settings.reflectionToString
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -15,7 +18,7 @@ class Body {
     var height = 25.0
 
 
-    override fun toString() = "Body(skin=$skin, height=$height)"
+    override fun toString() = reflectionToString(this)
 }
 
 class Person {
@@ -35,12 +38,13 @@ class Person {
     var isUsingBody = true
 
     var friends = mutableListOf("Friend1", "Friend2")
+    
+    var friendAges = mutableMapOf("A" to 1, "B" to 2)
 
     // todo: nullable body
     var body: Body = Body()
-
-    override fun toString() =
-        "Person(name='$name', surname=$surname, body=$body, age=$age, friends=$friends)"
+    
+    override fun toString() = reflectionToString(this)
 }
 
 fun <T> KMutableProperty<T>.toPropAny(toString: (T) -> String, fromString: (String) -> T): SimpleStringProperty {
@@ -71,10 +75,9 @@ class PersonModel(person: Person) : ItemViewModel<Person>(person) {
     
     
     
-    val friends = bind() {
-        val list = item?.friends?.observable() ?: FXCollections.observableArrayList()
-        SimpleObjectProperty(list)
-    }
+    val friends = bindList(Person::friends)
+    val friendAges = bindMap(Person::friendAges)
+    
     
 
     override fun onCommit() {

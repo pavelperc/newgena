@@ -1,0 +1,163 @@
+package com.pavelperc.newgena.gui.views
+
+import com.pavelperc.newgena.gui.app.Styles
+import com.pavelperc.newgena.gui.customfields.QuiteIntConverter
+import com.pavelperc.newgena.gui.customfields.delayHack
+import com.pavelperc.newgena.gui.customfields.simpleIntField
+import javafx.beans.property.IntegerProperty
+import javafx.beans.property.Property
+import javafx.beans.property.SimpleIntegerProperty
+import javafx.beans.property.SimpleStringProperty
+import javafx.event.EventTarget
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
+import javafx.scene.layout.Priority
+import javafx.scene.layout.VBox
+import javafx.scene.text.FontPosture
+import tornadofx.*
+
+
+private typealias SP = SimpleStringProperty
+private typealias IP = SimpleIntegerProperty
+private typealias SIPair = Pair<String, Int>
+
+/** Allows to edit a map<String, Int> */
+class IntMapEditor(
+        initialObjects: Map<String, Int>,
+        title: String = "Map Editor",
+        val onSuccess: (Map<String, Int>) -> Unit = {}
+) : Fragment(title) {
+    class MutablePair(string: String, int: Int) {
+        val stringProp = SimpleStringProperty(string)
+        val intProp = SimpleIntegerProperty(int) as Property<Int>
+        
+        operator fun component1() = stringProp
+        operator fun component2() = intProp
+        
+        fun toPair() = stringProp.value to intProp.value
+    }
+    
+//    val errorCounter = SimpleIntegerProperty(0)
+    
+    
+    val objects = initialObjects.entries.map { (k, v) -> MutablePair(k, v) }.observable()
+    
+    override val root = vbox {
+        addClass(Styles.addItemRoot)
+        
+        header()
+        
+        listview(objects) {
+//            fitToWidth(this@vbox)
+            
+            addEventFilter(KeyEvent.KEY_PRESSED) {
+                if (it.code == KeyCode.DELETE && selectedItem != null) {
+                    objects.remove(selectedItem)
+                }
+            }
+            
+            cellFormat { (stringProp, intProp) ->
+                // -------- ONE CELL --------
+                graphic = hbox {
+                    textfield(stringProp) {
+                        hgrow = Priority.ALWAYS
+                    }
+                    
+                    simpleIntField(intProp) {
+                        maxWidth = 50.0
+                    }
+                    
+                    
+                    button("-") {
+                        isFocusTraversable = false
+                        action {
+                            intProp.value -= 1
+                        }
+                    }
+                    button("+") {
+                        isFocusTraversable = false
+                        action {
+                            intProp.value += 1
+                        }
+                    }
+                    
+                    button(graphic = Styles.closeIcon()) {
+                        isFocusTraversable = false
+                        action { objects.remove(item) }
+                    }
+                }
+            }
+            
+        }
+    }
+    
+    fun EventTarget.header() {
+        hbox {
+            label("Add: ") {
+                tooltip("Press enter inside a text field to add.") {
+                    delayHack(100)
+                }
+            }
+            var canAdd = true
+            val lastNumber = SimpleIntegerProperty(1) as Property<Int>
+            val lastText = SimpleStringProperty("")
+            // counts errors in lastNumber textfield
+            val localErrorCounter = SimpleIntegerProperty(0)
+            
+            fun commit(): Boolean {
+                if (lastText.value.isNotEmpty() && localErrorCounter.value == 0) {
+                    objects.add(MutablePair(lastText.value, lastNumber.value))
+                    lastNumber.value = 1
+                    return true
+                }
+                return false
+            }
+            
+            textfield(lastText) {
+                promptText = "Click enter to add."
+                hgrow = Priority.ALWAYS
+                action {
+                    if(commit()) {
+                        selectAll()
+                    }
+                }
+            }
+            
+            simpleIntField(lastNumber, localErrorCounter) {
+                maxWidth = 50.0
+                action {
+                    commit()
+                }
+            }
+            
+            button("-") {
+                action {
+                    isFocusTraversable = false
+                    lastNumber.value -= 1
+                }
+            }
+            button("+") {
+                isFocusTraversable = false
+                action {
+                    lastNumber.value += 1
+                }
+            }
+            
+            button("save") {
+                shortcut("Ctrl+S")
+                tooltip("Ctrl+S")
+                addEventFilter(KeyEvent.KEY_PRESSED) {
+                    if (it.code == KeyCode.ENTER) {
+//                        if (it.target is Button && !it.isControlDown)
+//                            return@addEventFilter
+                        fire()
+                    }
+                }
+                action {
+                    onSuccess(objects.map { it.toPair() }.toMap())
+                    close()
+                }
+            }
+        }
+    }
+}

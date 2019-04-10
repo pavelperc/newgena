@@ -1,6 +1,7 @@
 package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.gui.app.Styles
+import com.pavelperc.newgena.gui.customfields.delayHack
 import javafx.collections.ObservableList
 import javafx.scene.control.Button
 import javafx.scene.input.KeyCode
@@ -11,9 +12,10 @@ import tornadofx.Stylesheet.Companion.cell
 
 
 class ArrayEditor(
-        initialObjects: List<String> = listOf("A", "B", "C"),
+        initialObjects: List<String>,
+        title: String = "Array Editor",
         onSuccess: (List<String>) -> Unit = {}
-) : Fragment("Array Editor") {
+) : Fragment(title) {
     
     init {
 //        println("Created with: $initialObjects")
@@ -25,7 +27,11 @@ class ArrayEditor(
     override val root = vbox {
         hbox {
             addClass(Styles.addItemRoot)
-            label("Add: ")
+            label("Add: ") {
+                tooltip("Press enter inside a text field to add.") {
+                    delayHack(100)
+                }
+            }
             textfield {
                 promptText = "Click enter to add."
                 action {
@@ -38,6 +44,8 @@ class ArrayEditor(
                 }
             }
             button("save") {
+                shortcut("Ctrl+S")
+                tooltip("Ctrl+S")
                 addEventFilter(KeyEvent.KEY_PRESSED) {
                     if (it.code == KeyCode.ENTER) {
 //                        if (it.target is Button && !it.isControlDown)
@@ -78,6 +86,7 @@ class ArrayEditor(
                         action { commitEdit(item) }
                     }
                     button(graphic = Styles.closeIcon()) {
+                        addClass(Styles.deleteButton)
                         removeWhen { parent.hoverProperty().not().or(editingProperty()) }
                         action { objects.remove(item) }
                     }

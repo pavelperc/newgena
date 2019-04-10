@@ -9,6 +9,7 @@ import javafx.beans.property.IntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
+import javafx.collections.ObservableMap
 import tornadofx.*
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KMutableProperty1
@@ -17,10 +18,15 @@ import kotlin.reflect.KMutableProperty1
 /** Binds mutableList to [ItemViewModel] as observableList property.*/
 fun <T, S> ItemViewModel<T>.bindList(prop: KMutableProperty1<T, out List<S>>) =
         bind {
-//            println("In rebind!!!!!!")
             SimpleObjectProperty(null, prop.name, item?.let { prop.call(it) }?.observable() ?: observableList())
         }
 
+
+/** Binds mutableMap to [ItemViewModel] as observableMap property.*/
+fun <T, K, V> ItemViewModel<T>.bindMap(prop: KMutableProperty1<T, out MutableMap<K, V>>) =
+        bind {
+            SimpleObjectProperty(null, prop.name, item?.let { prop.call(it) }?.observable() ?: FXCollections.observableHashMap())
+        }
 
 /**
  * A middleman between [JsonSettings] and ui.

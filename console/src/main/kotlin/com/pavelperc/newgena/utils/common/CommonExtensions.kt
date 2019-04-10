@@ -2,6 +2,8 @@ package com.pavelperc.newgena.utils.common
 
 import org.processmining.models.graphbased.directed.petrinet.elements.Place
 import org.processmining.models.semantics.petrinet.Marking
+import kotlin.system.measureNanoTime
+import kotlin.system.measureTimeMillis
 
 
 fun markingOf(vararg places: Place) = Marking(places.asList())
@@ -9,3 +11,10 @@ fun markingOf(vararg places: Place) = Marking(places.asList())
 fun markingOf(vararg places: Pair<Place, Int>) = Marking(places.flatMap { (place, count) -> List(count) { place } })
 
 fun emptyMarking() = Marking()
+
+
+fun profile(message:String, op: () -> Unit) {
+    print("$message: ")
+    val time = measureNanoTime(op)
+    println("${String.format("%.2f", time / 1000_000.0)}ms")
+}

@@ -2,7 +2,6 @@ package com.pavelperc.newgena.gui.controller
 
 import com.pavelperc.newgena.gui.app.ArtificialIntelligence
 import com.pavelperc.newgena.gui.customfields.confirmIf
-import com.pavelperc.newgena.gui.customfields.notification
 import com.pavelperc.newgena.gui.model.SettingsModel
 import com.pavelperc.newgena.launchers.PetrinetGenerators
 import com.pavelperc.newgena.loaders.pnml.PnmlLoader
@@ -14,28 +13,17 @@ import com.pavelperc.newgena.models.deleteAllInhibitorResetArcs
 import com.pavelperc.newgena.models.markInhResetArcsByIds
 import com.pavelperc.newgena.models.pnmlId
 import com.pavelperc.newgena.utils.common.emptyMarking
-import javafx.application.Platform
+import com.pavelperc.newgena.utils.common.profile
 import javafx.beans.binding.BooleanBinding
-import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.EventHandler
-import javafx.geometry.Pos
 import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
-import javafx.util.Duration
-import org.controlsfx.control.Notifications
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.semantics.petrinet.Marking
 import tornadofx.*
-import tornadofx.controlsfx.notificationPane
 import java.io.File
-import javafx.scene.Scene
-import javafx.scene.layout.StackPane
-import javafx.scene.paint.Color
-import javafx.stage.StageStyle
-import javafx.stage.Stage
-
 
 
 class SettingsUIController : Controller() {
@@ -210,11 +198,12 @@ class SettingsUIController : Controller() {
     }
     
     fun loadPetrinet(): ResetInhibitorNet {
-        PnmlLoader.loadPetrinetWithOwnParser(petrinetSetupModel.petrinetFile.value).also { result ->
-            petrinet = result.first
-            pnmlMarking = result.second
+        profile("Loading petrinet") {
+            PnmlLoader.loadPetrinetWithOwnParser(petrinetSetupModel.petrinetFile.value).also { result ->
+                petrinet = result.first
+                pnmlMarking = result.second
+            }
         }
-        
         loadedPetrinetFilePath = petrinetSetupModel.petrinetFile.value
         isPetrinetUpdated.set(true)
         
@@ -237,7 +226,9 @@ class SettingsUIController : Controller() {
     }
     
     fun loadJsonSettingsFromPath(path: String) {
-        settingsModel.itemProperty.value = JsonSettings.fromFilePath(path)
+        profile("Loading json settings") {
+            settingsModel.itemProperty.value = JsonSettings.fromFilePath(path)
+        }
         
         jsonSettingsPath.value = path
         settingsAreSaved.set(true)

@@ -9,6 +9,8 @@ import tornadofx.*
 class Styles : Stylesheet() {
     companion object {
         val itemRoot by cssclass()
+        val deleteButton by cssclass()
+        
         val closeIcon by cssclass()
         val contentLabel by cssid()
         val title by cssid()
@@ -32,12 +34,15 @@ class Styles : Stylesheet() {
     init {
         itemRoot {
             padding = box(8.px)
-            button {
-                backgroundColor += c("transparent")
-                padding = box(-2.px)
-            }
+            
             alignment = Pos.CENTER_LEFT
         }
+        
+        deleteButton {
+            backgroundColor += c("transparent")
+            padding = box(-2.px)
+        }
+        
         
         contentLabel {
             fontSize = 1.2.em
