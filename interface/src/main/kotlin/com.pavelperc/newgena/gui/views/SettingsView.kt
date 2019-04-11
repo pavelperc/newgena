@@ -7,6 +7,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.property.Property
 import javafx.collections.ObservableList
+import javafx.collections.ObservableMap
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.control.Alert
@@ -62,23 +63,33 @@ class SettingsView : View("Settings") {
                 
                 fieldset("Marking") {
                     
-                    fun TextField.validatePlaces(prop: Property<ObservableList<String>>) {
-                        prop.addValidator(this, ValidationTrigger.OnChange(300)) { value ->
-                            val input = value?.toSet() ?: emptySet()
+                    fun TextField.validatePlaces(prop: Property<ObservableMap<String, Int>>) {
+                        prop.addValidator(this, ValidationTrigger.OnBlur) { value ->
+                            if (value?.values?.any { it <= 0 } == true)
+                                return@addValidator error("All place counts should be positive.")
+                            
+                            val input: Set<String> = value?.keys ?: emptySet()
                             val unknown = input - input.intersect(controller.placeIds)
                             if (controller.petrinet != null && unknown.isNotEmpty()) {
                                 warning("Not found places: $unknown")
                             } else null
                         }
+                        
                     }
                     
                     
                     
                     checkboxField(marking.isUsingInitialMarkingFromPnml)
-                    arrayField(marking.initialPlaceIds) {
+                    intMapField(marking.initialPlaceIds, updateListener = {
+                        // validation doen't work automatically, because we update a map, but ont a property
+//                        with(marking.initialPlaceIds) { viewModel?.validationContext?.validate() }
+                    }) {
                         validatePlaces(marking.initialPlaceIds)
                     }
-                    arrayField(marking.finalPlaceIds) {
+                    intMapField(marking.finalPlaceIds, updateListener = {
+//                        with(marking.initialPlaceIds) { viewModel?.validationContext?.validate() }
+                        
+                    }) {
                         validatePlaces(marking.finalPlaceIds)
                     }
                 }

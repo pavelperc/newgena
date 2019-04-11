@@ -3,18 +3,23 @@ package com.pavelperc.newgena.gui.views
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.customfields.QuiteIntConverter
 import com.pavelperc.newgena.gui.customfields.delayHack
+import com.pavelperc.newgena.gui.customfields.intSpinner
 import com.pavelperc.newgena.gui.customfields.simpleIntField
 import javafx.beans.property.IntegerProperty
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.EventTarget
+import javafx.scene.control.Spinner
+import javafx.scene.control.SpinnerValueFactory
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import javafx.scene.paint.Color
 import javafx.scene.text.FontPosture
 import tornadofx.*
+import javax.swing.text.Style
 
 
 private typealias SP = SimpleStringProperty
@@ -25,6 +30,7 @@ private typealias SIPair = Pair<String, Int>
 class IntMapEditor(
         initialObjects: Map<String, Int>,
         title: String = "Map Editor",
+        val intValueRange: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
         val onSuccess: (Map<String, Int>) -> Unit = {}
 ) : Fragment(title) {
     class MutablePair(string: String, int: Int) {
@@ -36,7 +42,7 @@ class IntMapEditor(
         
         fun toPair() = stringProp.value to intProp.value
     }
-    
+
 //    val errorCounter = SimpleIntegerProperty(0)
     
     
@@ -48,7 +54,7 @@ class IntMapEditor(
         header()
         
         listview(objects) {
-//            fitToWidth(this@vbox)
+            //            fitToWidth(this@vbox)
             
             addEventFilter(KeyEvent.KEY_PRESSED) {
                 if (it.code == KeyCode.DELETE && selectedItem != null) {
@@ -59,29 +65,16 @@ class IntMapEditor(
             cellFormat { (stringProp, intProp) ->
                 // -------- ONE CELL --------
                 graphic = hbox {
+                    addClass(Styles.intMapEditorItem)
                     textfield(stringProp) {
                         hgrow = Priority.ALWAYS
                     }
                     
-                    simpleIntField(intProp) {
-                        maxWidth = 50.0
-                    }
-                    
-                    
-                    button("-") {
-                        isFocusTraversable = false
-                        action {
-                            intProp.value -= 1
-                        }
-                    }
-                    button("+") {
-                        isFocusTraversable = false
-                        action {
-                            intProp.value += 1
-                        }
-                    }
+                    intSpinner(intProp, intValueRange)
                     
                     button(graphic = Styles.closeIcon()) {
+                        addClass(Styles.intMapDeleteButton)
+                        
                         isFocusTraversable = false
                         action { objects.remove(item) }
                     }
@@ -117,29 +110,14 @@ class IntMapEditor(
                 promptText = "Click enter to add."
                 hgrow = Priority.ALWAYS
                 action {
-                    if(commit()) {
+                    if (commit()) {
                         selectAll()
                     }
                 }
             }
-            
-            simpleIntField(lastNumber, localErrorCounter) {
-                maxWidth = 50.0
-                action {
+            intSpinner(lastNumber, intValueRange) {
+                editor.action {
                     commit()
-                }
-            }
-            
-            button("-") {
-                action {
-                    isFocusTraversable = false
-                    lastNumber.value -= 1
-                }
-            }
-            button("+") {
-                isFocusTraversable = false
-                action {
-                    lastNumber.value += 1
                 }
             }
             

@@ -9,6 +9,7 @@ import kotlin.system.measureTimeMillis
 fun markingOf(vararg places: Place) = Marking(places.asList())
 
 fun markingOf(vararg places: Pair<Place, Int>) = Marking(places.flatMap { (place, count) -> List(count) { place } })
+fun markingOf(places: Map<Place, Int>) = Marking(places.flatMap { (place, count) -> List(count) { place } })
 
 fun emptyMarking() = Marking()
 

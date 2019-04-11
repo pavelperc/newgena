@@ -3,8 +3,8 @@
     "petrinetFile" : "examples/petrinet/simpleExample/simple.pnml",
     "inhibitorArcIds" : [ "arc1" ],
     "marking" : {
-      "initialPlaceIds" : [ "place3", "place3", "place2" ],
-      "finalPlaceIds" : [ "place4", "place4" ],
+      "initialPlaceIds" : { "place3": 2, "place2": 1 },
+      "finalPlaceIds" : { "place4": 2 },
       "isUsingInitialMarkingFromPnml" : false
     },
     "resetArcIds" : [ "arc6" ]

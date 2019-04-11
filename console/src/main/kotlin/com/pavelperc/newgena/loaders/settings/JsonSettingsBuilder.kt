@@ -2,6 +2,7 @@ package com.pavelperc.newgena.loaders.settings
 
 import com.pavelperc.newgena.models.markInhResetArcsByIds
 import com.pavelperc.newgena.models.pnmlId
+import com.pavelperc.newgena.utils.common.markingOf
 import org.processmining.models.GenerationDescription
 import org.processmining.models.descriptions.*
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
@@ -29,10 +30,10 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
                 marking.run {
                     val idsToPlaces = petrinet.places.map { it.pnmlId to it!! }.toMap()
                     
-                    val initialMarking = initialPlaceIds.map { idsToPlaces.getValue(it) }
-                    val finalMarking = finalPlaceIds.map { idsToPlaces.getValue(it) }
+                    val initialMarking = initialPlaceIds.mapKeys { (id, repeat) -> idsToPlaces.getValue(id) }
+                    val finalMarking = finalPlaceIds.mapKeys { (id, repeat) -> idsToPlaces.getValue(id) }
                     
-                    Marking(initialMarking) to Marking(finalMarking)
+                    markingOf(initialMarking) to markingOf(finalMarking)
                 }
     }
     

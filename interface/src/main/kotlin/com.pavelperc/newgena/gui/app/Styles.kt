@@ -3,6 +3,7 @@ package com.pavelperc.newgena.gui.app
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.geometry.Pos
+import javafx.scene.layout.BackgroundSize
 import javafx.scene.paint.Color
 import tornadofx.*
 
@@ -10,6 +11,7 @@ class Styles : Stylesheet() {
     companion object {
         val itemRoot by cssclass()
         val deleteButton by cssclass()
+        val intMapDeleteButton by cssclass()
         
         val closeIcon by cssclass()
         val contentLabel by cssid()
@@ -19,7 +21,8 @@ class Styles : Stylesheet() {
         val greenButton by cssclass()
         val redButton by cssclass()
         val mainSettingsPanel by cssclass()
-        
+        val intMapEditorItem by cssclass()
+    
         fun closeIcon() = FontAwesomeIconView(FontAwesomeIcon.CLOSE).apply {
             glyphSize = 22
             addClass(closeIcon)
@@ -38,11 +41,34 @@ class Styles : Stylesheet() {
             alignment = Pos.CENTER_LEFT
         }
         
+        intMapEditorItem {
+            padding = box(8.px)
+            
+            alignment = Pos.CENTER_LEFT
+            
+//            textField {
+//                backgroundColor += Color.TRANSPARENT
+//            }
+        }
+        
+        
+        
         deleteButton {
             backgroundColor += c("transparent")
             padding = box(-2.px)
         }
         
+        intMapDeleteButton {
+            backgroundColor += Color.TRANSPARENT
+            padding = box(0.px, 0.px, 0.px, 12.px)
+            
+//            and(hover) {
+//                backgroundColor += Color.GRAY.brighter().brighter()
+//            }
+//            and(pressed) {
+//                backgroundColor += Color.GRAY.brighter()
+//            }
+        }
         
         contentLabel {
             fontSize = 1.2.em

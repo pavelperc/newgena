@@ -20,7 +20,6 @@ import tornadofx.*
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
 import javafx.beans.property.IntegerProperty
-import java.lang.reflect.AccessibleObject.setAccessible
 import javafx.scene.control.Tooltip
 
 
@@ -98,6 +97,21 @@ fun EventTarget.simpleIntField(intProp: Property<Int>, errorCounter: IntegerProp
     }
 }
 
+fun EventTarget.intSpinner(intProp: Property<Int>, intValueRange: IntRange = Int.MIN_VALUE..Int.MAX_VALUE, op: Spinner<Int>.() -> Unit = {}) {
+    spinner(SpinnerValueFactory.IntegerSpinnerValueFactory(intValueRange.first, intValueRange.last, intProp.value)) {
+        valueFactory.valueProperty().bindBidirectional(intProp)
+        styleClass.add(Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL)
+        maxWidth = 100.0
+        isEditable = true
+        editor.textProperty().onChange { text ->
+            if (text?.isInt() == true) {
+                intProp.value = text.toInt()
+            }
+        }
+        op()
+    }
+}
+
 
 /** A field for fieldset for int property. Field name is taken from property.
  * Int validators for textfield are not included!! add them in [op] lambda. */
@@ -156,10 +170,13 @@ fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextF
             }
         }
 
-fun EventTarget.intMapField(mapProp: Property<ObservableMap<String, Int>>, op: TextField.() -> Unit = {}) =
+
+val oneToInf = 1..Int.MAX_VALUE
+
+fun EventTarget.intMapField(mapProp: Property<ObservableMap<String, Int>>, intValueRange: IntRange = oneToInf, updateListener:() -> Unit = {}, op: TextField.() -> Unit = {}) =
         field(mapProp.name) {
             
-            fun Map<String, Int>.makeString() = this.entries.joinToString(", ") { "${it.key}:${it.value}" }
+            fun Map<String, Int>.makeString() = this.entries.joinToString(", ") { "${it.key}: ${it.value}" }
             
             val textProp = SimpleStringProperty(mapProp.value.makeString())
             
@@ -182,14 +199,14 @@ fun EventTarget.intMapField(mapProp: Property<ObservableMap<String, Int>>, op: T
                 // don't replace the whole map!
                 mapProp.value.clear()
                 mapProp.value.putAll(splitted)
-//                println("New mapProp: ${mapProp.value.toList()}")
+                updateListener()
             }
             textfield(textProp, op)
             
             button(graphic = FontAwesomeIconView(FontAwesomeIcon.EXPAND)) {
                 isFocusTraversable = false
                 action {
-                    val intMapEditor = IntMapEditor(mapProp.value, mapProp.name + " editor") { changedObjects ->
+                    val intMapEditor = IntMapEditor(mapProp.value, mapProp.name + " editor", intValueRange) { changedObjects ->
                         // set to textProp, textProp sets to list
                         textProp.value = changedObjects.makeString()
                     }

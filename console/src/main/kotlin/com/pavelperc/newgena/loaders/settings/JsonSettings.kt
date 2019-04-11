@@ -91,14 +91,14 @@ fun reflectionToString(any: Any) =
 
 class JsonMarking() {
     @JsonCreator
-    constructor(initialPlaceIds: MutableList<String>, finalPlaceIds: MutableList<String>, isUsingInitialMarkingFromPnml: Boolean) : this() {
+    constructor(initialPlaceIds: MutableMap<String, Int>, finalPlaceIds: MutableMap<String, Int>, isUsingInitialMarkingFromPnml: Boolean) : this() {
         this.initialPlaceIds = initialPlaceIds
         this.finalPlaceIds = finalPlaceIds
         this.isUsingInitialMarkingFromPnml = isUsingInitialMarkingFromPnml
     }
     
-    var initialPlaceIds = mutableListOf<String>()
-    var finalPlaceIds = mutableListOf<String>()
+    var initialPlaceIds = mutableMapOf<String, Int>()
+    var finalPlaceIds = mutableMapOf<String, Int>()
     
     var isUsingInitialMarkingFromPnml = false
     

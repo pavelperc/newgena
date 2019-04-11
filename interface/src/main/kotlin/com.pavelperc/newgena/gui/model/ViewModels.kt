@@ -8,6 +8,7 @@ import javafx.beans.property.BooleanProperty
 import javafx.beans.property.IntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
+import javafx.collections.MapChangeListener
 import javafx.collections.ObservableList
 import javafx.collections.ObservableMap
 import tornadofx.*
@@ -100,8 +101,8 @@ class MarkingModel(initial: JsonMarking)
     : ItemViewModel<JsonMarking>(initial) {
     
     val isUsingInitialMarkingFromPnml = bind(JsonMarking::isUsingInitialMarkingFromPnml)
-    val initialPlaceIds = bindList(JsonMarking::initialPlaceIds)
-    val finalPlaceIds = bindList(JsonMarking::finalPlaceIds)
+    val initialPlaceIds = bindMap(JsonMarking::initialPlaceIds)
+    val finalPlaceIds = bindMap(JsonMarking::finalPlaceIds)
 }
 
 
