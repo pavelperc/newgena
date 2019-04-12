@@ -3,8 +3,15 @@
     "petrinetFile" : "examples\\petrinet\\complex1\\complex1.pnml",
     "inhibitorArcIds" : [ "arc17" ],
     "marking" : {
-      "initialPlaceIds" : { "place1": 2, "place2": 1, "place5": 1},
-      "finalPlaceIds" : { "place7": 2, "place6": 1 },
+      "initialPlaceIds" : {
+        "place1" : 2,
+        "place2" : 1,
+        "place5" : 1
+      },
+      "finalPlaceIds" : {
+        "place7" : 2,
+        "place6" : 1
+      },
       "isUsingInitialMarkingFromPnml" : false
     },
     "resetArcIds" : [ "arc12", "arc13" ]
@@ -47,12 +54,12 @@
       "maxTimestampDeviationSeconds" : 0,
       "granularityType" : "MINUTES_5"
     },
+    "isUsingComplexResourceSettings" : true,
+    "maximumIntervalBetweenActions" : 20,
+    "isSeparatingStartAndFinish" : true,
     "isUsingResources" : false,
     "isUsingLifecycle" : false,
-    "isUsingComplexResourceSettings" : true,
     "minimumIntervalBetweenActions" : 10,
-    "isSeparatingStartAndFinish" : true,
-    "maximumIntervalBetweenActions" : 20,
     "isUsingSynchronizationOnResources" : true
   }
 }

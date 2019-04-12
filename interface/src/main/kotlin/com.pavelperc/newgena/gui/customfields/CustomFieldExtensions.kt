@@ -140,6 +140,7 @@ fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextF
             
             // bind bidirectional listProp and textProp:
             listProp.onChange { list ->
+                println("ListProp changed!!")
                 textProp.value = list?.joinToString("; ") ?: ""
             }
             
@@ -151,6 +152,7 @@ fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextF
                         .filter { it.isNotEmpty() }
                         .toMutableList()
                 // don't replace the whole list!
+                // I don't know how it makes listProp invalidated, but it does.
                 listProp.value.setAll(splitted)
 //                println("New listProp: ${listProp.value.toList()}")
             }
@@ -171,43 +173,68 @@ fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextF
         }
 
 
-val oneToInf = 1..Int.MAX_VALUE
 
-fun EventTarget.intMapField(mapProp: Property<ObservableMap<String, Int>>, intValueRange: IntRange = oneToInf, updateListener:() -> Unit = {}, op: TextField.() -> Unit = {}) =
+val positiveInt = 1..Int.MAX_VALUE
+
+fun EventTarget.intMapField(
+        mapProp: Property<MutableMap<String, Int>>,
+        intValueRange: IntRange = positiveInt,
+        op: TextField.() -> Unit = {},
+        mapValidator: ValidationContext.(Map<String, Int>) -> ValidationMessage? = { null }
+) =
         field(mapProp.name) {
             
             fun Map<String, Int>.makeString() = this.entries.joinToString(", ") { "${it.key}: ${it.value}" }
             
-            val textProp = SimpleStringProperty(mapProp.value.makeString())
+            fun splitString(string: String) = string
+                    .trim('[', ']', '{', '}', ';', ',', ' ')
+                    .split(';', ',')
+                    .map {
+                        val kv = it.split(":")
+                        val k = kv.first().trim(' ')
+                        val v = kv.getOrNull(1)?.trim(' ')?.toIntOrNull()
+                                ?: throw IllegalArgumentException("Pair $kv doesn't match pattern \"string:int\" .")
+                        k to v
+                    }.toMap()
+            
+            val viewModel = mapProp.viewModel
+            // textProp is now bound to ViewModel
+            val textProp = SimpleStringProperty(viewModel, null, mapProp.value.makeString())
             
             // bind bidirectional mapProp and textProp:
             mapProp.onChange { map ->
-                textProp.value = map?.makeString() ?: ""
+                println("MapProp changed!!!!!")
+//                textProp.value = map?.makeString() ?: ""
             }
             
-            textProp.onChange { value ->
-                val splitted = (value ?: "")
-                        .trim('[', ']', '{', '}', ';', ',', ' ')
-                        .split(';', ',')
-                        .map {
-                            val kv = it.split(":")
-                            val k = kv.first().trim(' ')
-                            val v = kv.getOrNull(1)?.trim(' ') ?: ""
-                            
-                            k to (v.toIntOrNull() ?: 1)
-                        }.toMap()
-                // don't replace the whole map!
-                mapProp.value.clear()
-                mapProp.value.putAll(splitted)
-                updateListener()
+            // we update map property inside a text property validator!!!
+            
+            textfield(textProp) {
+                // it's like onChange, but better!
+                validator { newString ->
+                    val splitted = try {
+                        splitString(newString ?: "")
+                    } catch (e: IllegalArgumentException) {
+                        return@validator error(e.message)
+                    }
+                    
+                    // replace the whole map!
+//                    mapProp.value.clear()
+//                    mapProp.value.putAll(splitted)
+                    mapProp.value = splitted.toMutableMap()
+                    
+                    
+                    // end with another validator.
+                    mapValidator(splitted)
+                }
+                op()
             }
-            textfield(textProp, op)
             
             button(graphic = FontAwesomeIconView(FontAwesomeIcon.EXPAND)) {
                 isFocusTraversable = false
                 action {
                     val intMapEditor = IntMapEditor(mapProp.value, mapProp.name + " editor", intValueRange) { changedObjects ->
-                        // set to textProp, textProp sets to list
+                        // set to textProp, textProp sets to mapProp
                         textProp.value = changedObjects.makeString()
                     }
                     

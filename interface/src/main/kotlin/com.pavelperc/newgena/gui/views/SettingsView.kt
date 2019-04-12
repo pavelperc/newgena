@@ -63,35 +63,22 @@ class SettingsView : View("Settings") {
                 
                 fieldset("Marking") {
                     
-                    fun TextField.validatePlaces(prop: Property<ObservableMap<String, Int>>) {
-                        prop.addValidator(this, ValidationTrigger.OnBlur) { value ->
-                            if (value?.values?.any { it <= 0 } == true)
-                                return@addValidator error("All place counts should be positive.")
-                            
-                            val input: Set<String> = value?.keys ?: emptySet()
-                            val unknown = input - input.intersect(controller.placeIds)
-                            if (controller.petrinet != null && unknown.isNotEmpty()) {
-                                warning("Not found places: $unknown")
-                            } else null
-                        }
+                    val validatePlaces: ValidationContext.(map: Map<String, Int>) -> ValidationMessage? = xx@{ map ->
+                        if (map.values.any { it <= 0 })
+                            return@xx error("All place counts should be positive.")
                         
+                        val input: Set<String> = map.keys ?: emptySet()
+                        val unknown = input - input.intersect(controller.placeIds)
+                        if (controller.petrinet != null && unknown.isNotEmpty()) {
+                            warning("Not found places: $unknown")
+                        } else {
+                            null
+                        }
                     }
-                    
-                    
                     
                     checkboxField(marking.isUsingInitialMarkingFromPnml)
-                    intMapField(marking.initialPlaceIds, updateListener = {
-                        // validation doen't work automatically, because we update a map, but ont a property
-//                        with(marking.initialPlaceIds) { viewModel?.validationContext?.validate() }
-                    }) {
-                        validatePlaces(marking.initialPlaceIds)
-                    }
-                    intMapField(marking.finalPlaceIds, updateListener = {
-//                        with(marking.initialPlaceIds) { viewModel?.validationContext?.validate() }
-                        
-                    }) {
-                        validatePlaces(marking.finalPlaceIds)
-                    }
+                    intMapField(marking.initialPlaceIds, mapValidator = validatePlaces)
+                    intMapField(marking.finalPlaceIds, mapValidator = validatePlaces)
                 }
                 
                 

@@ -17,26 +17,12 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile "org.jetbrains.kotlin:kotlin-reflect"
-    compile 'de.jensd:fontawesomefx:8.9'
-
+    
     implementation project(':console')
 
     compile 'no.tornado:tornadofx:1.7.18'
+    compile 'de.jensd:fontawesomefx:8.9'
     implementation 'no.tornado:tornadofx-controlsfx:0.1.1'
-
-    // graphviz
-    implementation "ch.qos.logback:logback-classic:1.2.3"
-//    implementation "org.apache.logging.log4j:log4j-core:2.11.1"
-//    implementation "org.apache.logging.log4j:log4j-slf4j-impl:2.11.1"
-    implementation "guru.nidi:graphviz-kotlin:0.7.0"
-
-
-    implementation fileTree(dir: '../console/libs/packagelib', include: ['*.jar'])
-    implementation fileTree(dir: '../console/libs/packagelib/lib', include: ['*.jar'])
-    implementation fileTree(dir: '../console/libs/packagelib/ProM68_dist', include: ['*.jar'])
-    implementation fileTree(dir: '../console/libs/packagelib/ProM68_lib', include: ['*.jar'])
-    
-    
     
     // tests
     testImplementation 'junit:junit:4.12'

@@ -25,8 +25,12 @@ fun <T, S> ItemViewModel<T>.bindList(prop: KMutableProperty1<T, out List<S>>) =
 
 /** Binds mutableMap to [ItemViewModel] as observableMap property.*/
 fun <T, K, V> ItemViewModel<T>.bindMap(prop: KMutableProperty1<T, out MutableMap<K, V>>) =
-        bind {
-            SimpleObjectProperty(null, prop.name, item?.let { prop.call(it) }?.observable() ?: FXCollections.observableHashMap())
+        bind(forceObjectProperty = true) {
+//            SimpleObjectProperty(null, prop.name, item?.let { prop.call(it) }?.observable() ?: FXCollections.observableHashMap())
+            val fxProp = SimpleObjectProperty(null, prop.name, item?.let { prop.call(it)}?: mutableMapOf())
+            
+            fxProp.onChange { map -> item?.let { prop.setter.call(it, map?: mutableMapOf<K, V>()) }}
+            fxProp
         }
 
 /**
