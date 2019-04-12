@@ -13,6 +13,7 @@ import javafx.geometry.Pos
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
 import javafx.scene.control.TextField
+import javafx.scene.layout.StackPane
 import javafx.util.Duration
 import tornadofx.*
 
@@ -25,7 +26,7 @@ class SettingsView : View("Settings") {
     private val petrinetSetup = controller.petrinetSetupModel
     private val marking = controller.markingModel
     
-    override val root = Form()
+    override val root = StackPane()
     
     private var saidHello = false
     
@@ -45,8 +46,8 @@ class SettingsView : View("Settings") {
     
     init {
         with(root) {
-            fieldset {
-                addClass(Styles.mainSettingsPanel)
+            scrollablefieldset {
+//                addClass(Styles.mainSettingsPanel)
                 field("outputFolder") {
                     textfield(settings.outputFolder).required()
                     

@@ -21,6 +21,8 @@ import javafx.animation.KeyFrame
 import javafx.animation.Timeline
 import javafx.beans.property.IntegerProperty
 import javafx.scene.control.Tooltip
+import javafx.scene.layout.Pane
+import javax.swing.plaf.synth.Region
 
 
 class QuiteIntConverter : StringConverter<Int>() {
@@ -67,12 +69,17 @@ fun TextInputControl.validRangeInt(
 }
 
 
-fun Form.scrollablefieldset(op: EventTarget.() -> Unit) {
+fun Pane.scrollablefieldset(op: EventTarget.() -> Unit) {
     scrollpane {
+        val scrollPane = this
         form {
+            alignment = Pos.CENTER
             fieldset {
+                alignment = Pos.CENTER
                 //        prefHeightProperty().bind(scrollPane.heightProperty()) 
-//        prefWidthProperty().bind(scrollPane.widthProperty())
+//        prefWidthProperty().bind(scrollPane.prefViewportWidthProperty())
+//        prefWidthProperty().bind(scrollPane.minViewportWidthProperty())
+                scrollPane.isFitToWidth = true
                 op()
             }
         }
