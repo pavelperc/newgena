@@ -146,10 +146,10 @@ fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextF
             val textProp = SimpleStringProperty(listProp.value.joinToString("; "))
             
             // bind bidirectional listProp and textProp:
-            listProp.onChange { list ->
-                println("ListProp changed!!")
-                textProp.value = list?.joinToString("; ") ?: ""
-            }
+//            listProp.onChange { list ->
+//                println("ListProp changed!!")
+//                textProp.value = list?.joinToString("; ") ?: ""
+//            }
             
             textProp.onChange { value ->
                 val splitted = (value ?: "")
@@ -209,10 +209,10 @@ fun EventTarget.intMapField(
             val textProp = SimpleStringProperty(viewModel, null, mapProp.value.makeString())
             
             // bind bidirectional mapProp and textProp:
-            mapProp.onChange { map ->
-                println("MapProp changed!!!!!")
+//            mapProp.onChange { map ->
+//                println("MapProp changed!!!!!")
 //                textProp.value = map?.makeString() ?: ""
-            }
+//            }
             
             // we update map property inside a text property validator!!!
             
