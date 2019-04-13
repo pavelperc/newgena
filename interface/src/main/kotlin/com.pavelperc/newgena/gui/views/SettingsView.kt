@@ -16,6 +16,7 @@ import javafx.scene.control.TextField
 import javafx.scene.layout.StackPane
 import javafx.util.Duration
 import tornadofx.*
+import tornadofx.controlsfx.rangeslider
 
 
 class SettingsView : View("Settings") {
@@ -25,6 +26,7 @@ class SettingsView : View("Settings") {
     private val settings = controller.settingsModel
     private val petrinetSetup = controller.petrinetSetupModel
     private val marking = controller.markingModel
+    private val staticPriorities = controller.staticPrioritiesModel
     
     override val root = StackPane()
     
@@ -47,7 +49,7 @@ class SettingsView : View("Settings") {
     init {
         with(root) {
             scrollablefieldset {
-//                addClass(Styles.mainSettingsPanel)
+                addClass(Styles.mainSettingsPanel)
                 field("outputFolder") {
                     textfield(settings.outputFolder).required()
                     
@@ -99,6 +101,16 @@ class SettingsView : View("Settings") {
                             settings.isUsingTime.value = false
                     }
                 }
+                fieldset("Static priorities") { 
+                    intField(staticPriorities.maxPriority) {
+                        validUint()
+                    }
+                    intMapField(staticPriorities.transitionIdsToPriorities)
+                }
+                
+                
+                
+                
                 checkboxField(settings.isUsingTime) {
                     action {
                         if (isSelected)

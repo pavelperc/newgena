@@ -79,11 +79,13 @@ class SettingsUIController : Controller() {
     val settingsModel = SettingsModel(JsonSettings()) // start from default jsonSettings.
     val petrinetSetupModel = settingsModel.petrinetSetupModel
     val markingModel = petrinetSetupModel.markingModel
+    val staticPrioritiesModel = settingsModel.staticPrioritiesModel
     
     val allModelsAreValid: BooleanBinding
         get() = settingsModel.valid
                 .and(petrinetSetupModel.valid)
                 .and(markingModel.valid)
+                .and(staticPrioritiesModel.valid)
     
     
     /** Warning! this callback doesn't mean, that the settings are saved. */
@@ -92,6 +94,7 @@ class SettingsUIController : Controller() {
         settingsModel.dirty.onChange { dirty -> if (dirty) onDirty() }
         petrinetSetupModel.dirty.onChange { dirty -> if (dirty) onDirty() }
         markingModel.dirty.onChange { dirty -> if (dirty) onDirty() }
+        staticPrioritiesModel.dirty.onChange { dirty -> if (dirty) onDirty() }
     }
     
     private fun loadInitialSettings() {

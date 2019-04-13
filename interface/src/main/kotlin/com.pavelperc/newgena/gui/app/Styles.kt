@@ -22,7 +22,7 @@ class Styles : Stylesheet() {
         val redButton by cssclass()
         val mainSettingsPanel by cssclass()
         val intMapEditorItem by cssclass()
-    
+        
         fun closeIcon() = FontAwesomeIconView(FontAwesomeIcon.CLOSE).apply {
             glyphSize = 22
             addClass(closeIcon)
@@ -45,7 +45,7 @@ class Styles : Stylesheet() {
             padding = box(8.px)
             
             alignment = Pos.CENTER_LEFT
-            
+
 //            textField {
 //                backgroundColor += Color.TRANSPARENT
 //            }
@@ -61,7 +61,7 @@ class Styles : Stylesheet() {
         intMapDeleteButton {
             backgroundColor += Color.TRANSPARENT
             padding = box(0.px, 0.px, 0.px, 12.px)
-            
+
 //            and(hover) {
 //                backgroundColor += Color.GRAY.brighter().brighter()
 //            }
@@ -104,11 +104,13 @@ class Styles : Stylesheet() {
         
         mainSettingsPanel {
             fieldset {
-                borderColor += box(Color.GRAY.brighter())
-                borderRadius += box(5.px)
-                borderWidth += box(1.px)
-                borderInsets += box(4.px, 0.px)
-                padding = box(4.px, 8.px)
+                fieldset {
+                    borderColor += box(Color.GRAY.brighter())
+                    borderRadius += box(5.px)
+                    borderWidth += box(1.px)
+                    borderInsets += box(4.px, 0.px)
+                    padding = box(4.px, 8.px)
+                }
             }
         }
         

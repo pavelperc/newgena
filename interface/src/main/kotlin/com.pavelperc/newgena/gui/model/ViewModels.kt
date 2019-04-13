@@ -4,6 +4,7 @@ import com.pavelperc.newgena.loaders.settings.JsonMarking
 import com.pavelperc.newgena.loaders.settings.JsonPetrinetSetup
 import com.pavelperc.newgena.loaders.settings.JsonSettings
 import com.pavelperc.newgena.loaders.settings.JsonStaticPriorities
+import flanagan.analysis.Stat
 import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.IntegerProperty
@@ -38,14 +39,15 @@ fun <T, K, V> ItemViewModel<T>.bindMap(prop: KMutableProperty1<T, out MutableMap
             fxProp
         }
 
-abstract class NestingItemViewModel<T>(initial: T) : ItemViewModel<T>(initial) {
+abstract class NestingItemViewModel<T>(initial: T?) : ItemViewModel<T>(initial) {
     
     protected val innerModelsToProps = mutableMapOf<ItemViewModel<Any>, KProperty1<T, Any>>()
     
     
-    fun <F, M: ItemViewModel<F>> bindModel(prop: KProperty1<T, F>, kmodel: KClass<M>): M {
+    fun <F, M: ItemViewModel<out F>> bindModel(prop: KProperty1<T, F>, kmodel: KClass<M>): M {
         
-        val model = kmodel.primaryConstructor!!.call(prop.call(item!!))
+        val model = kmodel.primaryConstructor!!.call(prop.call(item))
+        
         innerModelsToProps[model as ItemViewModel<Any>] = prop as KProperty1<T, Any>
         return model
     }
@@ -91,27 +93,12 @@ class SettingsModel(initial: JsonSettings) : NestingItemViewModel<JsonSettings>(
 //    val timeDescription = bind(JsonSettings::timeDescription)
     
     // ---INNER MODELS:
-//    val petrinetSetupModel = PetrinetSetupModel(item.petrinetSetup)
     val petrinetSetupModel = bindModel(JsonSettings::petrinetSetup, PetrinetSetupModel::class)
-    
-    
-    
-//    override fun onCommit() {
-//        super.onCommit()
-//        petrinetSetupModel.commit()
-//    }
-//    
-//    init {
-//        
-//        // todo: move to separate abstract class.
-//        itemProperty.onChange { newItem ->
-//            petrinetSetupModel.itemProperty.set(newItem?.petrinetSetup)
-//        }
-//    }
+    val staticPrioritiesModel = bindModel(JsonSettings::staticPriorities, StaticPrioritiesModel::class)
 }
 
 class PetrinetSetupModel(initial: JsonPetrinetSetup)
-    : ItemViewModel<JsonPetrinetSetup>(initial) {
+    : NestingItemViewModel<JsonPetrinetSetup>(initial) {
     
     val petrinetFile = bind(JsonPetrinetSetup::petrinetFile)
     
@@ -120,19 +107,7 @@ class PetrinetSetupModel(initial: JsonPetrinetSetup)
     val resetArcIds = bindList(JsonPetrinetSetup::resetArcIds)
     
     // ---INNER MODELS:
-    val markingModel = MarkingModel(initial.marking)
-    
-    override fun onCommit() {
-        println("PetrinetSetupModel committed")
-        super.onCommit()
-        markingModel.commit()
-    }
-    
-    init {
-        itemProperty.onChange { newItem ->
-            markingModel.itemProperty.set(newItem?.marking)
-        }
-    }
+    val markingModel = bindModel(JsonPetrinetSetup::marking, MarkingModel::class)
 }
 
 
@@ -145,10 +120,11 @@ class MarkingModel(initial: JsonMarking)
 }
 
 
-class StaticPrioritiesModel(initial: JsonStaticPriorities)
-    : ItemViewModel<JsonStaticPriorities>(initial) {
+class StaticPrioritiesModel(initial: JsonStaticPriorities?)
+    : NestingItemViewModel<JsonStaticPriorities>(initial) {
     
-    
+    val maxPriority = bind(JsonStaticPriorities::maxPriority)
+    val transitionIdsToPriorities = bind(JsonStaticPriorities::transitionIdsToPriorities, forceObjectProperty = true)
 }
 
 
