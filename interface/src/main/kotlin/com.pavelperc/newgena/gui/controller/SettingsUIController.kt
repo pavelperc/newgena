@@ -36,6 +36,7 @@ class SettingsUIController : Controller() {
     var petrinet: ResetInhibitorNet? = null
         private set(value) {
             placeIds = value?.places?.map { it.pnmlId }?.toSet() ?: emptySet()
+            transitionIds = value?.transitions?.map { it.pnmlId }?.toSet() ?: emptySet()
             inputEdgeIds = value?.transitions?.flatMap { value.getInEdges(it) }?.map { it.pnmlId }?.toSet() ?: emptySet()
             field = value
         }
@@ -47,6 +48,12 @@ class SettingsUIController : Controller() {
     /** Arc pnml ids of loaded petrinet, or empty set */
     var inputEdgeIds: Set<String> = emptySet()
         private set
+    
+    /** Transition pnml ids of loaded petrinet, or empty set */
+    var transitionIds: Set<String> = emptySet()
+        private set
+    
+    
     
     
     private var pnmlMarking = emptyMarking()

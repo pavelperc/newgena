@@ -59,7 +59,7 @@ class PetrinetDrawer(
             mutNode(it.pnmlId).add(
                     Shape.RECTANGLE,
 //                    Label.of("${it.label}(${it.pnmlId})")
-                    Label.of(if (drawTransitionIds) it.pnmlId else it.label)
+                    Label.of(if (drawTransitionIds) "${it.label}\n${it.pnmlId}" else it.label)
             )
         }
         

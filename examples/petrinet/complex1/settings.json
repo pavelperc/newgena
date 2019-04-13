@@ -20,9 +20,9 @@
   "isRemovingEmptyTraces" : true,
   "isRemovingUnfinishedTraces" : true,
   "isUsingNoise" : false,
-  "isUsingStaticPriorities" : false,
+  "isUsingStaticPriorities" : true,
   "isUsingTime" : false,
-  "maxNumberOfSteps" : 6,
+  "maxNumberOfSteps" : 10,
   "noiseDescription" : {
     "noiseLevel" : 5,
     "isSkippingTransitions" : true,
@@ -38,8 +38,14 @@
   "numberOfLogs" : 5,
   "numberOfTraces" : 10,
   "staticPriorities" : {
-    "maxPriority" : 1,
-    "transitionIdsToPriorities" : { }
+    "maxPriority" : 100,
+    "transitionIdsToPriorities" : {
+      "transition1" : 5,
+      "transition2" : 4,
+      "transition4" : 1,
+      "transition5" : 2,
+      "transition6" : 3
+    }
   },
   "timeDescription" : {
     "simplifiedResources" : [ ],
@@ -54,12 +60,12 @@
       "maxTimestampDeviationSeconds" : 0,
       "granularityType" : "MINUTES_5"
     },
-    "isUsingComplexResourceSettings" : true,
+    "isUsingSynchronizationOnResources" : true,
+    "minimumIntervalBetweenActions" : 10,
     "maximumIntervalBetweenActions" : 20,
     "isSeparatingStartAndFinish" : true,
     "isUsingResources" : false,
     "isUsingLifecycle" : false,
-    "minimumIntervalBetweenActions" : 10,
-    "isUsingSynchronizationOnResources" : true
+    "isUsingComplexResourceSettings" : true
   }
 }

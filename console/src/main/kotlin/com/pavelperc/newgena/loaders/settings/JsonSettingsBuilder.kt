@@ -43,10 +43,9 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
     
     private fun JsonSettings.build(): GenerationDescription {
         val description: GenerationDescription
-        // where to put checkers???
-        // всё равно состояние настроек не будет до конца устойчивым...
-        // может сделать все чекеры на уровне интерфейса и билдера?
+        
         checkExclusive(isUsingTime to "isUsingTime", isUsingStaticPriorities to "isUsingStaticPriorities")
+        checkExclusive(isUsingStaticPriorities to "isUsingStaticPriorities", isUsingNoise to "isUsingNoise")
         
         
         if (isUsingStaticPriorities) {

@@ -7,16 +7,15 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.property.Property
 import javafx.collections.ObservableList
-import javafx.collections.ObservableMap
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
 import javafx.scene.control.TextField
 import javafx.scene.layout.StackPane
+import javafx.scene.layout.VBox
 import javafx.util.Duration
 import tornadofx.*
-import tornadofx.controlsfx.rangeslider
 
 
 class SettingsView : View("Settings") {
@@ -28,7 +27,7 @@ class SettingsView : View("Settings") {
     private val marking = controller.markingModel
     private val staticPriorities = controller.staticPrioritiesModel
     
-    override val root = StackPane()
+    override val root = VBox()
     
     private var saidHello = false
     
@@ -88,6 +87,11 @@ class SettingsView : View("Settings") {
                 intField(settings.numberOfLogs) { validUint() }
                 intField(settings.numberOfTraces) { validUint() }
                 intField(settings.maxNumberOfSteps) { validUint() }
+
+//                intSpinnerField(settings.numberOfLogs, nonNegativeRange)
+//                intSpinnerField(settings.numberOfTraces, nonNegativeRange)
+//                intSpinnerField(settings.maxNumberOfSteps, nonNegativeRange)
+                
                 
                 checkboxField(settings.isRemovingEmptyTraces)
                 checkboxField(settings.isRemovingUnfinishedTraces)
@@ -101,13 +105,48 @@ class SettingsView : View("Settings") {
                             settings.isUsingTime.value = false
                     }
                 }
-                fieldset("Static priorities") { 
-                    intField(staticPriorities.maxPriority) {
-                        validUint()
+                
+                val validatePriorities: ValidationContext.(map: Map<String, Int>) -> ValidationMessage? = xx@{ map ->
+                    if (map.values.any { it !in 1..staticPriorities.maxPriority.value })
+                        return@xx error("All priorities should be in 1...maxPriority")
+                    
+                    if (controller.petrinet == null) {
+                        return@xx null
                     }
-                    intMapField(staticPriorities.transitionIdsToPriorities)
+                    
+                    val input: Set<String> = map.keys
+                    val unknown = input - input.intersect(controller.transitionIds)
+                    if (unknown.isNotEmpty()) {
+                        warning("Not found transitions: $unknown")
+                        
+                    } else if (map.size < controller.transitionIds.size) {
+                        return@xx warning("Not enough priorities defined!!")
+                    } else {
+                        null
+                    }
                 }
                 
+                squeezebox {
+                    fold("Static priorities") {
+                        expandedProperty().bindBidirectional(settings.isUsingStaticPriorities)
+                        fieldset {
+                            intField(staticPriorities.maxPriority) {
+                                validInt { value ->
+                                    when {
+                                        value <= 0 -> error("maxPriority should > 0")
+                                        else -> null
+                                    }
+                                }
+                                textProperty().onChange {
+                                    staticPriorities.validate() // run both field to validate
+                                }
+                            }
+                            intMapField(staticPriorities.transitionIdsToPriorities) { map ->
+                                validatePriorities(map)
+                            }
+                        }
+                    }
+                }
                 
                 
                 
@@ -117,29 +156,35 @@ class SettingsView : View("Settings") {
                             settings.isUsingStaticPriorities.value = false
                     }
                 }
-                settingsLoadingPanel()
-                
-                button("Generate logs!") {
-                    enableWhen(controller.allModelsAreValid)
-                    shortcut("Ctrl+G")
-                    tooltip("Ctrl+G")
+            }
+            // ------- Non scrollable part --------
+            
+            form {
+                fieldset {
+                    settingsLoadingPanel()
                     
-                    action {
-                        try {
-                            val generationKit = controller.prepareGenerationKit()
+                    button("Generate logs!") {
+                        enableWhen(controller.allModelsAreValid)
+                        shortcut("Ctrl+G")
+                        tooltip("Ctrl+G")
+                        
+                        action {
+                            try {
+                                val generationKit = controller.prepareGenerationKit()
+                                
+                                val view = find<GenerationView>(mapOf(
+                                        "generationKit" to generationKit,
+                                        "outputFolder" to settings.outputFolder.value)
+                                )
+                                replaceWith(view, ViewTransition.Slide(0.2.seconds))
+                                
+                            } catch (e: Exception) {
+                                alert(Alert.AlertType.ERROR, "Couldn't apply settings:", e.message)
+                            }
                             
-                            val view = find<GenerationView>(mapOf(
-                                    "generationKit" to generationKit,
-                                    "outputFolder" to settings.outputFolder.value)
-                            )
-                            replaceWith(view, ViewTransition.Slide(0.2.seconds))
-                            
-                        } catch (e: Exception) {
-                            alert(Alert.AlertType.ERROR, "Couldn't apply settings:", e.message)
                         }
                         
                     }
-                    
                 }
             }
         }

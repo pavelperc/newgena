@@ -2,7 +2,6 @@ package com.pavelperc.newgena.loaders.settings
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
-import com.pavelperc.newgena.utils.propertyinitializers.ExclusiveBoolean
 import com.pavelperc.newgena.utils.propertyinitializers.NonNegativeInt
 import com.pavelperc.newgena.utils.propertyinitializers.NonNegativeLong
 import com.pavelperc.newgena.utils.propertyinitializers.RangeInt
@@ -36,11 +35,11 @@ class JsonSettings() {
             isRemovingEmptyTraces: Boolean,
             isRemovingUnfinishedTraces: Boolean,
             isUsingNoise: Boolean,
-            noiseDescription: JsonNoise?,
+            noiseDescription: JsonNoise,
             isUsingStaticPriorities: Boolean,
-            staticPriorities: JsonStaticPriorities?,
+            staticPriorities: JsonStaticPriorities,
             isUsingTime: Boolean,
-            timeDescription: JsonTimeDescription?
+            timeDescription: JsonTimeDescription
     ) : this() {
         this.outputFolder = outputFolder
         this.petrinetSetup = petrinetSetup
@@ -68,14 +67,14 @@ class JsonSettings() {
     var isRemovingEmptyTraces = true
     var isRemovingUnfinishedTraces = true
     
-    var isUsingNoise by ExclusiveBoolean(::isUsingStaticPriorities)
-    var noiseDescription: JsonNoise? = JsonNoise()
+    var isUsingNoise = false
+    var noiseDescription: JsonNoise = JsonNoise()
     
-    var isUsingStaticPriorities: Boolean by ExclusiveBoolean(::isUsingStaticPriorities)
-    var staticPriorities: JsonStaticPriorities? = JsonStaticPriorities()
+    var isUsingStaticPriorities: Boolean = false
+    var staticPriorities: JsonStaticPriorities = JsonStaticPriorities()
     
-    var isUsingTime by ExclusiveBoolean(::isUsingStaticPriorities)
-    var timeDescription: JsonTimeDescription? = JsonTimeDescription()
+    var isUsingTime = false
+    var timeDescription: JsonTimeDescription = JsonTimeDescription()
     
     companion object {}
     
@@ -137,7 +136,7 @@ class JsonNoise() {
             isSkippingTransitions: Boolean,
             isUsingExternalTransitions: Boolean,
             isUsingInternalTransitions: Boolean,
-            internalTransitionIds: MutableSet<String>,
+            internalTransitionIds: MutableList<String>,
             existingNoiseEvents: MutableList<NoiseEvent>
     ) : this() {
         this.noiseLevel = noiseLevel
@@ -155,7 +154,7 @@ class JsonNoise() {
     var isUsingExternalTransitions = true
     var isUsingInternalTransitions = true
     
-    var internalTransitionIds = mutableSetOf<String>()
+    var internalTransitionIds = mutableListOf<String>()
     var existingNoiseEvents = mutableListOf(NoiseEvent("NoiseEvent"))
     
     override fun toString() = reflectionToString(this)
@@ -168,7 +167,7 @@ class JsonStaticPriorities() {
         this.transitionIdsToPriorities = transitionIdsToPriorities
     }
     
-    var maxPriority: Int = 1
+    var maxPriority: Int = 100 // >= 1
     /** Ids with larger numbers go first. Default priority is 1.*/
     var transitionIdsToPriorities = mutableMapOf<String, Int>()
     
@@ -232,7 +231,7 @@ class JsonTimeDescription {
     // will be converted to resourceMapping
     var transitionIdsToResources = mutableMapOf<String, JsonResources.ResourceMapping>()
     
-    var timeDrivenNoise: JsonTimeDrivenNoise? = JsonTimeDrivenNoise()
+    var timeDrivenNoise: JsonTimeDrivenNoise = JsonTimeDrivenNoise()
     
     override fun toString() = reflectionToString(this)
 }

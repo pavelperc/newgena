@@ -7,7 +7,6 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
-import javafx.collections.ObservableMap
 import javafx.event.EventTarget
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
@@ -22,7 +21,6 @@ import javafx.animation.Timeline
 import javafx.beans.property.IntegerProperty
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.Pane
-import javax.swing.plaf.synth.Region
 
 
 class QuiteIntConverter : StringConverter<Int>() {
@@ -104,11 +102,15 @@ fun EventTarget.simpleIntField(intProp: Property<Int>, errorCounter: IntegerProp
     }
 }
 
-fun EventTarget.intSpinner(intProp: Property<Int>, intValueRange: IntRange = Int.MIN_VALUE..Int.MAX_VALUE, op: Spinner<Int>.() -> Unit = {}) {
+fun EventTarget.intSpinner(
+        intProp: Property<Int>,
+        intValueRange: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
+        style: String = Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL,
+        op: Spinner<Int>.() -> Unit = {}
+) {
     spinner(SpinnerValueFactory.IntegerSpinnerValueFactory(intValueRange.first, intValueRange.last, intProp.value)) {
         valueFactory.valueProperty().bindBidirectional(intProp)
-        styleClass.add(Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL)
-        maxWidth = 100.0
+        styleClass.add(style)
         isEditable = true
         editor.textProperty().onChange { text ->
             if (text?.isInt() == true) {
@@ -117,6 +119,15 @@ fun EventTarget.intSpinner(intProp: Property<Int>, intValueRange: IntRange = Int
         }
         op()
     }
+}
+
+fun EventTarget.intSpinnerField(
+        intProp: Property<Int>,
+        intValueRange: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
+        style: String = Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL,
+        op: Spinner<Int>.() -> Unit = {}
+) = field(intProp.name) {
+    intSpinner(intProp, intValueRange, style, op)
 }
 
 
@@ -174,18 +185,18 @@ fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextF
                         textProp.value = changedObjects.joinToString("; ")
                     }
                     
-                    arrayEditor.openModal()
+                    arrayEditor.openWindow()
                 }
             }
         }
 
 
-
-val positiveInt = 1..Int.MAX_VALUE
+val positiveRange = 1..Int.MAX_VALUE
+val nonNegativeRange = 0..Int.MAX_VALUE
 
 fun EventTarget.intMapField(
         mapProp: Property<MutableMap<String, Int>>,
-        intValueRange: IntRange = positiveInt,
+        intValueRange: IntRange = positiveRange,
         op: TextField.() -> Unit = {},
         mapValidator: ValidationContext.(Map<String, Int>) -> ValidationMessage? = { null }
 ) =
@@ -245,7 +256,7 @@ fun EventTarget.intMapField(
                         textProp.value = changedObjects.makeString()
                     }
                     
-                    intMapEditor.openModal()
+                    intMapEditor.openWindow()
                 }
             }
         }

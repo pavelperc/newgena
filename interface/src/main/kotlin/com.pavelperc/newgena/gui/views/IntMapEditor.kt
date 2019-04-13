@@ -70,7 +70,9 @@ class IntMapEditor(
                         hgrow = Priority.ALWAYS
                     }
                     
-                    intSpinner(intProp, intValueRange)
+                    intSpinner(intProp, intValueRange) {
+                        maxWidth = 100.0
+                    }
                     
                     button(graphic = Styles.closeIcon()) {
                         addClass(Styles.intMapDeleteButton)
@@ -116,6 +118,7 @@ class IntMapEditor(
                 }
             }
             intSpinner(lastNumber, intValueRange) {
+                maxWidth = 100.0
                 editor.action {
                     commit()
                 }

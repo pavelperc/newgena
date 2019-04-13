@@ -1,9 +1,6 @@
 package com.pavelperc.newgena.gui.model
 
-import com.pavelperc.newgena.loaders.settings.JsonMarking
-import com.pavelperc.newgena.loaders.settings.JsonPetrinetSetup
-import com.pavelperc.newgena.loaders.settings.JsonSettings
-import com.pavelperc.newgena.loaders.settings.JsonStaticPriorities
+import com.pavelperc.newgena.loaders.settings.*
 import flanagan.analysis.Stat
 import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.BooleanProperty
@@ -44,7 +41,7 @@ abstract class NestingItemViewModel<T>(initial: T?) : ItemViewModel<T>(initial) 
     protected val innerModelsToProps = mutableMapOf<ItemViewModel<Any>, KProperty1<T, Any>>()
     
     
-    fun <F, M: ItemViewModel<out F>> bindModel(prop: KProperty1<T, F>, kmodel: KClass<M>): M {
+    fun <F, M : ItemViewModel<out F>> bindModel(prop: KProperty1<T, F>, kmodel: KClass<M>): M {
         
         val model = kmodel.primaryConstructor!!.call(prop.call(item))
         
@@ -55,7 +52,7 @@ abstract class NestingItemViewModel<T>(initial: T?) : ItemViewModel<T>(initial) 
     init {
         itemProperty.onChange { newItem ->
             innerModelsToProps.entries.forEach { (model, prop) ->
-                model.itemProperty.set(newItem?.let { prop.call(it) } )
+                model.itemProperty.set(newItem?.let { prop.call(it) })
             }
         }
     }
@@ -120,12 +117,31 @@ class MarkingModel(initial: JsonMarking)
 }
 
 
-class StaticPrioritiesModel(initial: JsonStaticPriorities?)
+class StaticPrioritiesModel(initial: JsonStaticPriorities)
     : NestingItemViewModel<JsonStaticPriorities>(initial) {
     
-    val maxPriority = bind(JsonStaticPriorities::maxPriority)
+    val maxPriority = bind(JsonStaticPriorities::maxPriority) // >= 1
     val transitionIdsToPriorities = bind(JsonStaticPriorities::transitionIdsToPriorities, forceObjectProperty = true)
 }
+
+
+class NoiseModel(initial: JsonNoise)
+    : NestingItemViewModel<JsonNoise>(initial) {
+    
+    val noiseLevel = bind(JsonNoise::noiseLevel) // in 1..100
+    
+    val isSkippingTransitions = bind(JsonNoise::isSkippingTransitions)
+    
+    val isUsingExternalTransitions = bind(JsonNoise::isUsingExternalTransitions)
+    val isUsingInternalTransitions = bind(JsonNoise::isUsingInternalTransitions)
+    
+    val internalTransitionIds = bindList(JsonNoise::internalTransitionIds)
+    
+    val existingNoiseEvents = bindList(JsonNoise::existingNoiseEvents) // NoiseEvent class
+}
+
+
+
 
 
 
