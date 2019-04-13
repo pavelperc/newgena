@@ -1,14 +1,8 @@
 package com.pavelperc.newgena
 
-import com.pavelperc.newgena.graphviz.toGraphviz
 import com.pavelperc.newgena.launchers.PetrinetGenerators
 import com.pavelperc.newgena.loaders.settings.JsonSettingsController
-import com.pavelperc.newgena.utils.xlogutils.eventNames
 import com.pavelperc.newgena.utils.xlogutils.exportXml
-import com.pavelperc.newgena.utils.xlogutils.toList
-import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
-import org.processmining.models.descriptions.SimpleGenerationDescription
-import org.processmining.models.descriptions.TimeDrivenGenerationDescription
 
 fun main(args: Array<String>) {
     

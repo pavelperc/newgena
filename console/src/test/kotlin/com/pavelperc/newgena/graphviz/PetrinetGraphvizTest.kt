@@ -41,7 +41,7 @@ class PetrinetGraphvizTest {
         val marking = Marking(listOf(p1, p1, p1, p1, p1))
 //        val marking = Marking(listOf(p1, p1))
         
-        petrinet.toGraphviz(marking, saveToSvg = "gv/simpleNet.svg")
+        PetrinetDrawer(petrinet, marking).makeGraph("gv/simpleNet.svg")
     }
     
     
@@ -76,7 +76,7 @@ class PetrinetGraphvizTest {
 //        val marking = Marking(listOf(p1))
         val marking = Marking(listOf(p1, p1))
         
-        petrinet.toGraphviz(marking, saveToSvg = "gv/resetInhibitorArcs.svg")
+        PetrinetDrawer(petrinet, marking).makeGraph("gv/resetInhibitorArcs.svg")
     }
     
     

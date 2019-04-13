@@ -1,6 +1,6 @@
 package com.pavelperc.newgena.loaders.pnml
 
-import com.pavelperc.newgena.graphviz.toGraphviz
+import com.pavelperc.newgena.graphviz.PetrinetDrawer
 import com.pavelperc.newgena.models.pnmlId
 import com.pavelperc.newgena.testutils.GraphvizDrawer
 import org.amshove.kluent.shouldContainSame
@@ -36,7 +36,8 @@ class PnmlLoaderTest : GraphvizDrawer(false) {
                 "transition5" to "place3"
         )
         
-        forDrawing += petrinet.toGraphviz(marking) to "loadPnml/simple.svg"
+        
+        forDrawing += PetrinetDrawer(petrinet, marking).makeGraph() to "loadPnml/simple.svg"
     }
 
 //    @Test

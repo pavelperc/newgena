@@ -37,8 +37,8 @@ class JsonSettingsTest {
         
         val settings = JsonSettings()
         
-        settings.petrinetSetup.marking.initialPlaceIds = mutableListOf("p1", "p2", "p3")
-        settings.petrinetSetup.marking.finalPlaceIds = mutableListOf("p4")
+        settings.petrinetSetup.marking.initialPlaceIds = mutableMapOf("p1" to 1, "p2" to 1, "p3" to 1)
+        settings.petrinetSetup.marking.finalPlaceIds = mutableMapOf("p4" to 1)
         
         
         settings.staticPriorities!!.apply {

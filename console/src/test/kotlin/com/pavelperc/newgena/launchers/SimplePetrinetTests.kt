@@ -1,7 +1,7 @@
 package com.pavelperc.newgena.launchers
 
+import com.pavelperc.newgena.graphviz.PetrinetDrawer
 import com.pavelperc.newgena.testutils.GraphvizDrawer
-import com.pavelperc.newgena.graphviz.toGraphviz
 import com.pavelperc.newgena.models.makeArcPnmlIdsFromEnds
 import com.pavelperc.newgena.models.makePnmlIdsFromLabels
 import com.pavelperc.newgena.utils.common.markingOf
@@ -50,7 +50,7 @@ class SimplePetrinetTests : GraphvizDrawer(false) {
         val initialMarking = Marking(listOf(p1))
         val finalMarking = Marking(listOf(p4))
         
-        forDrawing += petrinet.toGraphviz(initialMarking) to "simplePetriNet.svg"
+        forDrawing += PetrinetDrawer(petrinet, initialMarking, finalMarking).makeGraph() to "simplePetriNet.svg"
         
         val description = SimpleGenerationDescription(
                 isRemovingUnfinishedTraces = true,
@@ -160,7 +160,7 @@ class SimplePetrinetTests : GraphvizDrawer(false) {
 //        val finalMarking = JsonMarking(listOf(p1, p2)) // ???? why the result is empty
         val finalMarking = Marking(listOf(p3))
         
-        forDrawing += petrinet.toGraphviz(initialMarking, "has no traces") to "conjunction/1.svg"
+        forDrawing += PetrinetDrawer(petrinet, initialMarking, finalMarking, "has no traces").makeGraph() to "conjunction/1.svg"
         
         
         val description = SimpleGenerationDescription(
@@ -181,8 +181,7 @@ class SimplePetrinetTests : GraphvizDrawer(false) {
         
         initialMarking.add(p2)
         finalMarking.add(p1) // should not finish p3
-        forDrawing += petrinet.toGraphviz(initialMarking, "added p2") to "conjunction/2.svg"
-        forDrawing += petrinet.toGraphviz(finalMarking, "expected result") to "conjunction/3.svg"
+        forDrawing += PetrinetDrawer(petrinet, initialMarking, finalMarking, "added p2").makeGraph() to "conjunction/2.svg"
         
         logArray = PetrinetGenerators.generateSimple(petrinet, initialMarking, finalMarking, description)
         println(logArray.eventNames())
@@ -194,8 +193,7 @@ class SimplePetrinetTests : GraphvizDrawer(false) {
         initialMarking.addAll(listOf(p1, p2, p2))
         finalMarking.addAll(listOf(p3, p3))
         finalMarking.remove(p1)
-        forDrawing += petrinet.toGraphviz(initialMarking, "added p1, p2, p2") to "conjunction/4.svg"
-        forDrawing += petrinet.toGraphviz(finalMarking, "new expected final marking. ?????") to "conjunction/5.svg"
+        forDrawing += PetrinetDrawer(petrinet, initialMarking, finalMarking, "added p1, p2, p2").makeGraph() to "conjunction/3.svg"
         
         logArray = PetrinetGenerators.generateSimple(petrinet, initialMarking, finalMarking, description)
         
@@ -236,6 +234,6 @@ class SimplePetrinetTests : GraphvizDrawer(false) {
         
         logArray.eventNames().forEach { it shouldEqual listOf("t1", "t1") }
     
-        forDrawing += petrinet.toGraphviz(initialMarking, finalMarking = finalMarking) to "testWeights.svg"
+        forDrawing += PetrinetDrawer(petrinet, initialMarking, finalMarking).makeGraph() to "testWeights.svg"
     }
 }

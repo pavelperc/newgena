@@ -1,11 +1,12 @@
 package com.pavelperc.newgena.launchers
 
-import com.pavelperc.newgena.graphviz.toGraphviz
-import org.junit.Test
+import com.pavelperc.newgena.graphviz.PetrinetDrawer
 import com.pavelperc.newgena.testutils.GraphvizDrawer
 import com.pavelperc.newgena.utils.common.markingOf
 import com.pavelperc.newgena.utils.xlogutils.eventNames
-import org.amshove.kluent.*
+import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldNotBeEmpty
+import org.junit.Test
 import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
@@ -81,8 +82,7 @@ class InhibitorResetPetrinetTest : GraphvizDrawer(false) {
         val initialMarking = Marking(listOf(p3))
         val finalMarking = Marking(listOf(p4))
         
-        forDrawing += petrinet.toGraphviz(initialMarking, "initial marking") to "inhibitorNet/1.svg"
-        forDrawing += petrinet.toGraphviz(finalMarking, "final marking") to "inhibitorNet/2.svg"
+        forDrawing += PetrinetDrawer(petrinet, initialMarking, finalMarking).makeGraph() to "inhibitorNet/1.svg"
         
         
         val description = SimpleGenerationDescription(
@@ -125,8 +125,7 @@ class InhibitorResetPetrinetTest : GraphvizDrawer(false) {
         val initialMarking = Marking(listOf(p1, p1, p1, p2, p3, p3))
         val finalMarking = Marking(listOf(p3, p4))
         
-        forDrawing += petrinet.toGraphviz(initialMarking, "initial marking") to "resetNet/1.svg"
-        forDrawing += petrinet.toGraphviz(finalMarking, "final marking") to "resetNet/2.svg"
+        forDrawing += PetrinetDrawer(petrinet, initialMarking, finalMarking).makeGraph() to "resetNet/1.svg"
         
         val description = SimpleGenerationDescription(
                 isUsingNoise = false

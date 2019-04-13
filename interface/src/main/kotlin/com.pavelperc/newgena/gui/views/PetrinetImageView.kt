@@ -1,6 +1,6 @@
 package com.pavelperc.newgena.gui.views
 
-import com.pavelperc.newgena.graphviz.toGraphviz
+import com.pavelperc.newgena.graphviz.PetrinetDrawer
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.notification
 import guru.nidi.graphviz.engine.Format
@@ -8,7 +8,6 @@ import guru.nidi.graphviz.engine.Renderer
 import guru.nidi.graphviz.toGraphviz
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
-import javafx.beans.property.SimpleStringProperty
 import javafx.embed.swing.SwingFXUtils
 import javafx.geometry.Pos
 import javafx.scene.image.Image
@@ -27,7 +26,12 @@ class PetrinetImageView : View("Petrinet Viewer.") {
     
     val imgProp = SimpleObjectProperty<Image>(null)
     
-    var drawArcIdsProp = SimpleBooleanProperty(true)
+    
+    val drawArcIdsProp = SimpleBooleanProperty(true)
+    val drawTransitionIdsProp = SimpleBooleanProperty(false)
+    val drawLegendProp = SimpleBooleanProperty(true)
+    val drawLabelProp = SimpleBooleanProperty(false)
+    
     
     fun draw() {
         controller.updateInhResetArcsFromModel()
@@ -37,12 +41,17 @@ class PetrinetImageView : View("Petrinet Viewer.") {
         
         val (initialMarking, finalMarking) = controller.markings
         
-        val graph = controller.petrinet?.toGraphviz(
-                initialMarking = initialMarking,
-                graphLabel = "",
-                finalMarking = finalMarking,
-                drawArcIds = drawArcIdsProp.value
-        )
+        val graph = controller.petrinet?.let { petrinet ->
+            PetrinetDrawer(
+                    petrinet,
+                    initialMarking = initialMarking,
+                    finalMarking = finalMarking,
+                    graphLabelStr = if (drawLabelProp.value) petrinet.label else "",
+                    drawArcIds = drawArcIdsProp.value,
+                    drawLegend = drawLegendProp.value,
+                    drawTransitionIds = drawTransitionIdsProp.value
+            ).makeGraph()
+        }
         
         if (graph != null) {
             renderedImage = graph.toGraphviz().render(Format.SVG)
@@ -90,10 +99,19 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                     
                 }
                 checkbox("Show arc ids", drawArcIdsProp) {
-                    action {
-                        draw()
-                    }
+                    action { draw() }
                 }
+                checkbox("Show transition ids", drawTransitionIdsProp) {
+                    action { draw() }
+                }
+                checkbox("Show Legend", drawLegendProp) {
+                    action { draw() }
+                }
+                checkbox("Show label", drawLabelProp) {
+                    action { draw() }
+                }
+                
+                
             }
             
             center = pane {

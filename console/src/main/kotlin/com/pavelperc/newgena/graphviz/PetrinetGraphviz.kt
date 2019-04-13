@@ -15,28 +15,51 @@ import org.processmining.models.semantics.petrinet.Marking
 import java.io.File
 
 
-private fun convert(
-        petrinet: PetrinetGraph,
-        marking: List<Place>,
-        finalMarking: List<Place>,
-        graphLabel: String,
-        drawArcIds: Boolean
-): MutableGraph {
+class PetrinetDrawer(
+        val petrinet: PetrinetGraph,
+        val initialMarking: Marking = Marking(),
+        val finalMarking: Marking = Marking(),
+        val graphLabelStr: String = petrinet.label,
+        val drawLegend: Boolean = true,
+        val drawArcIds: Boolean = true,
+        val drawTransitionIds: Boolean = false
+) {
+    // circles
+    private val circle = "●"
+//        val circle = "•"
+//        val circle = "*"
     
-    return graph(directed = true) {
+    fun makeGraph(saveToSvg: String? = null) = convert().also { graph ->
+        if (saveToSvg != null)
+            graph.toGraphviz().render(Format.SVG).toFile(File(saveToSvg))
+    }
+    
+    
+    private fun convert(): MutableGraph = graph(directed = true) {
         graph[RankDir.LEFT_TO_RIGHT]
-        graph["label" eq graphLabel]
+
+//        graph["label" eq graphLabelStr]
+        var labelHtml = graphLabelStr
+        if (drawLegend) {
+            if (labelHtml != "") {
+                labelHtml += "<br/>"
+            }
+            labelHtml += "$circle - initial marking, <font color=\"lightseagreen\">$circle</font>  - final marking"
+        }
+        
+        graph[Label.html(labelHtml)]
+        
         
         val places = petrinet.places.map {
             val label = Label.of(it.pnmlId)
             mutNode(label).add(Shape.CIRCLE, label.external())
         }
         
-        val transitions = petrinet.transitions.map {
+        petrinet.transitions.forEach {
             mutNode(it.pnmlId).add(
                     Shape.RECTANGLE,
 //                    Label.of("${it.label}(${it.pnmlId})")
-                    Label.of(it.label)
+                    Label.of(if (drawTransitionIds) it.pnmlId else it.label)
             )
         }
         
@@ -56,69 +79,38 @@ private fun convert(
         }
         
         // reset default labels.
-        places.forEach { it[Label.of("   ")] }
-        drawTokens(marking)
-        drawTokens(finalMarking, true)
-
-//        
-//        if (petrinet is ICPetrinet) {
-//            
-//        }
+        places.forEach { it[Label.raw("   ")] }
+        drawTokens(initialMarking.toList())
+        drawTokens(finalMarking.toList(), true)
     }
-}
-
-private fun drawTokens(marking: List<Place>, isFinalMarking: Boolean = false) {
-    // No token
-//    allPlaceNodes.forEach { it[Label.of("   ")] }
     
-    // grouping places by labels
-    val counts = marking.groupBy { it.pnmlId }.mapValues { it.value.size }
-    counts.forEach { pnmlId, count ->
-        val node = mutNode(pnmlId)
-        // circles
-        val circle = "●"
-//        val circle = "•"
-//        val circle = "*"
-        val points = when {
-            count > 3 -> "$count $circle"
-//                    else -> circle.repeat(count).chunked(3).joinToString("<br/>")
-            else -> circle.repeat(count)
-        }
+    private fun drawTokens(marking: List<Place>, isFinalMarking: Boolean = false) {
+        // No token
+//    allPlaceNodes.forEach { it[Label.of("   ")] }
         
-        val oldLabel = (node.attrs()["label"] as? Label)?.value() ?: ""
-        val oldLabelMod = if (oldLabel.trimIndent() != "") "$oldLabel<br/>" else ""
-        val label =
-                if (isFinalMarking)
-                    Label.html("$oldLabelMod<font color=\"lightseagreen\">$points</font>")
-                else Label.html("<font color=\"black\">$points</font>")
-//        println("New label for node $pnmlId: ${label.value()}")
-        node[label]
+        // grouping places by labels
+        val counts = marking.groupBy { it.pnmlId }.mapValues { it.value.size }
+        counts.forEach { pnmlId, count ->
+            val node = mutNode(pnmlId)
+            
+            val points = when {
+                count > 3 -> "$count $circle"
+//                    else -> circle.repeat(count).chunked(3).joinToString("<br/>")
+                else -> circle.repeat(count)
+            }
+            
+            val oldLabel = (node.attrs()["label"] as? Label)?.value() ?: ""
+            var label = oldLabel.trim(' ')
+            if (label != "")
+                label += "<br/>"
+            
+            if (isFinalMarking) {
+                label += "<font color=\"lightseagreen\">$points</font>"
+            } else {
+                label += "<font color=\"black\">$points</font>"
+            }
+            
+            node[Label.html(label)]
+        }
     }
 }
-
-
-//
-///** Converts petrinet to mutable graphviz graph*/
-//fun ICPetrinet.toGraphviz(
-//        marking: Marking = Marking(),
-//        graphLabel: String = this.label,
-//        saveToSvg: String? = null
-//) : MutableGraph {
-//    
-//    val petrinet = ICPetrinetImpl(this);
-//    
-//}
-
-
-/** Converts petrinet to mutable graphviz graph*/
-fun PetrinetGraph.toGraphviz(
-        initialMarking: Marking = Marking(),
-        graphLabel: String = this.label,
-        saveToSvg: String? = null,
-        finalMarking: Marking = Marking(),
-        drawArcIds: Boolean = true
-) = convert(this, initialMarking.toList(), finalMarking.toList(), graphLabel, drawArcIds)
-        .also { graph ->
-            if (saveToSvg != null)
-                graph.toGraphviz().render(Format.SVG).toFile(File(saveToSvg))
-        }
