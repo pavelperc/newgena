@@ -98,6 +98,7 @@ class Generator(private val callback: ProgressBarCallback) {
         return log
     }
     
+    /** Checks if the trace is not null or not empty and adds it to the log. */
     private fun addTraceToLog(log: XLog, generatedTrace: XTrace?, generationDescription: GenerationDescription): Boolean {
         if (generatedTrace == null) {
             return false

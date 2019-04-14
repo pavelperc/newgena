@@ -3,6 +3,8 @@ package com.pavelperc.newgena.gui.views
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.customfields.delayHack
 import javafx.collections.ObservableList
+import javafx.event.EventTarget
+import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
@@ -14,7 +16,7 @@ import tornadofx.Stylesheet.Companion.cell
 class ArrayEditor(
         initialObjects: List<String>,
         title: String = "Array Editor",
-        onSuccess: (List<String>) -> Unit = {}
+        val onSuccess: (List<String>) -> Unit = {}
 ) : Fragment(title) {
     
     init {
@@ -24,42 +26,70 @@ class ArrayEditor(
     val objects: ObservableList<String> = initialObjects.toMutableList().observable()
     
     
-    override val root = vbox {
-        hbox {
+    fun EventTarget.header() {
+        vbox {
             addClass(Styles.addItemRoot)
-            label("Add: ") {
-                tooltip("Press enter inside a text field to add.") {
-                    delayHack(100)
-                }
-            }
-            textfield {
-                promptText = "Click enter to add."
-                action {
-                    val text = textProperty().value
-                    
-                    if (text.isNotEmpty()) {
-                        objects.add(text)
-                        selectAll()
+            hbox {
+                label("Add: ") {
+                    tooltip("Press enter inside a text field to add.") {
+                        delayHack(100)
                     }
                 }
-            }
-            button("save") {
-                shortcut("Ctrl+S")
-                tooltip("Ctrl+S")
-                addEventFilter(KeyEvent.KEY_PRESSED) {
-                    if (it.code == KeyCode.ENTER) {
+                textfield {
+                    promptText = "Click enter to add."
+                    action {
+                        val text = textProperty().value
+                
+                        if (text.isNotEmpty()) {
+                            objects.add(text)
+                            selectAll()
+                        }
+                    }
+                }
+                button("save") {
+                    shortcut("Ctrl+S")
+                    tooltip("Ctrl+S")
+                    addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED) {
+                        if (it.code == javafx.scene.input.KeyCode.ENTER) {
 //                        if (it.target is Button && !it.isControlDown)
 //                            return@addEventFilter
-                        fire()
+                            fire()
+                        }
+                    }
+                    action {
+                        onSuccess(objects)
+                        close()
                     }
                 }
-                action {
-                    onSuccess(objects)
-                    close()
+            }
+            hbox {
+                alignment = javafx.geometry.Pos.CENTER_LEFT
+                addClass(com.pavelperc.newgena.gui.app.Styles.sortingPanel)
+                label("Sort: ")
+                button("Values↓") {
+                    alignment = javafx.geometry.Pos.BOTTOM_CENTER
+                    action {
+                        objects.sortBy { it }
+                    }
+                }
+                button("Values↑") {
+                    action {
+                        objects.sortByDescending { it }
+                    }
                 }
             }
         }
+    }
+    
+    override val root = vbox {
+        header()
+    
+        style {
+            padding = box(1.em, 1.em, 0.em, 1.em)
+        }
+        
         listview(objects) {
+            
             addEventFilter(KeyEvent.KEY_PRESSED) {
                 if (it.code == KeyCode.DELETE && selectedItem != null) {
                     objects.remove(selectedItem)
@@ -71,6 +101,9 @@ class ArrayEditor(
                 // -------- ONE CELL --------
                 graphic = hbox {
                     addClass(Styles.itemRoot)
+                    upDownPanel(objects, item) {
+                        removeWhen(editingProperty())
+                    }
                     
                     label(itemProperty()) {
                         setId(Styles.contentLabel)
@@ -87,7 +120,8 @@ class ArrayEditor(
                     }
                     button(graphic = Styles.closeIcon()) {
                         addClass(Styles.deleteButton)
-                        removeWhen { parent.hoverProperty().not().or(editingProperty()) }
+//                        removeWhen { parent.hoverProperty().not().or(editingProperty()) }
+                        removeWhen { editingProperty() }
                         action { objects.remove(item) }
                     }
                 }

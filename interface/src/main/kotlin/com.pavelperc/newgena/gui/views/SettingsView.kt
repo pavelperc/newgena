@@ -12,7 +12,6 @@ import javafx.geometry.Pos
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
 import javafx.scene.control.TextField
-import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 import javafx.util.Duration
 import tornadofx.*
@@ -48,7 +47,6 @@ class SettingsView : View("Settings") {
     init {
         with(root) {
             scrollablefieldset {
-                addClass(Styles.mainSettingsPanel)
                 field("outputFolder") {
                     textfield(settings.outputFolder).required()
                     
@@ -64,6 +62,7 @@ class SettingsView : View("Settings") {
                 // marking:
                 
                 fieldset("Marking") {
+                    addClass(Styles.fieldSetFrame)
                     
                     val validatePlaces: ValidationContext.(map: Map<String, Int>) -> ValidationMessage? = xx@{ map ->
                         if (map.values.any { it <= 0 })
@@ -266,6 +265,7 @@ class SettingsView : View("Settings") {
     
     fun EventTarget.petrinetSetupPanel() {
         fieldset("petrinetSetup") {
+            addClass(Styles.fieldSetFrame)
             
             field("petrinetFile") {
                 

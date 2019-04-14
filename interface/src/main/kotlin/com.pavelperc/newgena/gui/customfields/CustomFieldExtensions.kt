@@ -185,7 +185,7 @@ fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextF
                         textProp.value = changedObjects.joinToString("; ")
                     }
                     
-                    arrayEditor.openWindow()
+                    arrayEditor.openWindow(resizable = false)
                 }
             }
         }
@@ -256,7 +256,7 @@ fun EventTarget.intMapField(
                         textProp.value = changedObjects.makeString()
                     }
                     
-                    intMapEditor.openWindow()
+                    intMapEditor.openWindow(resizable = false)
                 }
             }
         }
