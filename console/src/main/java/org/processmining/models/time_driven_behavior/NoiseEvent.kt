@@ -1,7 +1,5 @@
 package org.processmining.models.time_driven_behavior
 
-import org.processmining.framework.util.Pair
-
 import java.util.concurrent.TimeUnit
 
 /**
@@ -16,7 +14,8 @@ class NoiseEvent @JvmOverloads constructor(
         /** in seconds */
         var maxTimeDeviationSeconds: Long = DEFAULT_MAX_DEVIATION_TIME
 ) {
-    constructor(activity: Any, time: Pair<Long, Long>) : this(activity, time.first, time.second) {}
+    
+    constructor(activity: Any, time: Pair<Long, Long>) : this(activity, time.first, time.second)
     
     override fun toString() = activity.toString()
     

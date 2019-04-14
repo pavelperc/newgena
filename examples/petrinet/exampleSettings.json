@@ -22,7 +22,7 @@
     "isUsingExternalTransitions" : true,
     "isUsingInternalTransitions" : true,
     "internalTransitionIds" : [ ],
-    "existingNoiseEvents" : [ {
+    "artificialNoiseEvents" : [ {
       "activity" : "NoiseEvent",
       "executionTimeSeconds" : 600,
       "maxTimeDeviationSeconds" : 120

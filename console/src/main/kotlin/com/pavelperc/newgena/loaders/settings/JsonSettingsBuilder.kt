@@ -1,12 +1,10 @@
 package com.pavelperc.newgena.loaders.settings
 
-import com.pavelperc.newgena.models.markInhResetArcsByIds
 import com.pavelperc.newgena.models.pnmlId
 import com.pavelperc.newgena.utils.common.markingOf
 import org.processmining.models.GenerationDescription
 import org.processmining.models.descriptions.*
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
-import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.organizational_extension.Group
 import org.processmining.models.organizational_extension.Resource
 import org.processmining.models.organizational_extension.Role
@@ -172,7 +170,7 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
                 isUsingInternalTransitions = isUsingInternalTransitions,
                 isSkippingTransitions = isSkippingTransitions,
                 internalTransitions = internalTransitionIds.map { it.toTrans() },
-                existingNoiseEvents = existingNoiseEvents
+                artificialNoiseEvents = artificialNoiseEvents
         )
     }
     
@@ -192,7 +190,7 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
                         isUsingInternalTransitions = isUsingInternalTransitions,
                         isSkippingTransitions = isSkippingTransitions,
                         internalTransitions = internalTransitionIds.map { it.toTrans() },
-                        existingNoiseEvents = existingNoiseEvents
+                        artificialNoiseEvents = artificialNoiseEvents
                 )
             }
         }

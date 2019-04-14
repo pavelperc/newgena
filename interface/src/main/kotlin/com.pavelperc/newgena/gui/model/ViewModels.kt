@@ -1,21 +1,12 @@
 package com.pavelperc.newgena.gui.model
 
 import com.pavelperc.newgena.loaders.settings.*
-import flanagan.analysis.Stat
-import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.BooleanProperty
-import javafx.beans.property.IntegerProperty
 import javafx.beans.property.SimpleObjectProperty
-import javafx.collections.FXCollections
-import javafx.collections.MapChangeListener
-import javafx.collections.ObservableList
-import javafx.collections.ObservableMap
 import tornadofx.*
 import kotlin.reflect.KClass
-import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.primaryConstructor
 
 
@@ -136,7 +127,7 @@ class NoiseModel(initial: JsonNoise)
     
     val internalTransitionIds = bindList(JsonNoise::internalTransitionIds)
     
-    val existingNoiseEvents = bindList(JsonNoise::existingNoiseEvents) // NoiseEvent class
+    val artificialNoiseEvents = bindList(JsonNoise::artificialNoiseEvents) // NoiseEvent class
 }
 
 

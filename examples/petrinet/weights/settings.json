@@ -1,44 +1,29 @@
 {
   "petrinetSetup" : {
-    "petrinetFile" : "examples\\petrinet\\complex1\\complex1.pnml",
-    "inhibitorArcIds" : [ "arc17" ],
+    "petrinetFile" : "examples\\petrinet\\weights\\weights.pnml",
+    "inhibitorArcIds" : [ ],
     "marking" : {
-      "initialPlaceIds" : {
-        "place1" : 2,
-        "place2" : 1,
-        "place5" : 1
-      },
-      "finalPlaceIds" : {
-        "place7" : 2,
-        "place6" : 1
-      },
+      "initialPlaceIds" : { "place3": 6, "place1": 6 },
+      "finalPlaceIds" : { "place2": 12, "place3": 2 },
       "isUsingInitialMarkingFromPnml" : false
     },
-    "resetArcIds" : [ "arc12", "arc13" ]
+    "resetArcIds" : [ "arc5" ]
   },
   "outputFolder" : "xes-out",
   "isRemovingEmptyTraces" : true,
-  "isRemovingUnfinishedTraces" : true,
-  "isUsingNoise" : true,
+  "isRemovingUnfinishedTraces" : false,
+  "isUsingNoise" : false,
   "isUsingStaticPriorities" : false,
   "isUsingTime" : false,
-  "maxNumberOfSteps" : 50,
+  "maxNumberOfSteps" : 10,
   "noiseDescription" : {
-    "noiseLevel" : 50,
+    "noiseLevel" : 5,
     "isSkippingTransitions" : true,
     "isUsingExternalTransitions" : true,
     "isUsingInternalTransitions" : true,
     "internalTransitionIds" : [ ],
     "artificialNoiseEvents" : [ {
       "activity" : "NoiseEvent",
-      "executionTimeSeconds" : 0,
-      "maxTimeDeviationSeconds" : 0
-    }, {
-      "activity" : "XXXXX",
-      "executionTimeSeconds" : 5,
-      "maxTimeDeviationSeconds" : 11
-    }, {
-      "activity" : "YYYYYY",
       "executionTimeSeconds" : 600,
       "maxTimeDeviationSeconds" : 120
     } ]
@@ -46,20 +31,14 @@
   "numberOfLogs" : 5,
   "numberOfTraces" : 10,
   "staticPriorities" : {
-    "maxPriority" : 100,
-    "transitionIdsToPriorities" : {
-      "transition1" : 5,
-      "transition2" : 4,
-      "transition4" : 1,
-      "transition5" : 2,
-      "transition6" : 3
-    }
+    "maxPriority" : 1,
+    "transitionIdsToPriorities" : { }
   },
   "timeDescription" : {
     "simplifiedResources" : [ ],
     "resourceGroups" : [ ],
     "transitionIdsToDelays" : { },
-    "generationStart" : "2019-04-07T22:27:06.991Z",
+    "generationStart" : "2019-03-23T22:21:24.341Z",
     "transitionIdsToResources" : { },
     "timeDrivenNoise" : {
       "isUsingTimestampNoise" : true,
@@ -71,8 +50,8 @@
     "isUsingResources" : false,
     "isUsingLifecycle" : false,
     "minimumIntervalBetweenActions" : 10,
-    "maximumIntervalBetweenActions" : 20,
     "isUsingComplexResourceSettings" : true,
+    "maximumIntervalBetweenActions" : 20,
     "isSeparatingStartAndFinish" : true,
     "isUsingSynchronizationOnResources" : true
   }

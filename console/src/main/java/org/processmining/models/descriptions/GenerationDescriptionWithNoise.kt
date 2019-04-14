@@ -31,7 +31,7 @@ abstract class GenerationDescriptionWithNoise(
             isUsingInternalTransitions: Boolean = true,
             var isSkippingTransitions: Boolean = true,
             val internalTransitions: List<Transition> = emptyList(),
-            val existingNoiseEvents: List<NoiseEvent> = emptyList()
+            val artificialNoiseEvents: List<NoiseEvent> = emptyList()
     ) {
         var noisedLevel = noisedLevel
             set(value) {
@@ -47,8 +47,6 @@ abstract class GenerationDescriptionWithNoise(
         
         var isUsingInternalTransitions = isUsingInternalTransitions
             get() = isUsingNoise && field
-        
-        val artificialNoiseEvents: List<NoiseEvent> = mutableListOf()
     }
     
     companion object {

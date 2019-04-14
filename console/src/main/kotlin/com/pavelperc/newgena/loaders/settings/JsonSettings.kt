@@ -137,14 +137,14 @@ class JsonNoise() {
             isUsingExternalTransitions: Boolean,
             isUsingInternalTransitions: Boolean,
             internalTransitionIds: MutableList<String>,
-            existingNoiseEvents: MutableList<NoiseEvent>
+            artificialNoiseEvents: MutableList<NoiseEvent>
     ) : this() {
         this.noiseLevel = noiseLevel
         this.isSkippingTransitions = isSkippingTransitions
         this.isUsingExternalTransitions = isUsingExternalTransitions
         this.isUsingInternalTransitions = isUsingInternalTransitions
         this.internalTransitionIds = internalTransitionIds
-        this.existingNoiseEvents = existingNoiseEvents
+        this.artificialNoiseEvents = artificialNoiseEvents
     }
     
     var noiseLevel: Int by RangeInt(5, 1..100)
@@ -155,7 +155,7 @@ class JsonNoise() {
     var isUsingInternalTransitions = true
     
     var internalTransitionIds = mutableListOf<String>()
-    var existingNoiseEvents = mutableListOf(NoiseEvent("NoiseEvent"))
+    var artificialNoiseEvents = mutableListOf(NoiseEvent("NoiseEvent"))
     
     override fun toString() = reflectionToString(this)
 }

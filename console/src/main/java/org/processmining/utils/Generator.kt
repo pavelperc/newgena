@@ -17,6 +17,7 @@ import org.processmining.models.AssessedMovementResult
 import org.processmining.models.GenerationDescription
 import org.processmining.models.Movable
 import org.processmining.models.MovementResult
+import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.utils.helpers.GenerationHelper
 import org.processmining.utils.helpers.PetriNetGenerationHelper
 
@@ -126,14 +127,14 @@ class Generator(private val callback: ProgressBarCallback) {
         val generationDescription = generationHelper.generationDescription
         
         var maxIterations = 10
-        println("New trace")
+//        println("New trace")
         do {
-            println("New iteration.")
+//            println("New iteration.")
             generationHelper.moveToInitialState()
             trace = createTrace(traceName)
             var stepNumber = 0
     
-            (generationHelper as? PetriNetGenerationHelper<*,*,*>)?.dumpPetrinet()
+//            (generationHelper as? PetriNetGenerationHelper<*,*,*>)?.dumpPetrinet()
             while (stepNumber < generationDescription.maxNumberOfSteps && !replayedCompletely) {
                 
                 val movable = generationHelper.chooseNextMovable()
@@ -156,11 +157,11 @@ class Generator(private val callback: ProgressBarCallback) {
                 addTraceToLog = assessedMovementResult.isTraceEligibleForAddingToLog
                 stepNumber++
                 
-                if (replayedCompletely) {
-                    println("In final Marking!!")
-                }
+//                if (replayedCompletely) {
+//                    println("In final Marking!!")
+//                }
                 
-                (generationHelper as? PetriNetGenerationHelper<*,*,*>)?.dumpPetrinet()
+//                (generationHelper as? PetriNetGenerationHelper<*,*,*>)?.dumpPetrinet()
             }
             
             maxIterations--

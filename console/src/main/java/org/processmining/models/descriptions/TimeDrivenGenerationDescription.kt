@@ -38,6 +38,7 @@ class TimeDrivenGenerationDescription(
         
         val simplifiedResources: List<Resource> = listOf(),
         override val isUsingTime: Boolean = true,
+        /** transitionIdsToDelays: executionTime and maxTimeDeviation in seconds. */
         val time: Map<Transition, Pair<Long, Long>> = emptyMap(),
         override val isUsingLifecycle: Boolean = true,
         var generationStart: Instant = Instant.now(),
@@ -80,15 +81,15 @@ class TimeDrivenGenerationDescription(
             isUsingTimeGranularity: Boolean = true,
             var maxTimestampDeviation: Int = 0,
             var granularityType: GranularityTypes = GranularityTypes.MINUTES_5,
-            
-            
+        
+        
             noisedLevel: Int = 5,
             isUsingExternalTransitions: Boolean = true,
             isUsingInternalTransitions: Boolean = true,
             isSkippingTransitions: Boolean = true,
             internalTransitions: List<Transition> = emptyList(),
-            existingNoiseEvents: List<NoiseEvent> = emptyList()
-    ) : GenerationDescriptionWithNoise.NoiseDescription(noisedLevel, isUsingExternalTransitions, isUsingInternalTransitions, isSkippingTransitions, internalTransitions, existingNoiseEvents) {
+            artificialNoiseEvents: List<NoiseEvent> = emptyList()
+    ) : GenerationDescriptionWithNoise.NoiseDescription(noisedLevel, isUsingExternalTransitions, isUsingInternalTransitions, isSkippingTransitions, internalTransitions, artificialNoiseEvents) {
         var isUsingTimestampNoise = isUsingTimestampNoise
             get() = isUsingNoise && field
         
@@ -97,5 +98,9 @@ class TimeDrivenGenerationDescription(
         
         var isUsingTimeGranularity = isUsingTimeGranularity
             get() = isUsingNoise && field
+        
+        
+        /** Internal transitions, wrapped to NoiseEvents. */
+        val existingNoiseEvents: List<NoiseEvent> = time.map { (tr, pair) -> NoiseEvent(tr, pair) }
     }
 }

@@ -106,7 +106,12 @@ class SettingsView : View("Settings") {
                     prop.onChange { checked -> this.isExpanded = checked!! }
                 }
                 
-                checkboxField(settings.isUsingNoise)
+                checkboxField(settings.isUsingNoise) {
+                    action {
+                        if (isSelected)
+                            settings.isUsingStaticPriorities.value = false
+                    }
+                }
                 squeezebox {
                     fold("Noise", settings.isUsingNoise.value) {
                         expandOn(settings.isUsingNoise)
@@ -122,24 +127,24 @@ class SettingsView : View("Settings") {
                             arrayField(noise.internalTransitionIds)
                             
                             
-                            field("existingNoiseEvents") {
+                            field("artificialNoiseEvents") {
                                 fun eventsToString(newList: ObservableList<NoiseEvent>?) 
                                         = newList?.joinToString("; ") { it.activity.toString() } ?: ""
                                 
-                                val lb = textfield(eventsToString(noise.existingNoiseEvents.value)) {
+                                val lb = textfield(eventsToString(noise.artificialNoiseEvents.value)) {
                                     hgrow = Priority.ALWAYS
                                     isEditable = false
                                     style {
                                         backgroundColor += Color.TRANSPARENT
                                     }
                                 }
-                                noise.existingNoiseEvents.onChange { newList->
+                                noise.artificialNoiseEvents.onChange { newList->
                                     lb.textProperty().value = eventsToString(newList)
                                 }
                                 button("Edit") {
                                     action {
-                                        NoiseEventsEditor(noise.existingNoiseEvents.value) { events ->
-                                            noise.existingNoiseEvents.value.setAll(events)
+                                        NoiseEventsEditor(noise.artificialNoiseEvents.value) { events ->
+                                            noise.artificialNoiseEvents.value.setAll(events)
                                         }.openWindow()
                                     }
                                 }
@@ -152,8 +157,10 @@ class SettingsView : View("Settings") {
                 
                 checkboxField(settings.isUsingStaticPriorities) {
                     action {
-                        if (isSelected)
+                        if (isSelected) {
                             settings.isUsingTime.value = false
+                            settings.isUsingNoise.value = false
+                        }
                     }
                 }
                 

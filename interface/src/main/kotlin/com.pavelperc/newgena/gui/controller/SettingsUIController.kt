@@ -97,13 +97,14 @@ class SettingsUIController : Controller() {
                 .and(noiseModel.valid)
     
     
-    /** Warning! this callback doesn't mean, that the settings are saved. */
+    /** Warning! not dirty callback doesn't mean, that the settings are saved. */
     private fun onSomeModelGetsDirty(onDirty: () -> Unit) {
         // boolean binding doesn't work for some reason
         settingsModel.dirty.onChange { dirty -> if (dirty) onDirty() }
         petrinetSetupModel.dirty.onChange { dirty -> if (dirty) onDirty() }
         markingModel.dirty.onChange { dirty -> if (dirty) onDirty() }
         staticPrioritiesModel.dirty.onChange { dirty -> if (dirty) onDirty() }
+        noiseModel.dirty.onChange { dirty -> if (dirty) onDirty() }
     }
     
     private fun loadInitialSettings() {
