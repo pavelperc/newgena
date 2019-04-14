@@ -32,10 +32,4 @@ abstract class Transition<T : Token, P : Place<T>>(
     override fun checkAvailability() =
             inputPlaces.all { (place, weight) -> place.hasTokens(weight) } // reset arcs doesn't affect transition availability
                     && inputInhibitorArcPlaces.all { place -> !place.hasTokens() }
-    
-    companion object {
-        @JvmStatic
-        protected val random = Random()
-    }
-    
 }

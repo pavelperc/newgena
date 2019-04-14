@@ -5,13 +5,12 @@ import org.processmining.models.GenerationDescription
 import org.processmining.models.MovementResult
 import org.processmining.models.abstract_net_representation.Place
 import org.processmining.models.abstract_net_representation.Token
-import org.processmining.models.abstract_net_representation.Transition
 import org.processmining.models.abstract_net_representation.WeightedPlace
 import org.processmining.models.base_implementation.BaseTransition
 import org.processmining.models.descriptions.GenerationDescriptionWithNoise
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.utils.LoggingSingleton
-import java.util.ArrayList
+import java.util.*
 import kotlin.random.Random
 
 private typealias WPlace = WeightedPlace<Token, Place<Token>>
@@ -51,7 +50,7 @@ class SimpleTransition(
             
             if (noiseDescription.isSkippingTransitions) {
                 if (noiseDescription.isUsingInternalTransitions || noiseDescription.isUsingExternalTransitions) {
-                    val skipEvent = random.nextBoolean()
+                    val skipEvent = Random.nextBoolean()
                     
                     if (skipEvent) {
                         //ignore this case in order to skip the event
@@ -74,7 +73,7 @@ class SimpleTransition(
     }
     
     protected fun logNoiseAndTransition(trace: XTrace) {
-        val noiseFirst = random.nextBoolean()
+        val noiseFirst = Random.nextBoolean()
         
         if (noiseFirst) {
             logNoiseEvent(trace)
@@ -96,7 +95,7 @@ class SimpleTransition(
     protected fun logNoiseEvent(trace: XTrace) {
         val noiseEvents = noiseEventsBasedOnSettings
         if (!noiseEvents.isEmpty()) {
-            val index = random.nextInt(noiseEvents.size)
+            val index = Random.nextInt(noiseEvents.size)
             val event = noiseEvents[index]
             LoggingSingleton.log(trace, event)
         }

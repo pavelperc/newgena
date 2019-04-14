@@ -81,10 +81,8 @@ class SettingsModel(initial: JsonSettings) : NestingItemViewModel<JsonSettings>(
     val isRemovingUnfinishedTraces = bind(JsonSettings::isRemovingUnfinishedTraces)
     
     val isUsingNoise = bind(JsonSettings::isUsingNoise)
-//    val noiseDescription = bind(JsonSettings::noiseDescription)
     
     val isUsingStaticPriorities = bind(JsonSettings::isUsingStaticPriorities) as BooleanProperty
-//    val staticPriorities = bind(JsonSettings::staticPriorities)
     
     val isUsingTime = bind(JsonSettings::isUsingTime) as BooleanProperty
 //    val timeDescription = bind(JsonSettings::timeDescription)
@@ -92,6 +90,7 @@ class SettingsModel(initial: JsonSettings) : NestingItemViewModel<JsonSettings>(
     // ---INNER MODELS:
     val petrinetSetupModel = bindModel(JsonSettings::petrinetSetup, PetrinetSetupModel::class)
     val staticPrioritiesModel = bindModel(JsonSettings::staticPriorities, StaticPrioritiesModel::class)
+    val noiseDescription = bindModel(JsonSettings::noiseDescription, NoiseModel::class)
 }
 
 class PetrinetSetupModel(initial: JsonPetrinetSetup)

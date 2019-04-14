@@ -12,8 +12,12 @@ import javafx.geometry.Pos
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
 import javafx.scene.control.TextField
+import javafx.scene.control.TitledPane
+import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import javafx.scene.paint.Color
 import javafx.util.Duration
+import org.processmining.models.time_driven_behavior.NoiseEvent
 import tornadofx.*
 
 
@@ -25,6 +29,7 @@ class SettingsView : View("Settings") {
     private val petrinetSetup = controller.petrinetSetupModel
     private val marking = controller.markingModel
     private val staticPriorities = controller.staticPrioritiesModel
+    private val noise = controller.noiseModel
     
     override val root = VBox()
     
@@ -95,8 +100,55 @@ class SettingsView : View("Settings") {
                 checkboxField(settings.isRemovingEmptyTraces)
                 checkboxField(settings.isRemovingUnfinishedTraces)
                 
-                checkboxField(settings.isUsingNoise)
                 
+                fun TitledPane.expandOn(prop: Property<Boolean>) {
+                    // one direction binding
+                    prop.onChange { checked -> this.isExpanded = checked!! }
+                }
+                
+                checkboxField(settings.isUsingNoise)
+                squeezebox {
+                    fold("Noise", settings.isUsingNoise.value) {
+                        expandOn(settings.isUsingNoise)
+                        
+                        fieldset {
+                            intField(noise.noiseLevel) {
+                                validRangeInt(1..100)
+                            }
+                            
+                            checkboxField(noise.isSkippingTransitions)
+                            checkboxField(noise.isUsingExternalTransitions)
+                            checkboxField(noise.isUsingInternalTransitions)
+                            arrayField(noise.internalTransitionIds)
+                            
+                            
+                            field("existingNoiseEvents") {
+                                fun eventsToString(newList: ObservableList<NoiseEvent>?) 
+                                        = newList?.joinToString("; ") { it.activity.toString() } ?: ""
+                                
+                                val lb = textfield(eventsToString(noise.existingNoiseEvents.value)) {
+                                    hgrow = Priority.ALWAYS
+                                    isEditable = false
+                                    style {
+                                        backgroundColor += Color.TRANSPARENT
+                                    }
+                                }
+                                noise.existingNoiseEvents.onChange { newList->
+                                    lb.textProperty().value = eventsToString(newList)
+                                }
+                                button("Edit") {
+                                    action {
+                                        NoiseEventsEditor(noise.existingNoiseEvents.value) { events ->
+                                            noise.existingNoiseEvents.value.setAll(events)
+                                        }.openWindow()
+                                    }
+                                }
+                            }
+                            
+//                            arrayField(noise.existingNoiseEvents)
+                        }
+                    }
+                }
                 
                 checkboxField(settings.isUsingStaticPriorities) {
                     action {
@@ -126,8 +178,9 @@ class SettingsView : View("Settings") {
                 }
                 
                 squeezebox {
-                    fold("Static priorities") {
-                        expandedProperty().bindBidirectional(settings.isUsingStaticPriorities)
+                    fold("Static priorities", settings.isUsingStaticPriorities.value) {
+                        expandOn(settings.isUsingStaticPriorities)
+                        
                         fieldset {
                             intField(staticPriorities.maxPriority) {
                                 validInt { value ->

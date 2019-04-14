@@ -87,12 +87,14 @@ class SettingsUIController : Controller() {
     val petrinetSetupModel = settingsModel.petrinetSetupModel
     val markingModel = petrinetSetupModel.markingModel
     val staticPrioritiesModel = settingsModel.staticPrioritiesModel
+    val noiseModel = settingsModel.noiseDescription
     
     val allModelsAreValid: BooleanBinding
         get() = settingsModel.valid
                 .and(petrinetSetupModel.valid)
                 .and(markingModel.valid)
                 .and(staticPrioritiesModel.valid)
+                .and(noiseModel.valid)
     
     
     /** Warning! this callback doesn't mean, that the settings are saved. */

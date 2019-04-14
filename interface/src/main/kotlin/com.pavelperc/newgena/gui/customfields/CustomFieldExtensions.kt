@@ -28,6 +28,13 @@ class QuiteIntConverter : StringConverter<Int>() {
     override fun fromString(string: String?) = string?.toIntOrNull() ?: 0
 }
 
+class QuiteLongConverter : StringConverter<Long>() {
+    override fun toString(obj: Long?) = obj.toString()
+    override fun fromString(string: String?) = string?.toLongOrNull() ?: 0
+}
+
+
+
 typealias Validator<T> = ValidationContext.(T) -> ValidationMessage?
 
 fun TextInputControl.validInt(
@@ -84,21 +91,21 @@ fun Pane.scrollablefieldset(op: EventTarget.() -> Unit) {
     }
 }
 
-/** Just int textField with a warning when it is not valid. */
-fun EventTarget.simpleIntField(intProp: Property<Int>, errorCounter: IntegerProperty? = null, op: TextField.() -> Unit = {}) {
-    textfield(intProp, QuiteIntConverter()) {
-        
-        val invalidIntDecorator = SimpleMessageDecorator("Not an int", ValidationSeverity.Error)
-        textProperty().onChange { input ->
-            if (input?.isInt() != true) {
-                addDecorator(invalidIntDecorator)
-                errorCounter?.apply { value += 1 }
-            } else {
-                removeDecorator(invalidIntDecorator)
-                errorCounter?.apply { value -= 1 }
+
+/** Just a Long textField, which is not bound to ItemViewModel. */
+fun EventTarget.simpleLongField(
+        longProp: Property<Long>,
+        validationContext: ValidationContext = ValidationContext(),
+        nextValidator: Validator<Long> = { null }
+) {
+    textfield(longProp, QuiteLongConverter()) {
+        validationContext.addValidator(this, ValidationTrigger.OnChange()) { value ->
+            when {
+                value == null -> error("Null")
+                !value.isLong() -> error("Not a Long")
+                else -> nextValidator(value.toLong())
             }
         }
-        op()
     }
 }
 

@@ -13,6 +13,7 @@ import org.processmining.utils.TimeDrivenLoggingSingleton
 
 import java.util.ArrayList
 import java.util.LinkedList
+import kotlin.random.Random
 
 private typealias WPlace = WeightedPlace<TimeDrivenToken, TimeDrivenPlace>
 
@@ -36,7 +37,7 @@ class TimeDrivenTransition(
     private val maxTimeDeviation: Long
     
     private val distortionType: Int
-        get() = random.nextInt(3)
+        get() = Random.nextInt(3)
     
     private val noiseEventsBasedOnSettings: List<NoiseEvent>
         get() {
@@ -208,8 +209,8 @@ class TimeDrivenTransition(
     }
     
     private fun startTransition(trace: XTrace, movementResult: MovementResult<TimeDrivenToken>, timeStamp: Long) {
-        var timeDeviation = (random.nextDouble() * (maxTimeDeviation + 1)).toLong()
-        if (random.nextBoolean()) {
+        var timeDeviation = (Random.nextDouble() * (maxTimeDeviation + 1)).toLong()
+        if (Random.nextBoolean()) {
             timeDeviation = -timeDeviation
         }
         val producedToken: TimeDrivenToken
@@ -236,7 +237,7 @@ class TimeDrivenTransition(
             val minDelay = resource.minDelayBetweenActions
             val maxDelay = resource.maxDelayBetweenActions
             val difference = maxDelay - minDelay
-            val actualDelay = random.nextLong() % (difference + 1)
+            val actualDelay = Random.nextLong() % (difference + 1)
             finishTime += minDelay + actualDelay
         }
         resource.setTime(finishTime)
@@ -248,7 +249,7 @@ class TimeDrivenTransition(
         val noiseEventList = LinkedList(noiseEvents)
         while (noiseEventList.size > 0) {
             println("Number of noise events: " + noiseEventList.size)
-            val noiseEvent = noiseEventList.removeAt(random.nextInt(noiseEventList.size))
+            val noiseEvent = noiseEventList.removeAt(Random.nextInt(noiseEventList.size))
             if (generationDescription.isUsingSynchronizationOnResources && !loggingSingleton.areResourcesAvailable(noiseEvent.activity, timestamp)) {
                 continue
             }
@@ -261,8 +262,8 @@ class TimeDrivenTransition(
                     loggingSingleton.log(trace, noiseEvent, timestamp, false)
                 }
             }
-            var timeDeviation = (random.nextDouble() * (noiseEvent.maxTimeDeviationSeconds + 1)).toLong()
-            if (random.nextBoolean()) {
+            var timeDeviation = (Random.nextDouble() * (noiseEvent.maxTimeDeviationSeconds + 1)).toLong()
+            if (Random.nextBoolean()) {
                 timeDeviation = -timeDeviation
             }
             val totalExecutionTime = (noiseEvent.executionTimeSeconds + timeDeviation) * 1000
@@ -280,7 +281,7 @@ class TimeDrivenTransition(
     private fun shouldDistortEvent(): Boolean {
         if (generationDescription.isUsingNoise) {
             val noiseDescription = generationDescription.noiseDescription
-            if (noiseDescription.noisedLevel >= random.nextInt(org.processmining.models.descriptions.GenerationDescriptionWithNoise.MAX_NOISE_LEVEL + 1))
+            if (noiseDescription.noisedLevel >= Random.nextInt(org.processmining.models.descriptions.GenerationDescriptionWithNoise.MAX_NOISE_LEVEL + 1))
             //use noise transitions
             {
                 if (noiseDescription.isUsingInternalTransitions || noiseDescription.isUsingExternalTransitions) {
@@ -331,7 +332,7 @@ class TimeDrivenTransition(
         val description = generationDescription
         val possibleTimeVariation = description.maximumIntervalBetweenActions - description.minimumIntervalBetweenActions
         for ((place, weight) in outputPlaces) {
-            val timeBetweenActions = description.minimumIntervalBetweenActions + random.nextInt(possibleTimeVariation + 1)
+            val timeBetweenActions = description.minimumIntervalBetweenActions + Random.nextInt(possibleTimeVariation + 1)
             val token = TimeDrivenToken(place, maxTimeStamp + timeBetweenActions * 1000)
             place.addToken(token)
         }
