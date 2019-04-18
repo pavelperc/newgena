@@ -9,6 +9,7 @@ import javafx.event.EventTarget
 import javafx.scene.control.TextField
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
+import javafx.scene.paint.Color
 import org.processmining.models.time_driven_behavior.NoiseEvent
 import tornadofx.*
 
@@ -32,6 +33,8 @@ class NoiseEventsEditor(
     
     fun EventTarget.header() {
         hbox {
+            prefWidth = 500.0
+            
             addClass(Styles.addItemRoot)
             val newEvent = ObservableNoiseEvent(NoiseEvent(""))
             val validationContext = ValidationContext()
@@ -101,8 +104,10 @@ class NoiseEventsEditor(
             }
             column("Delete", ObservableNoiseEvent::maxTimeDeviationSeconds) {
                 cellFormat {
-                    addClass(Styles.deleteButton)
                     graphic = button {
+                        style {
+                            backgroundColor += Color.TRANSPARENT
+                        }
                         graphic = Styles.closeIcon()
                         action {
                             objects.remove(rowItem)

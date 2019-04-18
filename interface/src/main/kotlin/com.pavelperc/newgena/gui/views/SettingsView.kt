@@ -5,6 +5,7 @@ import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import javafx.beans.property.IntegerProperty
 import javafx.beans.property.Property
 import javafx.collections.ObservableList
 import javafx.event.EventTarget
@@ -73,7 +74,7 @@ class SettingsView : View("Settings") {
                         if (map.values.any { it <= 0 })
                             return@xx error("All place counts should be positive.")
                         
-                        val input: Set<String> = map.keys ?: emptySet()
+                        val input: Set<String> = map.keys
                         val unknown = input - input.intersect(controller.placeIds)
                         if (controller.petrinet != null && unknown.isNotEmpty()) {
                             warning("Not found places: $unknown")
@@ -117,7 +118,14 @@ class SettingsView : View("Settings") {
                         expandOn(settings.isUsingNoise)
                         
                         fieldset {
-                            intField(noise.noiseLevel) {
+                            intField(noise.noiseLevel, fieldOp = {
+                                slider(1..100, noise.noiseLevel.value) {
+                                    blockIncrement = 1.0
+                                    valueProperty().bindBidirectional(noise.noiseLevel as IntegerProperty)
+                                }
+                            }) {
+                                minWidth = 50.0
+                                maxWidth = 50.0
                                 validRangeInt(1..100)
                             }
                             
@@ -128,8 +136,8 @@ class SettingsView : View("Settings") {
                             
                             
                             field("artificialNoiseEvents") {
-                                fun eventsToString(newList: ObservableList<NoiseEvent>?) 
-                                        = newList?.joinToString("; ") { it.activity.toString() } ?: ""
+                                fun eventsToString(newList: List<NoiseEvent>?) =
+                                        newList?.joinToString("; ") { it.activity.toString() } ?: ""
                                 
                                 val lb = textfield(eventsToString(noise.artificialNoiseEvents.value)) {
                                     hgrow = Priority.ALWAYS
@@ -138,18 +146,18 @@ class SettingsView : View("Settings") {
                                         backgroundColor += Color.TRANSPARENT
                                     }
                                 }
-                                noise.artificialNoiseEvents.onChange { newList->
+                                noise.artificialNoiseEvents.onChange { newList ->
                                     lb.textProperty().value = eventsToString(newList)
                                 }
                                 button("Edit") {
                                     action {
                                         NoiseEventsEditor(noise.artificialNoiseEvents.value) { events ->
-                                            noise.artificialNoiseEvents.value.setAll(events)
+                                            noise.artificialNoiseEvents.value = events.toMutableList()
                                         }.openWindow()
                                     }
                                 }
                             }
-                            
+
 //                            arrayField(noise.existingNoiseEvents)
                         }
                     }
@@ -372,7 +380,8 @@ class SettingsView : View("Settings") {
                 
             }
             
-            fun TextField.validateEdges(prop: Property<ObservableList<String>>) {
+            // TODO join validator and binding listProp to textField.
+            fun TextField.validateEdges(prop: Property<MutableList<String>>) {
                 prop.addValidator(this, ValidationTrigger.OnChange(300)) { value ->
                     val input = value?.toSet() ?: emptySet()
                     val unknown = input - input.intersect(controller.inputEdgeIds)

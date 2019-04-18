@@ -159,15 +159,14 @@ fun EventTarget.checkboxField(property: Property<Boolean>, op: CheckBox.() -> Un
             checkbox(property = property, op = op)
         }
 
-fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextField.() -> Unit = {}) =
+fun EventTarget.arrayField(listProp: Property<MutableList<String>>, op: TextField.() -> Unit = {}) =
         field(listProp.name) {
             val textProp = SimpleStringProperty(listProp.value.joinToString("; "))
             
             // bind bidirectional listProp and textProp:
-//            listProp.onChange { list ->
-//                println("ListProp changed!!")
-//                textProp.value = list?.joinToString("; ") ?: ""
-//            }
+            listProp.onChange { list ->
+                textProp.value = list?.joinToString("; ") ?: ""
+            }
             
             textProp.onChange { value ->
                 val splitted = (value ?: "")
@@ -176,10 +175,8 @@ fun EventTarget.arrayField(listProp: Property<ObservableList<String>>, op: TextF
                         .map { it.trimIndent() }
                         .filter { it.isNotEmpty() }
                         .toMutableList()
-                // don't replace the whole list!
-                // I don't know how it makes listProp invalidated, but it does.
-                listProp.value.setAll(splitted)
-//                println("New listProp: ${listProp.value.toList()}")
+                // replace the whole list!
+                listProp.value = splitted
             }
             textfield(textProp, op)
             
@@ -214,27 +211,35 @@ fun EventTarget.intMapField(
             fun splitString(string: String) = string
                     .trim('[', ']', '{', '}', ';', ',', ' ')
                     .split(';', ',')
+                    .filter { it.isNotBlank() }
                     .map {
                         val kv = it.split(":")
                         val k = kv.first().trim(' ')
                         val v = kv.getOrNull(1)?.trim(' ')?.toIntOrNull()
-                                ?: throw IllegalArgumentException("Pair $kv doesn't match pattern \"string:int\" .")
+                                ?: throw IllegalArgumentException("Value $it doesn't match pattern \"string:int\" .")
                         k to v
                     }.toMap()
             
             val viewModel = mapProp.viewModel
-            // textProp is now bound to ViewModel
+            // textProp is now bound to ViewModel, so we can add a validator.
             val textProp = SimpleStringProperty(viewModel, null, mapProp.value.makeString())
             
+            // this flag helps to prevent loop in validator and prop callback.
+            // Which leads sometimes to strange internal exception.
+            var changedPropFromValidator = false
+            
             // bind bidirectional mapProp and textProp:
-//            mapProp.onChange { map ->
-//                println("MapProp changed!!!!!")
-//                textProp.value = map?.makeString() ?: ""
-//            }
+            mapProp.onChange { map ->
+                if (!changedPropFromValidator) {
+                    textProp.value = map?.makeString() ?: ""
+                } else {
+                    changedPropFromValidator = false // caught.
+                }
+            }
             
             // we update map property inside a text property validator!!!
-            
             textfield(textProp) {
+                
                 // it's like onChange, but better!
                 validator { newString ->
                     val splitted = try {
@@ -243,11 +248,9 @@ fun EventTarget.intMapField(
                         return@validator error(e.message)
                     }
                     
+                    changedPropFromValidator = true
                     // replace the whole map!
-//                    mapProp.value.clear()
-//                    mapProp.value.putAll(splitted)
                     mapProp.value = splitted.toMutableMap()
-                    
                     
                     // end with another validator.
                     mapValidator(splitted)

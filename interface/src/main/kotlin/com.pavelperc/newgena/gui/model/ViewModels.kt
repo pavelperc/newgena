@@ -10,28 +10,27 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.full.primaryConstructor
 
 
-/** Binds mutableList to [ItemViewModel] as observableList property.*/
-fun <T, S> ItemViewModel<T>.bindList(prop: KMutableProperty1<T, out List<S>>) =
-        bind {
-            SimpleObjectProperty(null, prop.name, item?.let { prop.call(it) }?.observable() ?: observableList())
-        }
+/** Binds mutableList to [ItemViewModel] as list property.*/
+fun <T, S> ItemViewModel<T>.bindList(prop: KMutableProperty1<T, MutableList<S>>) =
+        bind(prop, forceObjectProperty = true)
 
 
-/** Binds mutableMap to [ItemViewModel] as observableMap property.*/
-fun <T, K, V> ItemViewModel<T>.bindMap(prop: KMutableProperty1<T, out MutableMap<K, V>>) =
-        bind(forceObjectProperty = true) {
-            //            SimpleObjectProperty(null, prop.name, item?.let { prop.call(it) }?.observable() ?: FXCollections.observableHashMap())
-            val fxProp = SimpleObjectProperty(null, prop.name, item?.let { prop.call(it) } ?: mutableMapOf())
-            
-            fxProp.onChange { map -> item?.let { prop.setter.call(it, map ?: mutableMapOf<K, V>()) } }
-            fxProp
-        }
+/** Binds mutableMap to [ItemViewModel] as map property.*/
+fun <T, K, V> ItemViewModel<T>.bindMap(prop: KMutableProperty1<T, MutableMap<K, V>>) =
+        bind(prop, forceObjectProperty = true)
 
+/** This is a subtype of [ItemViewModel], which allows to add inner models, from fields of [T]
+ * with function [bindModel]. It updates all inner models on [item] rebind and [commit].
+ * 
+ * @see <a href=https://edvin.gitbooks.io/tornadofx-guide/part1/11.%20Editing%20Models%20and%20Validation.html>ItemViewModel guide</a>
+ * @param T type of item, that this [ItemViewModel] holds in [ItemViewModel.item]. */
 abstract class NestingItemViewModel<T>(initial: T?) : ItemViewModel<T>(initial) {
     
     protected val innerModelsToProps = mutableMapOf<ItemViewModel<Any>, KProperty1<T, Any>>()
     
     
+    /** Bind inner [kmodel] class to field [prop] of current [item] of type [T].
+     * Now on [item] change [kmodel] item will be updated from [prop]. */
     fun <F, M : ItemViewModel<out F>> bindModel(prop: KProperty1<T, F>, kmodel: KClass<M>): M {
         
         val model = kmodel.primaryConstructor!!.call(prop.call(item))
@@ -43,7 +42,7 @@ abstract class NestingItemViewModel<T>(initial: T?) : ItemViewModel<T>(initial) 
     init {
         itemProperty.onChange { newItem ->
             innerModelsToProps.entries.forEach { (model, prop) ->
-                model.itemProperty.set(newItem?.let { prop.call(it) })
+                model.item = newItem?.let { prop.call(it) }
             }
         }
     }
@@ -58,7 +57,7 @@ abstract class NestingItemViewModel<T>(initial: T?) : ItemViewModel<T>(initial) 
 /**
  * A middleman between [JsonSettings] and ui.
  * Binds each property to observable, tracks validation,
- * can be reused for several [JsonSettings] objects.
+ * can be reused for several [JsonSettings] objects, which are stored as [item].
  */
 class SettingsModel(initial: JsonSettings) : NestingItemViewModel<JsonSettings>(initial) {
     

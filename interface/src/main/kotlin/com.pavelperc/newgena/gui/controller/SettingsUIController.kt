@@ -61,6 +61,7 @@ class SettingsUIController : Controller() {
     val markings: Pair<Marking, Marking>
         get() {
             val fromSettings = petrinet?.let { petrinet ->
+                markingModel.commit()
                 JsonSettingsBuilder.buildMarkingOnly(markingModel.item, petrinet)
             } ?: return emptyMarking() to emptyMarking()
             
