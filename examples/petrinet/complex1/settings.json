@@ -68,12 +68,12 @@
       "maxTimestampDeviationSeconds" : 0,
       "granularityType" : "MINUTES_5"
     },
-    "maximumIntervalBetweenActions" : 20,
-    "minimumIntervalBetweenActions" : 10,
     "isSeparatingStartAndFinish" : true,
-    "isUsingLifecycle" : false,
-    "isUsingComplexResourceSettings" : true,
     "isUsingResources" : false,
+    "isUsingComplexResourceSettings" : true,
+    "isUsingLifecycle" : false,
+    "minimumIntervalBetweenActions" : 10,
+    "maximumIntervalBetweenActions" : 20,
     "isUsingSynchronizationOnResources" : true
   }
 }

@@ -54,8 +54,6 @@ class SettingsUIController : Controller() {
         private set
     
     
-    
-    
     private var pnmlMarking = emptyMarking()
     
     val markings: Pair<Marking, Marking>
@@ -90,12 +88,12 @@ class SettingsUIController : Controller() {
     val staticPrioritiesModel = settingsModel.staticPrioritiesModel
     val noiseModel = settingsModel.noiseDescription
     
-    val allModelsAreValid: BooleanBinding
-        get() = settingsModel.valid
-                .and(petrinetSetupModel.valid)
-                .and(markingModel.valid)
-                .and(staticPrioritiesModel.valid)
-                .and(noiseModel.valid)
+    val allModelsAreValid: BooleanBinding =
+            settingsModel.valid
+                    .and(petrinetSetupModel.valid)
+                    .and(markingModel.valid)
+                    .and(staticPrioritiesModel.valid)
+                    .and(noiseModel.valid)
     
     
     /** Warning! not dirty callback doesn't mean, that the settings are saved. */

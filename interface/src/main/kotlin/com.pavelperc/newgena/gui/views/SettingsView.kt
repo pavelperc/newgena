@@ -10,10 +10,7 @@ import javafx.beans.property.Property
 import javafx.collections.ObservableList
 import javafx.event.EventTarget
 import javafx.geometry.Pos
-import javafx.scene.control.Alert
-import javafx.scene.control.Button
-import javafx.scene.control.TextField
-import javafx.scene.control.TitledPane
+import javafx.scene.control.*
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
@@ -266,19 +263,29 @@ class SettingsView : View("Settings") {
                     println(controller.jsonSettings)
                 }
             }
-            button("Save settings") {
-                shortcut("Ctrl+S")
-                enableWhen(controller.allModelsAreValid.and(controller.settingsAreNotSaved))
-                action {
-                    val result: Boolean
-                    if (controller.hasNewSettings.value) {
-                        result = controller.saveJsonSettingsAs()
-                    } else {
-                        result = controller.saveJsonSettings(controller.jsonSettingsPath.value)
+            vbox {
+                // just to bind tooltip!
+                button("Save settings") {
+                    shortcut("Ctrl+S")
+                    controller.allModelsAreValid.onChange { valid ->
+                        toggleClass(Styles.redButton, !valid)
+                        this@vbox.tooltip(if (!valid)
+                            "Some settings are invalid!" else null)
                     }
                     
-                    if (result)
-                        notification("Settings were saved.")
+                    enableWhen(controller.allModelsAreValid.and(controller.settingsAreNotSaved))
+                    
+                    action {
+                        val result: Boolean
+                        if (controller.hasNewSettings.value) {
+                            result = controller.saveJsonSettingsAs()
+                        } else {
+                            result = controller.saveJsonSettings(controller.jsonSettingsPath.value)
+                        }
+                        
+                        if (result)
+                            notification("Settings were saved.")
+                    }
                 }
             }
             

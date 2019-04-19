@@ -224,16 +224,14 @@ fun EventTarget.intMapField(
             // textProp is now bound to ViewModel, so we can add a validator.
             val textProp = SimpleStringProperty(viewModel, null, mapProp.value.makeString())
             
-            // this flag helps to prevent loop in validator and prop callback.
-            // Which leads sometimes to strange internal exception.
+            // this flag helps to prevent loop in validator and prop callback,
+            // which leads sometimes to strange internal textfield exception.
             var changedPropFromValidator = false
             
             // bind bidirectional mapProp and textProp:
             mapProp.onChange { map ->
                 if (!changedPropFromValidator) {
                     textProp.value = map?.makeString() ?: ""
-                } else {
-                    changedPropFromValidator = false // caught.
                 }
             }
             
@@ -247,10 +245,11 @@ fun EventTarget.intMapField(
                     } catch (e: IllegalArgumentException) {
                         return@validator error(e.message)
                     }
-                    
-                    changedPropFromValidator = true
+    
+                    changedPropFromValidator = true // do not update textProp again.
                     // replace the whole map!
                     mapProp.value = splitted.toMutableMap()
+                    changedPropFromValidator = false
                     
                     // end with another validator.
                     mapValidator(splitted)
