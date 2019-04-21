@@ -14,6 +14,7 @@ import com.pavelperc.newgena.models.markInhResetArcsByIds
 import com.pavelperc.newgena.models.pnmlId
 import com.pavelperc.newgena.utils.common.emptyMarking
 import com.pavelperc.newgena.utils.common.profile
+import guru.nidi.graphviz.engine.Graphviz
 import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
@@ -127,7 +128,7 @@ class SettingsUIController : Controller() {
     
     init {
         // grephviz: speedup first draw
-//        Graphviz.useDefaultEngines()
+        Graphviz.useDefaultEngines()
         
         // check if the entered file path is synchronized with the model.
         petrinetSetupModel.petrinetFile.onChange { enteredFile ->

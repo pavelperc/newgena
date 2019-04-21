@@ -10,7 +10,7 @@
       },
       "finalPlaceIds" : {
         "place7" : 2,
-        "place6" : 3
+        "place6" : 1
       },
       "isUsingInitialMarkingFromPnml" : false
     },
@@ -68,12 +68,12 @@
       "maxTimestampDeviationSeconds" : 0,
       "granularityType" : "MINUTES_5"
     },
-    "isSeparatingStartAndFinish" : true,
     "isUsingResources" : false,
-    "isUsingComplexResourceSettings" : true,
     "isUsingLifecycle" : false,
-    "minimumIntervalBetweenActions" : 10,
+    "isUsingSynchronizationOnResources" : true,
+    "isUsingComplexResourceSettings" : true,
     "maximumIntervalBetweenActions" : 20,
-    "isUsingSynchronizationOnResources" : true
+    "minimumIntervalBetweenActions" : 10,
+    "isSeparatingStartAndFinish" : true
   }
 }
