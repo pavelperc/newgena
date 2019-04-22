@@ -3,8 +3,13 @@
     "petrinetFile" : "examples/petrinet/simpleExample/simple.pnml",
     "inhibitorArcIds" : [ "arc1" ],
     "marking" : {
-      "initialPlaceIds" : { "place3": 2, "place2": 1 },
-      "finalPlaceIds" : { "place4": 2 },
+      "initialPlaceIds" : {
+        "place3" : 2,
+        "place2" : 1
+      },
+      "finalPlaceIds" : {
+        "place4" : 2
+      },
       "isUsingInitialMarkingFromPnml" : false
     },
     "resetArcIds" : [ "arc6" ]
@@ -16,9 +21,43 @@
   "isUsingStaticPriorities" : false,
   "isUsingTime" : false,
   "maxNumberOfSteps" : 100,
-  "noiseDescription" : null,
+  "noiseDescription" : {
+    "noiseLevel" : 5,
+    "isSkippingTransitions" : true,
+    "isUsingExternalTransitions" : true,
+    "isUsingInternalTransitions" : true,
+    "internalTransitionIds" : [ ],
+    "artificialNoiseEvents" : [ {
+      "activity" : "NoiseEvent",
+      "executionTimeSeconds" : 600,
+      "maxTimeDeviationSeconds" : 120
+    } ]
+  },
   "numberOfLogs" : 5,
   "numberOfTraces" : 10,
-  "staticPriorities" : null,
-  "timeDescription" : null
+  "staticPriorities" : {
+    "maxPriority" : 100,
+    "transitionIdsToPriorities" : { }
+  },
+  "timeDescription" : {
+    "simplifiedResources" : [ ],
+    "resourceGroups" : [ ],
+    "transitionIdsToDelays" : { },
+    "generationStart" : "2019-04-21T23:37:27.966Z",
+    "transitionIdsToResources" : { },
+    "timeDrivenNoise" : {
+      "isUsingTimestampNoise" : true,
+      "isUsingLifecycleNoise" : true,
+      "isUsingTimeGranularity" : true,
+      "maxTimestampDeviationSeconds" : 0,
+      "granularityType" : "MINUTES_5"
+    },
+    "isUsingLifecycle" : false,
+    "isUsingComplexResourceSettings" : true,
+    "minimumIntervalBetweenActions" : 10,
+    "maximumIntervalBetweenActions" : 20,
+    "isSeparatingStartAndFinish" : true,
+    "isUsingResources" : false,
+    "isUsingSynchronizationOnResources" : true
+  }
 }

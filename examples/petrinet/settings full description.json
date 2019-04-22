@@ -1,0 +1,153 @@
+{
+  // раздел настроек сети Петри
+  "petrinetSetup" : {
+    // путь к файлу pnml, указывается относительно запущенной программы.
+    "petrinetFile" : "examples\\petrinet\\complex1\\complex1.pnml",
+    // id дуг, которые необходимо заменить на ингибиторные в загруженной сети Петри.
+    "inhibitorArcIds" : [ "arc17" ]
+    // id дуг, которые необходимо заменить на дуги сброса в загруженной сети Петри.
+    "resetArcIds" : [ "arc12", "arc13" ],
+    // раздел разметки.
+    "marking" : {
+      // id исходных позиций из pnml.
+      "initialPlaceIds" : {
+        "place1" : 2,
+        "place2" : 1,
+        "place5" : 1
+      },
+      // id конечных позиций из pnml.
+      "finalPlaceIds" : {
+        "place7" : 2,
+        "place6" : 1
+      },
+      // использовать исходную разметку из pnml.
+      "isUsingInitialMarkingFromPnml" : false
+    }
+  },
+  // папка для вывода файлов с логами.
+  "outputFolder" : "xes-out",
+  // удаляем ли мы пустые трассы.
+  "isRemovingEmptyTraces" : true,
+  // удаляем ли мы трассы, не дошедшие до финальной разметки.
+  "isRemovingUnfinishedTraces" : true,
+  
+  // максимальное количество событий в трассе.
+  "maxNumberOfSteps" : 50,
+  // количество логов.
+  "numberOfLogs" : 5,
+  "numberOfTraces" : 10,
+  
+  // используем ли мы генерацию с приоритетами. Взаимоисключаемо с isUsingNoise и isUsingTime!!
+  "isUsingStaticPriorities" : false,
+
+  // секция описания приоритетов: не null, если isUsingStaticPriorities=true
+  "staticPriorities" : {
+    // максимальный приоритет
+    "maxPriority" : 100,
+    // словарь приоритетов. Переходы с более высоким приоритетом срабатывают раньше.
+    // словарь обязательно должен содержать все переходы.
+    "transitionIdsToPriorities" : {
+      "transition1" : 5,
+      "transition2" : 4,
+      "transition4" : 1,
+      "transition5" : 2,
+      "transition6" : 3
+    }
+  },
+  // используем ли мы генерацию шума
+  "isUsingNoise" : true,
+  // секция описания шума: не null, если isUsingNoise=true
+  "noiseDescription" : {
+    // уровень шума: от 1 до 100.
+    "noiseLevel" : 50,
+    // пропускаем ли мы переходы при записи в лог
+    "isSkippingTransitions" : true,
+    // добавляем ли мы искусственные события в лог.
+    "isUsingExternalTransitions" : true,
+    // добавляем ли мы существующие переоды в лог в качестве шума.
+    "isUsingInternalTransitions" : true,
+    // существующие переходы для шума.
+    "internalTransitionIds" : [ "transition1", "transition2" ],
+    // искусственные события для шума
+    "artificialNoiseEvents" : [ {
+      // имя события
+      "activity" : "NoiseEvent",
+      // время выполнения (используется только при генерации со временем)
+      "executionTimeSeconds" : 0,
+      // отклонение от времени выполнения
+      "maxTimeDeviationSeconds" : 0
+    }, {
+      // другой пример события
+      "activity" : "XXXXX",
+      "executionTimeSeconds" : 5,
+      "maxTimeDeviationSeconds" : 11
+    } ]
+  },
+
+  // используем ли мы генерацию c временными метками.
+  "isUsingTime" : false,
+  // секция описания времени: не null, если isUsingTime=true
+  "timeDescription" : {
+    // добавление ресурсов
+    "timeDescription" : {
+      // все упрощённые ресурсы (содержат только название)
+      "simplifiedResources" : [ "simpleResource1", "simpleResource2"],
+      // ресурсы по группам и ролям
+      "resourceGroups" : [ {
+        "name" : "group1",
+        "roles" : [ {
+          "name" : "role1",
+          "resources" : [ {
+            "name" : "resource1",
+            // через сколько миллисекунд данный ресурс считается свободным
+            "willBeFreed" : 10,
+            "minDelayBetweenActionsMillis" : 100,
+            "maxDelayBetweenActionsMillis" : 200
+          } ]
+        } ]
+      } ],
+      // задержки срабатываний переходов в секундах. Должны быть заполнены для всех переходов.
+      "transitionIdsToDelays" : {
+        "transition1" : {
+          "delay" : 2,
+          "deviation" : 1
+        }
+      },
+      // начало генерации
+      "generationStart" : "2019-04-22T01:17:48.509Z",
+      // сопостовление переходов ресурсам
+      "transitionIdsToResources" : {
+        "transition1" : {
+          "fullResourceNames" : [ {
+            "groupName" : "group1",
+            "roleName" : "role1",
+            "resourceName" : "resource1"
+          } ],
+          "simplifiedResourceNames" : [ ]
+        },
+        "transition2" : {
+          "fullResourceNames" : [ ],
+          "simplifiedResourceNames" : [ "simpleResource1", "simpleResource2" ]
+        }
+      },
+      // шум, связанный с временными метками.
+      "timeDrivenNoise" : {
+        "isUsingTimestampNoise" : true,
+        "isUsingLifecycleNoise" : true,
+        "isUsingTimeGranularity" : true,
+        "maxTimestampDeviationSeconds" : 0,
+        "granularityType" : "MINUTES_5"
+      },
+      // используем ли мы ресурсы
+      "isUsingResources" : true,
+      "isUsingLifecycle" : false,
+      "minimumIntervalBetweenActions" : 10,
+      "maximumIntervalBetweenActions" : 20,
+      "isSeparatingStartAndFinish" : true,
+      // используем ли мы ресурсы с группами и ролями.
+      "isUsingComplexResourceSettings" : true,
+      // синхронизация ресурсов
+      "isUsingSynchronizationOnResources" : true
+    }
+  }
+}

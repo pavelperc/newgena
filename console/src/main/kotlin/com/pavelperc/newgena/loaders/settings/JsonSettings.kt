@@ -9,7 +9,17 @@ import org.processmining.models.GenerationDescription
 import org.processmining.models.time_driven_behavior.GranularityTypes
 import org.processmining.models.time_driven_behavior.NoiseEvent
 import java.time.Instant
+import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.primaryConstructor
+
+
+private fun <T : Any> T?.nullToDefault(flag:Boolean, flagProp: KProperty<Boolean>, prop: KProperty<T>): T =
+        this ?: if (flag)
+            throw IllegalStateException("${prop.name} is null, but ${flagProp.name} is enabled.")
+        else (prop.returnType.classifier as KClass<T>).primaryConstructor!!.call()
+
 
 /** Json representation of all generation settings.
  * Represents all adjustable(!) parameters.
@@ -35,11 +45,11 @@ class JsonSettings() {
             isRemovingEmptyTraces: Boolean,
             isRemovingUnfinishedTraces: Boolean,
             isUsingNoise: Boolean,
-            noiseDescription: JsonNoise,
+            noiseDescription: JsonNoise? = null,
             isUsingStaticPriorities: Boolean,
-            staticPriorities: JsonStaticPriorities,
+            staticPriorities: JsonStaticPriorities? = null,
             isUsingTime: Boolean,
-            timeDescription: JsonTimeDescription
+            timeDescription: JsonTimeDescription? = null
     ) : this() {
         this.outputFolder = outputFolder
         this.petrinetSetup = petrinetSetup
@@ -49,11 +59,12 @@ class JsonSettings() {
         this.isRemovingEmptyTraces = isRemovingEmptyTraces
         this.isRemovingUnfinishedTraces = isRemovingUnfinishedTraces
         this.isUsingNoise = isUsingNoise
-        this.noiseDescription = noiseDescription
+        this.noiseDescription = noiseDescription.nullToDefault(isUsingNoise, ::isUsingNoise, ::noiseDescription)
+        
         this.isUsingStaticPriorities = isUsingStaticPriorities
-        this.staticPriorities = staticPriorities
+        this.staticPriorities = staticPriorities.nullToDefault(isUsingStaticPriorities, ::isUsingStaticPriorities, ::staticPriorities)
         this.isUsingTime = isUsingTime
-        this.timeDescription = timeDescription
+        this.timeDescription = timeDescription.nullToDefault(isUsingTime, ::isUsingTime, ::timeDescription)
     }
     
     // ----------------------------- VARIABLES: ---------------------------
@@ -247,7 +258,7 @@ object JsonResources {
         
         var name: String = "role"
         var resources = mutableListOf<Resource>(Resource())
-    
+        
         override fun toString() = reflectionToString(this)
     }
     
@@ -264,7 +275,7 @@ object JsonResources {
         var willBeFreed by NonNegativeLong(0L)
         var minDelayBetweenActionsMillis by NonNegativeLong(15 * 60 * 1000)
         var maxDelayBetweenActionsMillis by NonNegativeLong(20 * 60 * 1000)
-    
+        
         override fun toString() = reflectionToString(this)
     }
     
@@ -277,7 +288,7 @@ object JsonResources {
         
         var name: String = "group"
         var roles = mutableListOf<Role>(Role())
-    
+        
         override fun toString() = reflectionToString(this)
     }
     
@@ -296,7 +307,7 @@ object JsonResources {
         
         var fullResourceNames = mutableListOf<FullResourceName>()
         var simplifiedResourceNames = mutableListOf<String>()
-    
+        
         override fun toString() = reflectionToString(this)
     }
 }

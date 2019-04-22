@@ -59,6 +59,16 @@ dependencies {
     
 }
 
+compileJava {
+    options.compilerArgs += ["-parameters"] // for jackson constructor setup
+}
+
+jar {
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
