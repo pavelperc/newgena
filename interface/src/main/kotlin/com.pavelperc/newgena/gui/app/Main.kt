@@ -22,7 +22,7 @@ class MyApp: App(SettingsView::class, Styles::class) {
 
 fun main(args: Array<String>) {
     if (args.size > 0) {
-        println("Starting console with settings path: $args[0]")
+        println("Starting console with settings path: ${args[0]}")
         com.pavelperc.newgena.main(args)
     } else {
         println("Hello, starting gui.")

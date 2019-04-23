@@ -29,8 +29,10 @@ class PetrinetImageView : View("Petrinet Viewer.") {
     
     val drawArcIdsProp = SimpleBooleanProperty(true)
     val drawTransitionIdsProp = SimpleBooleanProperty(false)
+    val drawTransitionNamesProp = SimpleBooleanProperty(true)
     val drawLegendProp = SimpleBooleanProperty(true)
     val drawLabelProp = SimpleBooleanProperty(false)
+    val drawVerticalProp = SimpleBooleanProperty(false)
     
     
     fun draw() {
@@ -49,7 +51,9 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                     graphLabelStr = if (drawLabelProp.value) petrinet.label else "",
                     drawArcIds = drawArcIdsProp.value,
                     drawLegend = drawLegendProp.value,
-                    drawTransitionIds = drawTransitionIdsProp.value
+                    drawTransitionIds = drawTransitionIdsProp.value,
+                    drawTransitionNames = drawTransitionNamesProp.value,
+                    drawVertical = drawVerticalProp.value
             ).makeGraph()
         }
         
@@ -98,18 +102,26 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                     }
                     
                 }
-                checkbox("Show arc ids", drawArcIdsProp) {
+                checkbox("Draw vertical", drawVerticalProp) {
                     action { draw() }
                 }
-                checkbox("Show transition ids", drawTransitionIdsProp) {
+                label("  Show: ")
+                checkbox("Arc ids", drawArcIdsProp) {
                     action { draw() }
                 }
-                checkbox("Show Legend", drawLegendProp) {
+                checkbox("Transition ids", drawTransitionIdsProp) {
+                    action { draw() }
+                }
+                checkbox("Transition names", drawTransitionNamesProp) {
+                    action { draw() }
+                }
+                checkbox("Legend", drawLegendProp) {
                     action { draw() }
                 }
                 checkbox("Show label", drawLabelProp) {
                     action { draw() }
                 }
+                
                 
                 
             }

@@ -9,7 +9,7 @@ import java.util.Random
 /** Something like weighted arc. [weight] should be positive. */
 data class WeightedPlace<T : Token, P : Place<T>>(val place: P, val weight: Int = 1) {
     init {
-        if (weight < 1) throw IllegalArgumentException("Weight should be positive in $this")
+        if (weight < 0) throw IllegalArgumentException("Weight should not be negative in $this")
     }
 }
 

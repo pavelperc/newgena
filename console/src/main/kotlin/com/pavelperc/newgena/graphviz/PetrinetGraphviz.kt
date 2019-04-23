@@ -22,7 +22,9 @@ class PetrinetDrawer(
         val graphLabelStr: String = petrinet.label,
         val drawLegend: Boolean = true,
         val drawArcIds: Boolean = true,
-        val drawTransitionIds: Boolean = false
+        val drawTransitionIds: Boolean = false,
+        val drawTransitionNames: Boolean = true,
+        val drawVertical: Boolean = false
 ) {
     // circles
     private val circle = "●"
@@ -36,18 +38,31 @@ class PetrinetDrawer(
     
     
     private fun convert(): MutableGraph = graph(directed = true) {
-        graph[RankDir.LEFT_TO_RIGHT]
-
+        graph[Rank.MAX]
+        if (drawVertical) {
+            graph["size" eq "10,10"]
+            graph["overlap" eq "compress"]
+//            graph["scale" eq "10.0"]
+            graph["ratio" eq "compress"]
+            graph[RankDir.TOP_TO_BOTTOM]
+        } else {
+            graph[RankDir.LEFT_TO_RIGHT]
+        }
 //        graph["label" eq graphLabelStr]
         var labelHtml = graphLabelStr
         if (drawLegend) {
-            if (labelHtml != "") {
+            if (labelHtml.trim('\n') != "") {
                 labelHtml += "<br/>"
             }
             labelHtml += "$circle - initial marking, <font color=\"lightseagreen\">$circle</font>  - final marking"
         }
-        
-        graph[Label.html(labelHtml)]
+    
+    
+        // this condition fixes a strange error when labelHtml is empty
+        // and than the graphviz crashes because of the transition label!!
+        if (labelHtml.trim('\n') != "") {
+            graph[Label.html(labelHtml)]
+        }
         
         
         val places = petrinet.places.map {
@@ -56,10 +71,14 @@ class PetrinetDrawer(
         }
         
         petrinet.transitions.forEach {
+            var labelStr = ""
+            if (drawTransitionNames) labelStr += it.label
+            if (drawTransitionNames && drawTransitionIds) labelStr += "\n"
+            if (drawTransitionIds) labelStr += it.pnmlId
             mutNode(it.pnmlId).add(
                     Shape.RECTANGLE,
 //                    Label.of("${it.label}(${it.pnmlId})")
-                    Label.of(if (drawTransitionIds) "${it.label}\n${it.pnmlId}" else it.label)
+                    Label.raw(labelStr)
             )
         }
         
