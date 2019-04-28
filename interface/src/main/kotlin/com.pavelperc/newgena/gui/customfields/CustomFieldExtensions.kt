@@ -165,6 +165,7 @@ fun EventTarget.checkboxField(property: Property<Boolean>, op: CheckBox.() -> Un
 fun EventTarget.arrayField(
         listProp: Property<MutableList<String>>,
         predefinedValuesToHints: Map<String, String?> = emptyMap(),
+        hintName: String = "hint",
         listValidator: Validator<List<String>> = { null }
 ) =
         field(listProp.name) {
@@ -173,8 +174,6 @@ fun EventTarget.arrayField(
             // textProp is now bound to ViewModel, so we can add a validator.
             val textProp = SimpleStringProperty(viewModel, "${listProp.name}_text", listProp.value.joinToString("; "))
             
-            
-            var triggerValidator = true
             
             // bind bidirectional listProp and textProp:
             listProp.onChange { list ->
@@ -214,7 +213,12 @@ fun EventTarget.arrayField(
                 isFocusTraversable = false
                 action {
                     // make a copy of the list, because we can cancel editing.
-                    val arrayEditor = ArrayEditor(listProp.value.toList(), listProp.name + " editor", predefinedValuesToHints) { changedObjects ->
+                    val arrayEditor = ArrayEditor(
+                            listProp.value.toList(),
+                            listProp.name + " editor",
+                            predefinedValuesToHints,
+                            hintName
+                    ) { changedObjects ->
                         // set to textProp, textProp sets to list
                         textProp.value = changedObjects.joinToString("; ")
                     }
@@ -224,12 +228,6 @@ fun EventTarget.arrayField(
                 }
             }
         }
-
-fun <T> TextField.myBindAutoCompletion(suggestions: List<T>, op: AutoCompletionBinding<T>.() -> Unit = {}) {
-    TextFields.bindAutoCompletion(this, suggestions).apply {
-        op()
-    }
-}
 
 /** Fires onAction after completion. */
 fun <T> TextField.actionedAutoCompletion(suggestions: List<T>) {
@@ -241,14 +239,14 @@ fun <T> TextField.actionedAutoCompletion(suggestions: List<T>) {
 }
 
 
-
-
 val positiveRange = 1..Int.MAX_VALUE
 val nonNegativeRange = 0..Int.MAX_VALUE
 
 fun EventTarget.intMapField(
         mapProp: Property<MutableMap<String, Int>>,
         intValueRange: IntRange = positiveRange,
+        predefinedValuesToHints: Map<String, String?> = emptyMap(),
+        hintName: String = "hint",
         mapValidator: ValidationContext.(Map<String, Int>) -> ValidationMessage? = { null }
 ) =
         field(mapProp.name) {
@@ -271,32 +269,31 @@ fun EventTarget.intMapField(
             // textProp is now bound to ViewModel, so we can add a validator.
             val textProp = SimpleStringProperty(viewModel, "${mapProp.name}_text", mapProp.value.makeString())
             
-            // this flag helps to prevent loop in validator and prop callback,
-            // which leads sometimes to strange internal textfield exception.
-            var changedPropFromValidator = false
             
             // bind bidirectional mapProp and textProp:
             mapProp.onChange { map ->
-                if (!changedPropFromValidator) {
-                    textProp.value = map?.makeString() ?: ""
+                textProp.value = map?.makeString() ?: ""
+            }
+            
+            textProp.onChange { newString ->
+                try {
+                    val splitted = splitString(newString ?: "")
+                    // replace the whole map!
+                    mapProp.value = splitted.toMutableMap()
+                    
+                } catch (e: IllegalArgumentException) {
                 }
             }
             
-            // we update map property inside a text property validator!!!
             textfield(textProp) {
-                
                 // it's like onChange, but better!
                 validator { newString ->
                     val splitted = try {
                         splitString(newString ?: "")
                     } catch (e: IllegalArgumentException) {
+                        // split error
                         return@validator error(e.message)
                     }
-                    
-                    changedPropFromValidator = true // do not update textProp again.
-                    // replace the whole map!
-                    mapProp.value = splitted.toMutableMap()
-                    changedPropFromValidator = false
                     
                     // end with external validator.
                     mapValidator(splitted)
@@ -306,12 +303,18 @@ fun EventTarget.intMapField(
             button(graphic = FontAwesomeIconView(FontAwesomeIcon.EXPAND)) {
                 isFocusTraversable = false
                 action {
-                    val intMapEditor = IntMapEditor(mapProp.value, mapProp.name + " editor", intValueRange) { changedObjects ->
+                    val intMapEditor = IntMapEditor(
+                            mapProp.value,
+                            mapProp.name + " editor",
+                            intValueRange,
+                            predefinedValuesToHints,
+                            hintName
+                            ) { changedObjects ->
                         // set to textProp, textProp sets to mapProp
                         textProp.value = changedObjects.makeString()
                     }
                     
-                    intMapEditor.openWindow(resizable = false)
+                    intMapEditor.openWindow()
                 }
             }
         }

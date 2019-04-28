@@ -8,7 +8,7 @@ import tornadofx.*
 
 class Styles : Stylesheet() {
     companion object {
-        val itemRoot by cssclass()
+//        val itemRoot by cssclass()
         val deleteButton by cssclass()
         val intMapDeleteButton by cssclass()
         
@@ -19,7 +19,7 @@ class Styles : Stylesheet() {
         val greenButton by cssclass()
         val redButton by cssclass()
         val fieldSetFrame by cssclass()
-        val intMapEditorItem by cssclass()
+//        val intMapEditorItem by cssclass()
         val sortingPanel by cssclass()
         val upDownPanel by cssclass()
     
@@ -45,21 +45,21 @@ class Styles : Stylesheet() {
     init {
         val lightGrey = c("#E3E3E3")
         
-        itemRoot {
-//            padding = box(8.px)
-            
-            alignment = Pos.CENTER_LEFT
-        }
-        
-        intMapEditorItem {
-//            padding = box(8.px)
-            
-            alignment = Pos.CENTER_LEFT
-
-//            textField {
-//                backgroundColor += Color.TRANSPARENT
-//            }
-        }
+//        itemRoot {
+////            padding = box(8.px)
+//            
+//            alignment = Pos.CENTER_LEFT
+//        }
+//        
+//        intMapEditorItem {
+////            padding = box(8.px)
+//            
+//            alignment = Pos.CENTER_LEFT
+//
+////            textField {
+////                backgroundColor += Color.TRANSPARENT
+////            }
+//        }
         
         
         

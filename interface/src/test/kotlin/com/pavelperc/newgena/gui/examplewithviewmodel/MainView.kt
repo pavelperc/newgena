@@ -51,7 +51,7 @@ class MainView : View("Main View") {
                     }
                 }
                 
-                intMapField(person.friendAges)
+                intMapField(person.friendAges, predefinedValuesToHints = possibleFriends)
                 
                 field("isUsingBody") {
                     checkbox(property = person.isUsingBody)

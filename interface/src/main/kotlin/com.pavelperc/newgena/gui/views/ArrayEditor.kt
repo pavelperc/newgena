@@ -17,11 +17,14 @@ import tornadofx.*
 import tornadofx.controlsfx.bindAutoCompletion
 
 
+/** Allows to edit a string list.
+ * Hint is an additional representation of predefined values. */
 class ArrayEditor(
         initialObjects: List<String>,
         title: String = "Array Editor",
-        val predefinedValuesToHints: Map<String, String?> = mutableMapOf(),
-        val hintName: String = "hint",
+        private val predefinedValuesToHints: Map<String, String?> = mutableMapOf(),
+        /** Name of the hints for predefined values. */
+        private val hintName: String = "hint",
         val onSuccess: (List<String>) -> Unit = {}
 ) : Fragment(title) {
     
@@ -29,10 +32,6 @@ class ArrayEditor(
             .filter { (_, v) -> v != null && v.isNotEmpty() }
             .map { (k, v) -> v!! to k }
             .toMap()
-    
-    init {
-//        println("Created with: $initialObjects")
-    }
     
     val objects: ObservableList<String> = initialObjects.toMutableList().observable()
     
@@ -52,15 +51,23 @@ class ArrayEditor(
                 val valueProp = SimpleStringProperty("")
                 val hintProp = SimpleStringProperty("")
                 
+                valueProp.onChange { text ->
+                    hintProp.value = predefinedValuesToHints[text] ?: ""
+                }
+                hintProp.onChange { hint ->
+                    if (hint in predefinedHintsToValues) {
+                        valueProp.value = predefinedHintsToValues[hint]
+                    }
+                }
+                
                 // value
                 val tfValue = textfield(valueProp) {
                     useMaxWidth = true
                     hgrow = Priority.ALWAYS
                     prefWidth = 150.0
-                    
                     promptText = "Click enter to add."
+                    
                     action {
-                        println("ACTION!")
                         val text = valueProp.value
                         if (text.isNotEmpty()) {
                             objects.add(text)
@@ -71,16 +78,6 @@ class ArrayEditor(
                     actionedAutoCompletion(predefinedValuesToHints.keys.toList())
                 }
                 
-                valueProp.onChange { text ->
-                    if (text in predefinedValuesToHints) {
-                        hintProp.value = predefinedValuesToHints[text] ?: ""
-                    }
-                }
-                hintProp.onChange { hint ->
-                    if (hint in predefinedHintsToValues) {
-                        valueProp.value = predefinedHintsToValues[hint]
-                    }
-                }
                 
                 // hint
                 textfield(hintProp) {
@@ -185,7 +182,8 @@ class ArrayEditor(
     // -------- ONE CELL --------
     private fun ListCell<String>.oneCell() {
         graphic = hbox {
-            addClass(Styles.itemRoot)
+            alignment = Pos.CENTER_LEFT
+            
             upDownPanel(objects, item) {
                 removeWhen(editingProperty())
             }
@@ -193,9 +191,7 @@ class ArrayEditor(
             // setup a hint
             val hintProp = SimpleStringProperty(predefinedValuesToHints[item] ?: "")
             itemProperty().onChange { value ->
-                if (value in predefinedValuesToHints) {
-                    hintProp.value = predefinedValuesToHints[value] ?: ""
-                }
+                hintProp.value = predefinedValuesToHints[value] ?: ""
             }
             hintProp.onChange { hint ->
                 if (hint in predefinedHintsToValues) {

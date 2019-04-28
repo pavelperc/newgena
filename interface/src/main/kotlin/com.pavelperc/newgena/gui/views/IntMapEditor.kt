@@ -1,15 +1,14 @@
 package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.gui.app.Styles
+import com.pavelperc.newgena.gui.customfields.actionedAutoCompletion
 import com.pavelperc.newgena.gui.customfields.delayHack
 import com.pavelperc.newgena.gui.customfields.intSpinner
-import javafx.beans.property.Property
-import javafx.beans.property.SimpleIntegerProperty
-import javafx.beans.property.SimpleStringProperty
+import javafx.beans.property.*
 import javafx.collections.ObservableList
 import javafx.event.EventTarget
 import javafx.geometry.Pos
-import javafx.scene.control.Cell
+import javafx.scene.control.ListCell
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
@@ -17,10 +16,7 @@ import javafx.scene.layout.VBox
 import tornadofx.*
 
 
-private typealias SP = SimpleStringProperty
-private typealias IP = SimpleIntegerProperty
-private typealias SIPair = Pair<String, Int>
-
+/** Small arrows to swap elements in the listView. */
 fun <T> EventTarget.upDownPanel(objects: ObservableList<T>, item: T, op: VBox.() -> Unit = {}) {
     vbox {
         addClass(Styles.upDownPanel)
@@ -45,13 +41,26 @@ fun <T> EventTarget.upDownPanel(objects: ObservableList<T>, item: T, op: VBox.()
 }
 
 
-/** Allows to edit a map<String, Int> */
+/** Allows to edit a map<String, Int>.
+ * Hint is an additional representation of predefined values. */
 class IntMapEditor(
         initialObjects: Map<String, Int>,
         title: String = "Map Editor",
         val intValueRange: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
+        val predefinedValuesToHints: Map<String, String?> = emptyMap(),
+        /** Name of the hints for predefined values. */
+        private val hintName: String = "hint",
         val onSuccess: (Map<String, Int>) -> Unit = {}
 ) : Fragment(title) {
+    
+    private val predefinedHintsToValues = predefinedValuesToHints
+            .filter { (_, v) -> v != null && v.isNotEmpty() }
+            .map { (k, v) -> v!! to k }
+            .toMap()
+    
+    val showHint = SimpleBooleanProperty(predefinedValuesToHints.size > 0)
+    
+    
     class MutablePair(string: String, int: Int) {
         val stringProp = SimpleStringProperty(string)
         val intProp = SimpleIntegerProperty(int) as Property<Int>
@@ -61,52 +70,132 @@ class IntMapEditor(
         
         fun toPair() = stringProp.value to intProp.value
     }
-
-//    val errorCounter = SimpleIntegerProperty(0)
     
     
     val objects = initialObjects.entries.map { (k, v) -> MutablePair(k, v) }.observable()
     
     override val root = vbox {
         style {
-            padding = box(1.em, 1.em, 0.em, 1.em)
+            padding = box(1.em)
         }
         
         header()
         
         listview(objects) {
-            //            fitToWidth(this@vbox)
+            isEditable = true
             
             addEventFilter(KeyEvent.KEY_PRESSED) {
                 if (it.code == KeyCode.DELETE && selectedItem != null) {
                     objects.remove(selectedItem)
                 }
             }
+    
+            useMaxSize = true
+            vgrow = Priority.ALWAYS
             
-            cellFormat { (stringProp, intProp) ->
-                // -------- ONE CELL --------
-                graphic = hbox {
-                    addClass(Styles.intMapEditorItem)
-                    upDownPanel(objects, item)
-                    
-                    textfield(stringProp) {
-                        hgrow = Priority.ALWAYS
-                    }
-                    
-                    intSpinner(intProp, intValueRange) {
-                        maxWidth = 100.0
-                    }
-                    
-                    button(graphic = Styles.closeIcon()) {
-                        addClass(Styles.intMapDeleteButton)
-                        isFocusTraversable = false
-                        action { objects.remove(item) }
-                    }
-                }
+            cellFormat {
+                oneCell(it)
             }
         }
     }
     
+    // -------- ONE CELL --------
+    private fun ListCell<MutablePair>.oneCell(mutablePair: MutablePair) {
+        val (stringProp, intProp) = mutablePair
+        
+        graphic = hbox {
+            alignment = Pos.CENTER_LEFT
+            upDownPanel(objects, item)
+            
+            // setup a hint
+            val hintProp = SimpleStringProperty(predefinedValuesToHints[stringProp.value] ?: "")
+            stringProp.onChange { newString ->
+                hintProp.value = predefinedValuesToHints[newString] ?: ""
+            }
+            hintProp.onChange { hint ->
+                if (hint in predefinedHintsToValues) {
+                    stringProp.value = predefinedHintsToValues[hint]
+                }
+            }
+            
+            // look:
+            hbox {
+                alignment = Pos.CENTER
+                hgrow = Priority.ALWAYS
+                removeWhen { editingProperty() }
+                style {
+                    padding = box(0.px, 10.px, 0.px, 5.px)
+                }
+                
+                label(stringProp) {
+                    setId(Styles.contentLabel)
+                    hgrow = Priority.ALWAYS
+                    useMaxSize = true
+                }
+                label(hintProp) {
+                    paddingLeft = 5
+                    
+                    removeWhen { showHint.not() }
+//                    useMaxSize = true
+//                    hgrow = Priority.ALWAYS
+                    setId(Styles.contentLabel)
+                }
+            }
+            
+            // edit
+            hbox {
+                alignment = Pos.CENTER
+                hgrow = Priority.ALWAYS
+                removeWhen { editingProperty().not() }
+                
+                // value
+                val tfValue = textfield(stringProp) {
+                    hgrow = Priority.ALWAYS
+                    useMaxWidth = true
+                    prefWidth = 100.0
+                    
+                    action { commitEdit(item) }
+                    promptText = "Edit value."
+                    
+                    actionedAutoCompletion(predefinedValuesToHints.keys.toList())
+                    
+                    
+                }
+                // jump on value on editing start.
+                whenVisible { tfValue.requestFocus() }
+                
+                // hint
+                textfield(hintProp) {
+                    prefWidth = 100.0
+                    useMaxWidth = true
+                    hgrow = Priority.ALWAYS
+                    promptText = "Search by $hintName"
+                    
+                    removeWhen { showHint.not() }
+                    
+                    // TODO remove mutableProperty??? for what is it
+                    // we must have an opportunity to cancel!!!
+                    // but only for string, not int!
+                    
+                    action { commitEdit(item) }
+                    actionedAutoCompletion(predefinedHintsToValues.keys.toList())
+                }
+            }
+            
+            // look and edit
+            intSpinner(intProp, intValueRange) {
+                maxWidth = 100.0
+            }
+            
+            button(graphic = Styles.closeIcon()) {
+                addClass(Styles.intMapDeleteButton)
+                isFocusTraversable = false
+                action { objects.remove(item) }
+            }
+        }
+    }
+    
+    // ---HEADER:---
     fun EventTarget.header() {
         vbox {
             addClass(Styles.addItemRoot)
@@ -116,37 +205,74 @@ class IntMapEditor(
                         delayHack(100)
                     }
                 }
-                var canAdd = true
-                val lastNumber = SimpleIntegerProperty(1) as Property<Int>
-                val lastText = SimpleStringProperty("")
-                // counts errors in lastNumber textfield
-                val localErrorCounter = SimpleIntegerProperty(0)
-        
+                
+                val numberProp = SimpleIntegerProperty(1) as Property<Int>
+                val textProp = SimpleStringProperty("")
+                val hintProp = SimpleStringProperty("")
+                
+                textProp.onChange { text ->
+                        hintProp.value = predefinedValuesToHints[text] ?: ""
+                }
+                hintProp.onChange { hint ->
+                    if (hint in predefinedHintsToValues) {
+                        textProp.value = predefinedHintsToValues[hint]
+                    }
+                }
+                
+                
                 fun commit(): Boolean {
-                    if (lastText.value.isNotEmpty() && localErrorCounter.value == 0) {
-                        objects.add(MutablePair(lastText.value, lastNumber.value))
-                        lastNumber.value = 1
+                    // TODO: do not allow duplicates!!!!
+                    if (textProp.value.isNotEmpty()) {
+                        objects.add(MutablePair(textProp.value, numberProp.value))
+                        numberProp.value = 1
                         return true
                     }
                     return false
                 }
-        
-                textfield(lastText) {
-                    promptText = "Click enter to add."
+                
+                // text
+                val tfText = textfield(textProp) {
+                    useMaxWidth = true
                     hgrow = Priority.ALWAYS
+                    prefWidth = 150.0
+                    promptText = "Click enter to add."
+                    
                     action {
                         if (commit()) {
                             selectAll()
                         }
                     }
+                    
+                    actionedAutoCompletion(predefinedValuesToHints.keys.toList())
                 }
-                intSpinner(lastNumber, intValueRange) {
+                
+                // hint
+                textfield(hintProp) {
+                    useMaxWidth = true
+                    hgrow = Priority.ALWAYS
+                    prefWidth = 150.0
+                    
+                    removeWhen { showHint.not() }
+                    promptText = "Search by $hintName"
+                    action {
+                        if (commit()) {
+                            selectAll()
+                            tfText.selectAll()
+                        }
+                    }
+                    
+                    actionedAutoCompletion(predefinedHintsToValues.keys.toList())
+                }
+                
+                
+                // number
+                intSpinner(numberProp, intValueRange) {
                     maxWidth = 100.0
                     editor.action {
                         commit()
                     }
                 }
-        
+                
                 button("save") {
                     shortcut("Ctrl+S")
                     tooltip("Ctrl+S")
@@ -163,6 +289,12 @@ class IntMapEditor(
                     }
                 }
             }
+            
+            if (predefinedValuesToHints.size > 0) {
+                checkbox("Show $hintName", showHint)
+            }
+            
+            // Sorting:
             hbox {
                 alignment = Pos.CENTER_LEFT
                 addClass(Styles.sortingPanel)
@@ -186,6 +318,18 @@ class IntMapEditor(
                 button("Values↑") {
                     action {
                         objects.sortByDescending { it.intProp.value }
+                    }
+                }
+                button("${hintName}↓") {
+                    removeWhen { showHint.not() }
+                    action {
+                        objects.sortBy { predefinedValuesToHints[it.stringProp.value] ?: "" }
+                    }
+                }
+                button("${hintName}↑") {
+                    removeWhen { showHint.not() }
+                    action {
+                        objects.sortByDescending { predefinedValuesToHints[it.stringProp.value] ?: "" }
                     }
                 }
             }
