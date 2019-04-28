@@ -1,18 +1,20 @@
 package com.pavelperc.newgena.gui.examplewithviewmodel
 
-import com.pavelperc.newgena.gui.app.Styles
-import com.pavelperc.newgena.gui.customfields.arrayField
-import com.pavelperc.newgena.gui.customfields.intMapField
-import com.pavelperc.newgena.gui.views.ArrayEditor
-import javafx.beans.property.SimpleStringProperty
+import com.pavelperc.newgena.gui.customfields.*
 import tornadofx.*
 import ui.model.Body
 import ui.model.Person
 import ui.model.PersonModel
-import java.util.regex.Pattern
 
 class MainView : View("Main View") {
     override val root = Form()
+    
+    
+    override fun onBeforeShow() {
+        super.onBeforeShow()
+        println("onBeforeShow")
+        person.validate()
+    }
     
     
     val person = PersonModel(Person())
@@ -20,25 +22,34 @@ class MainView : View("Main View") {
     
     init {
         with(root) {
-            
             fieldset {
                 field("name") {
                     textfield(person.name).required()
                 }
-                field("age") {
-                    textfield(person.age) {
-                        validator { newValue ->
-                            when {
-                                newValue == null -> error("Null")
-                                !newValue.isInt() -> error("Not an Int")
-                                newValue.toInt() < 0 -> error("Age should be positive")
-                                else -> null
-                            }
+                
+                intField(person.age) {
+                    validInt { newValue ->
+                        when {
+                            newValue < 0 -> error("Age should not be negative.")
+                            else -> null
                         }
                     }
                 }
                 
-                arrayField(person.friends)
+                val nameRegex = Regex("""[A-Z][a-z]*""")
+                
+                val possibleFriends = mutableMapOf(
+                        "Vanya" to "good boy",
+                        "Misha" to "bad boy",
+                        "Tolya" to "something between"
+                        )
+                
+                
+                arrayField(person.friends, possibleFriends) { list ->
+                    list.firstOrNull { !it.matches(nameRegex) }?.let {
+                        error("Name $it doesn't match ${nameRegex.pattern}.")
+                    }
+                }
                 
                 intMapField(person.friendAges)
                 
@@ -79,6 +90,9 @@ class MainView : View("Main View") {
                 }
             }
             
+            
+            println("Validator props:")
+            println(person.validationContext.validators.map { it.property.viewModelFacade?.name })
             
         }
     }

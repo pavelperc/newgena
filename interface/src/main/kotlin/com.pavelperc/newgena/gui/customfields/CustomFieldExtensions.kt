@@ -6,7 +6,6 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleStringProperty
-import javafx.collections.ObservableList
 import javafx.event.EventTarget
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
@@ -18,9 +17,12 @@ import org.controlsfx.control.Notifications
 import tornadofx.*
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
-import javafx.beans.property.IntegerProperty
+import javafx.event.ActionEvent
+import javafx.event.EventHandler
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.Pane
+import org.controlsfx.control.textfield.AutoCompletionBinding
+import org.controlsfx.control.textfield.TextFields
 
 
 class QuiteIntConverter : StringConverter<Int>() {
@@ -42,8 +44,8 @@ fun TextInputControl.validInt(
 ) {
     this.validator { value ->
         when {
-            value == null -> error("Null")
-            !value.isInt() -> error("Not an Int")
+            value == null -> error("Null.")
+            !value.isInt() -> error("Not an Int.")
             else -> nextValidator(value.toInt())
         }
     }
@@ -55,7 +57,7 @@ fun TextInputControl.validUint(
 ) {
     validInt { value ->
         when {
-            value < 0 -> error("Should be positive")
+            value < 0 -> error("Should not be negative.")
             else -> nextValidator(value)
         }
     }
@@ -92,7 +94,7 @@ fun Pane.scrollablefieldset(op: EventTarget.() -> Unit) {
 }
 
 
-/** Just a Long textField, which is not bound to ItemViewModel. */
+/** Just a Long textField outside a fieldset, which is not bound to ItemViewModel. */
 fun EventTarget.simpleLongField(
         longProp: Property<Long>,
         validationContext: ValidationContext = ValidationContext(),
@@ -159,17 +161,28 @@ fun EventTarget.checkboxField(property: Property<Boolean>, op: CheckBox.() -> Un
             checkbox(property = property, op = op)
         }
 
-fun EventTarget.arrayField(listProp: Property<MutableList<String>>, op: TextField.() -> Unit = {}) =
+
+fun EventTarget.arrayField(
+        listProp: Property<MutableList<String>>,
+        predefinedValuesToHints: Map<String, String?> = emptyMap(),
+        listValidator: Validator<List<String>> = { null }
+) =
         field(listProp.name) {
-            val textProp = SimpleStringProperty(listProp.value.joinToString("; "))
+            
+            val viewModel = listProp.viewModel
+            // textProp is now bound to ViewModel, so we can add a validator.
+            val textProp = SimpleStringProperty(viewModel, "${listProp.name}_text", listProp.value.joinToString("; "))
+            
+            
+            var triggerValidator = true
             
             // bind bidirectional listProp and textProp:
             listProp.onChange { list ->
                 textProp.value = list?.joinToString("; ") ?: ""
             }
             
-            textProp.onChange { value ->
-                val splitted = (value ?: "")
+            textProp.onChange { newString ->
+                val splitted = (newString ?: "")
                         .trim('[', ']', '{', '}', ';', ',')
                         .split(';', ',')
                         .map { it.trimIndent() }
@@ -178,21 +191,56 @@ fun EventTarget.arrayField(listProp: Property<MutableList<String>>, op: TextFiel
                 // replace the whole list!
                 listProp.value = splitted
             }
-            textfield(textProp, op)
+            
+            textfield(textProp) {
+                
+                // it's like onChange, but better!
+                validator { newString ->
+                    //                    println("Validating ${textProp.name}: \"$newString\"")
+                    
+                    val splitted = (newString ?: "")
+                            .trim('[', ']', '{', '}', ';', ',')
+                            .split(';', ',')
+                            .map { it.trimIndent() }
+                            .filter { it.isNotEmpty() }
+                            .toMutableList()
+                    
+                    // end with external validator.
+                    listValidator(splitted)
+                }
+            }
             
             button(graphic = FontAwesomeIconView(FontAwesomeIcon.EXPAND)) {
                 isFocusTraversable = false
                 action {
                     // make a copy of the list, because we can cancel editing.
-                    val arrayEditor = ArrayEditor(listProp.value.toList(), listProp.name + " editor") { changedObjects ->
+                    val arrayEditor = ArrayEditor(listProp.value.toList(), listProp.name + " editor", predefinedValuesToHints) { changedObjects ->
                         // set to textProp, textProp sets to list
                         textProp.value = changedObjects.joinToString("; ")
                     }
-                    
-                    arrayEditor.openWindow(resizable = false)
+
+//                    arrayEditor.openWindow(resizable = false)
+                    arrayEditor.openWindow()
                 }
             }
         }
+
+fun <T> TextField.myBindAutoCompletion(suggestions: List<T>, op: AutoCompletionBinding<T>.() -> Unit = {}) {
+    TextFields.bindAutoCompletion(this, suggestions).apply {
+        op()
+    }
+}
+
+/** Fires onAction after completion. */
+fun <T> TextField.actionedAutoCompletion(suggestions: List<T>) {
+    TextFields.bindAutoCompletion(this, suggestions).apply {
+        onAutoCompleted = EventHandler {
+            this@actionedAutoCompletion.fireEvent(ActionEvent())
+        }
+    }
+}
+
+
 
 
 val positiveRange = 1..Int.MAX_VALUE
@@ -201,7 +249,6 @@ val nonNegativeRange = 0..Int.MAX_VALUE
 fun EventTarget.intMapField(
         mapProp: Property<MutableMap<String, Int>>,
         intValueRange: IntRange = positiveRange,
-        op: TextField.() -> Unit = {},
         mapValidator: ValidationContext.(Map<String, Int>) -> ValidationMessage? = { null }
 ) =
         field(mapProp.name) {
@@ -222,7 +269,7 @@ fun EventTarget.intMapField(
             
             val viewModel = mapProp.viewModel
             // textProp is now bound to ViewModel, so we can add a validator.
-            val textProp = SimpleStringProperty(viewModel, null, mapProp.value.makeString())
+            val textProp = SimpleStringProperty(viewModel, "${mapProp.name}_text", mapProp.value.makeString())
             
             // this flag helps to prevent loop in validator and prop callback,
             // which leads sometimes to strange internal textfield exception.
@@ -245,16 +292,15 @@ fun EventTarget.intMapField(
                     } catch (e: IllegalArgumentException) {
                         return@validator error(e.message)
                     }
-    
+                    
                     changedPropFromValidator = true // do not update textProp again.
                     // replace the whole map!
                     mapProp.value = splitted.toMutableMap()
                     changedPropFromValidator = false
                     
-                    // end with another validator.
+                    // end with external validator.
                     mapValidator(splitted)
                 }
-                op()
             }
             
             button(graphic = FontAwesomeIconView(FontAwesomeIcon.EXPAND)) {

@@ -37,7 +37,7 @@ class Person {
 
     var isUsingBody = true
 
-    var friends = mutableListOf("Friend1", "Friend2")
+    var friends = mutableListOf("Ivan", "Alex")
     
     var friendAges = mutableMapOf("A" to 1, "B" to 2)
 
@@ -62,7 +62,7 @@ fun KMutableProperty<Double>.toPropDouble() = toPropAny(Double::toString, String
 class PersonModel(person: Person) : ItemViewModel<Person>(person) {
 
     val name = bind(Person::name)
-    val age = bind { item::age.toPropInt() }
+    val age = bind(Person::age)
 
     val surname = bind(Person::surname)
 

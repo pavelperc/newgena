@@ -387,19 +387,16 @@ class SettingsView : View("Settings") {
                 
             }
             
-            // TODO join validator and binding listProp to textField.
-            fun TextField.validateEdges(prop: Property<MutableList<String>>) {
-                prop.addValidator(this, ValidationTrigger.OnChange(300)) { value ->
-                    val input = value?.toSet() ?: emptySet()
-                    val unknown = input - input.intersect(controller.inputEdgeIds)
-                    if (controller.petrinet != null && unknown.isNotEmpty()) {
-                        warning("Not found input edges: $unknown")
-                    } else null
-                }
+            val validateEdges: Validator<List<String>> = { list ->
+                val input = list.toSet()
+                val unknown = input - input.intersect(controller.inputEdgeIds)
+                if (controller.petrinet != null && unknown.isNotEmpty()) {
+                    warning("Not found input edges: $unknown")
+                } else null
             }
             
-            arrayField(petrinetSetup.inhibitorArcIds) { validateEdges(petrinetSetup.inhibitorArcIds) }
-            arrayField(petrinetSetup.resetArcIds) { validateEdges(petrinetSetup.resetArcIds) }
+            arrayField(petrinetSetup.inhibitorArcIds, listValidator = validateEdges)
+            arrayField(petrinetSetup.resetArcIds, listValidator = validateEdges)
 
 //            field {
 //                button("update arcs in petrinet") {
