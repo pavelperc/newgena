@@ -224,7 +224,7 @@ fun EventTarget.arrayField(
                     }
 
 //                    arrayEditor.openWindow(resizable = false)
-                    arrayEditor.openWindow()
+                    arrayEditor.openWindow(escapeClosesWindow = false)
                 }
             }
         }
@@ -314,22 +314,10 @@ fun EventTarget.intMapField(
                         textProp.value = changedObjects.makeString()
                     }
                     
-                    intMapEditor.openWindow()
+                    intMapEditor.openWindow(escapeClosesWindow = false)
                 }
             }
         }
-
-
-//fun <A, B> Property<A>.bindWithConverter(other: Property<B>, toOther: (me: A) -> B, fromOther: (he: B) -> A) {
-//    // recursion????
-//    this.onChange { changed ->
-//        other.value = toOther(changed!!)
-//    }
-//    other.onChange { changed ->
-//        this.value = fromOther(changed!!)
-//    }
-//}
-
 
 fun UIComponent.notification(
         title: String = "",

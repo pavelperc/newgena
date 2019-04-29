@@ -61,12 +61,32 @@ class IntMapEditor(
     val showHint = SimpleBooleanProperty(predefinedValuesToHints.size > 0)
     
     
-    class MutablePair(string: String, int: Int) {
-        val stringProp = SimpleStringProperty(string)
-        val intProp = SimpleIntegerProperty(int) as Property<Int>
+    data class MutablePair(
+            var string: String,
+            var int: Int
+    ) {
+        fun toPair() = string to int
+    }
+    
+    inner class MutablePairModel(initial: MutablePair) : ItemViewModel<MutablePair>(initial) {
+        val stringProp = bind(MutablePair::string)
+        val intProp = bind(MutablePair::int, autocommit = true)
         
-        operator fun component1() = stringProp
-        operator fun component2() = intProp
+        val hintProp = SimpleStringProperty(predefinedValuesToHints[stringProp.value] ?: "")
+        
+        init {
+            // setup a hint
+            stringProp.onChange { newString ->
+                // reset the hint if the value is unknown
+                hintProp.value = predefinedValuesToHints[newString] ?: ""
+            }
+            hintProp.onChange { hint ->
+                // update the value if the hint was found.
+                if (hint in predefinedHintsToValues) {
+                    stringProp.value = predefinedHintsToValues[hint]
+                }
+            }
+        }
         
         fun toPair() = stringProp.value to intProp.value
     }
@@ -89,108 +109,12 @@ class IntMapEditor(
                     objects.remove(selectedItem)
                 }
             }
-    
+            
             useMaxSize = true
             vgrow = Priority.ALWAYS
             
             cellFormat {
                 oneCell(it)
-            }
-        }
-    }
-    
-    // -------- ONE CELL --------
-    private fun ListCell<MutablePair>.oneCell(mutablePair: MutablePair) {
-        val (stringProp, intProp) = mutablePair
-        
-        graphic = hbox {
-            alignment = Pos.CENTER_LEFT
-            upDownPanel(objects, item)
-            
-            // setup a hint
-            val hintProp = SimpleStringProperty(predefinedValuesToHints[stringProp.value] ?: "")
-            stringProp.onChange { newString ->
-                hintProp.value = predefinedValuesToHints[newString] ?: ""
-            }
-            hintProp.onChange { hint ->
-                if (hint in predefinedHintsToValues) {
-                    stringProp.value = predefinedHintsToValues[hint]
-                }
-            }
-            
-            // look:
-            hbox {
-                alignment = Pos.CENTER
-                hgrow = Priority.ALWAYS
-                removeWhen { editingProperty() }
-                style {
-                    padding = box(0.px, 10.px, 0.px, 5.px)
-                }
-                
-                label(stringProp) {
-                    setId(Styles.contentLabel)
-                    hgrow = Priority.ALWAYS
-                    useMaxSize = true
-                }
-                label(hintProp) {
-                    paddingLeft = 5
-                    
-                    removeWhen { showHint.not() }
-//                    useMaxSize = true
-//                    hgrow = Priority.ALWAYS
-                    setId(Styles.contentLabel)
-                }
-            }
-            
-            // edit
-            hbox {
-                alignment = Pos.CENTER
-                hgrow = Priority.ALWAYS
-                removeWhen { editingProperty().not() }
-                
-                // value
-                val tfValue = textfield(stringProp) {
-                    hgrow = Priority.ALWAYS
-                    useMaxWidth = true
-                    prefWidth = 100.0
-                    
-                    action { commitEdit(item) }
-                    promptText = "Edit value."
-                    
-                    actionedAutoCompletion(predefinedValuesToHints.keys.toList())
-                    
-                    
-                }
-                // jump on value on editing start.
-                whenVisible { tfValue.requestFocus() }
-                
-                // hint
-                textfield(hintProp) {
-                    prefWidth = 100.0
-                    useMaxWidth = true
-                    hgrow = Priority.ALWAYS
-                    promptText = "Search by $hintName"
-                    
-                    removeWhen { showHint.not() }
-                    
-                    // TODO remove mutableProperty??? for what is it
-                    // we must have an opportunity to cancel!!!
-                    // but only for string, not int!
-                    
-                    action { commitEdit(item) }
-                    actionedAutoCompletion(predefinedHintsToValues.keys.toList())
-                }
-            }
-            
-            // look and edit
-            intSpinner(intProp, intValueRange) {
-                maxWidth = 100.0
-            }
-            
-            button(graphic = Styles.closeIcon()) {
-                addClass(Styles.intMapDeleteButton)
-                isFocusTraversable = false
-                action { objects.remove(item) }
             }
         }
     }
@@ -206,24 +130,15 @@ class IntMapEditor(
                     }
                 }
                 
-                val numberProp = SimpleIntegerProperty(1) as Property<Int>
-                val textProp = SimpleStringProperty("")
-                val hintProp = SimpleStringProperty("")
+                val model = MutablePairModel(MutablePair("", 1))
                 
-                textProp.onChange { text ->
-                        hintProp.value = predefinedValuesToHints[text] ?: ""
-                }
-                hintProp.onChange { hint ->
-                    if (hint in predefinedHintsToValues) {
-                        textProp.value = predefinedHintsToValues[hint]
-                    }
-                }
-                
+                val numberProp = model.intProp
+                val textProp = model.stringProp
+                val hintProp = model.hintProp
                 
                 fun commit(): Boolean {
-                    // TODO: do not allow duplicates!!!!
-                    if (textProp.value.isNotEmpty()) {
-                        objects.add(MutablePair(textProp.value, numberProp.value))
+                    if (!textProp.value.isBlank() && model.commit()) {
+                        objects.add(model.item.copy())
                         numberProp.value = 1
                         return true
                     }
@@ -240,6 +155,13 @@ class IntMapEditor(
                     action {
                         if (commit()) {
                             selectAll()
+                        }
+                    }
+                    validator(ValidationTrigger.OnChange()) { newString ->
+                        when {
+                            newString == null -> error("Should not be null.")
+                            objects.map { it.string }.contains(newString) -> error("Duplicate.")
+                            else -> null
                         }
                     }
                     
@@ -302,36 +224,151 @@ class IntMapEditor(
                 button("Keys↓") {
                     alignment = Pos.BOTTOM_CENTER
                     action {
-                        objects.sortBy { it.stringProp.value }
+                        objects.sortBy { it.string }
                     }
                 }
                 button("Keys↑") {
                     action {
-                        objects.sortByDescending { it.stringProp.value }
+                        objects.sortByDescending { it.string }
                     }
                 }
                 button("Values↓") {
                     action {
-                        objects.sortBy { it.intProp.value }
+                        objects.sortBy { it.int }
                     }
                 }
                 button("Values↑") {
                     action {
-                        objects.sortByDescending { it.intProp.value }
+                        objects.sortByDescending { it.int }
                     }
                 }
                 button("${hintName}↓") {
                     removeWhen { showHint.not() }
                     action {
-                        objects.sortBy { predefinedValuesToHints[it.stringProp.value] ?: "" }
+                        objects.sortBy { predefinedValuesToHints[it.string] ?: "" }
                     }
                 }
                 button("${hintName}↑") {
                     removeWhen { showHint.not() }
                     action {
-                        objects.sortByDescending { predefinedValuesToHints[it.stringProp.value] ?: "" }
+                        objects.sortByDescending { predefinedValuesToHints[it.string] ?: "" }
                     }
                 }
+            }
+        }
+    }
+    
+    // -------- ONE CELL --------
+    private fun ListCell<MutablePair>.oneCell(mutablePair: MutablePair) {
+        val model = MutablePairModel(mutablePair)
+        
+        val intProp = model.intProp
+        val stringProp = model.stringProp
+        val hintProp = model.hintProp
+        
+        addEventFilter(KeyEvent.KEY_PRESSED) {
+            if (it.code == KeyCode.ESCAPE) {
+                cancelEdit()
+            }
+        }
+        
+        
+        graphic = hbox {
+            alignment = Pos.CENTER_LEFT
+            upDownPanel(objects, item)
+            
+            // look:
+            hbox {
+                alignment = Pos.CENTER
+                hgrow = Priority.ALWAYS
+                removeWhen { editingProperty() }
+                style {
+                    padding = box(0.px, 10.px, 0.px, 5.px)
+                }
+                
+                label(stringProp) {
+                    setId(Styles.contentLabel)
+                    hgrow = Priority.ALWAYS
+                    useMaxSize = true
+                }
+                label(hintProp) {
+                    paddingLeft = 5
+                    
+                    removeWhen { showHint.not() }
+//                    useMaxSize = true
+//                    hgrow = Priority.ALWAYS
+                    setId(Styles.contentLabel)
+                }
+            }
+            
+            // edit
+            hbox {
+                alignment = Pos.CENTER
+                hgrow = Priority.ALWAYS
+                removeWhen { editingProperty().not() }
+                
+                
+                editingProperty().onChange { isEditing ->
+                    // stopped editing
+                    if (!isEditing) {
+//                        println("stopped editing!!")
+                        model.hintProp.value = predefinedValuesToHints[stringProp.value] ?: ""
+                        model.rollback()
+                    }
+                }
+                
+                fun commit() {
+                    if (model.commit()) {
+                        commitEdit(model.item!!)
+                    }
+                }
+                
+                // value
+                val tfValue = textfield(stringProp) {
+                    hgrow = Priority.ALWAYS
+                    useMaxWidth = true
+                    prefWidth = 100.0
+                    
+                    action { commit() }
+                    promptText = "Edit value."
+                    
+                    actionedAutoCompletion(predefinedValuesToHints.keys.toList())
+    
+                    validator(ValidationTrigger.OnChange()) { newString ->
+                        when {
+                            newString == null -> error("Should not be null.")
+                            newString.isBlank() -> error("Should not be blank.")
+                            objects.map { it.string }.contains(newString) -> error("Duplicate.")
+                            else -> null
+                        }
+                    }
+                }
+                // jump on value on editing start.
+                whenVisible { tfValue.requestFocus() }
+                
+                // hint
+                textfield(hintProp) {
+                    prefWidth = 100.0
+                    useMaxWidth = true
+                    hgrow = Priority.ALWAYS
+                    promptText = "Search by $hintName"
+                    
+                    removeWhen { showHint.not() }
+                    
+                    action { commit() }
+                    actionedAutoCompletion(predefinedHintsToValues.keys.toList())
+                }
+            }
+            
+            // look and edit
+            intSpinner(intProp, intValueRange) {
+                maxWidth = 100.0
+            }
+            
+            button(graphic = Styles.closeIcon()) {
+                addClass(Styles.intMapDeleteButton)
+                isFocusTraversable = false
+                action { objects.remove(item) }
             }
         }
     }

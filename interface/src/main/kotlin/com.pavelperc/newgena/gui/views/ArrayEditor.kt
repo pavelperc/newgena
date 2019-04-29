@@ -181,6 +181,12 @@ class ArrayEditor(
     
     // -------- ONE CELL --------
     private fun ListCell<String>.oneCell() {
+        addEventFilter(KeyEvent.KEY_PRESSED) {
+            if (it.code == KeyCode.ESCAPE) {
+                cancelEdit()
+            }
+        }
+        
         graphic = hbox {
             alignment = Pos.CENTER_LEFT
             
