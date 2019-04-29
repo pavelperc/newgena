@@ -174,7 +174,7 @@ class ArrayEditor(
             }
             
             focusedProperty().onChange { focused ->
-                if (!focused) {
+                if (!focused && editingIndex == -1) {
                     selectionModel.clearSelection()
                 }
             }

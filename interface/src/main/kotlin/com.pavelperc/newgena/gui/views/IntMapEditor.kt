@@ -113,7 +113,7 @@ class IntMapEditor(
             }
     
             focusedProperty().onChange { focused ->
-                if (!focused) {
+                if (!focused && editingIndex == -1) {
                     selectionModel.clearSelection()
                 }
             }
@@ -343,12 +343,11 @@ class IntMapEditor(
                     promptText = "Edit value."
                     
                     actionedAutoCompletion(predefinedValuesToHints.keys.toList())
-    
                     validator(ValidationTrigger.OnChange()) { newString ->
                         when {
                             newString == null -> error("Should not be null.")
                             newString.isBlank() -> error("Should not be blank.")
-                            objects.map { it.string }.contains(newString) -> error("Duplicate.")
+                            objects.any { it.string == newString && it.string != item.string} -> error("Duplicate.")
                             else -> null
                         }
                     }
