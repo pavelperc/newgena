@@ -14,7 +14,6 @@ import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
 import tornadofx.*
-import tornadofx.controlsfx.bindAutoCompletion
 
 
 /** Allows to edit a string list.
@@ -27,6 +26,9 @@ class ArrayEditor(
         private val hintName: String = "hint",
         val onSuccess: (List<String>) -> Unit = {}
 ) : Fragment(title) {
+    
+    private val hintNameUpper = hintName.first().toUpperCase() + hintName.substring(1)
+    
     
     private val predefinedHintsToValues = predefinedValuesToHints
             .filter { (_, v) -> v != null && v.isNotEmpty() }
@@ -118,7 +120,9 @@ class ArrayEditor(
             }
             
             if (predefinedValuesToHints.size > 0) {
-                checkbox("Show $hintName", showHint)
+                checkbox("Show $hintName", showHint) {
+                    isFocusTraversable = false
+                }
             }
             
             // Sorting:
@@ -137,13 +141,13 @@ class ArrayEditor(
                         objects.sortByDescending { it }
                     }
                 }
-                button("${hintName}↓") {
+                button("${hintNameUpper}↓") {
                     removeWhen { showHint.not() }
                     action {
                         objects.sortBy { predefinedValuesToHints[it] ?: "" }
                     }
                 }
-                button("${hintName}↑") {
+                button("${hintNameUpper}↑") {
                     removeWhen { showHint.not() }
                     action {
                         objects.sortByDescending { predefinedValuesToHints[it] ?: "" }
@@ -166,6 +170,12 @@ class ArrayEditor(
             addEventFilter(KeyEvent.KEY_PRESSED) {
                 if (it.code == KeyCode.DELETE && selectedItem != null) {
                     objects.remove(selectedItem)
+                }
+            }
+            
+            focusedProperty().onChange { focused ->
+                if (!focused) {
+                    selectionModel.clearSelection()
                 }
             }
             

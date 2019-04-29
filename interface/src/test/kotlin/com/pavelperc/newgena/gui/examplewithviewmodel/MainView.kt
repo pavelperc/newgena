@@ -42,16 +42,18 @@ class MainView : View("Main View") {
                         "Vanya" to "good boy",
                         "Misha" to "bad boy",
                         "Tolya" to "something between"
-                        )
+                )
                 
                 
-                arrayField(person.friends, possibleFriends) { list ->
+                arrayField(person.friends, { possibleFriends }) { list ->
                     list.firstOrNull { !it.matches(nameRegex) }?.let {
                         error("Name $it doesn't match ${nameRegex.pattern}.")
                     }
                 }
                 
-                intMapField(person.friendAges, predefinedValuesToHints = possibleFriends)
+                intMapField(person.friendAges, predefinedValuesToHints = {
+                    person.friends.value.map { it to possibleFriends[it] }.toMap()
+                })
                 
                 field("isUsingBody") {
                     checkbox(property = person.isUsingBody)

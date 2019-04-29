@@ -36,22 +36,35 @@ class SettingsUIController : Controller() {
     
     var petrinet: ResetInhibitorNet? = null
         private set(value) {
-            placeIds = value?.places?.map { it.pnmlId }?.toSet() ?: emptySet()
-            transitionIds = value?.transitions?.map { it.pnmlId }?.toSet() ?: emptySet()
-            inputEdgeIds = value?.transitions?.flatMap { value.getInEdges(it) }?.map { it.pnmlId }?.toSet() ?: emptySet()
+            placeIdsWithHints = value?.places
+                    ?.map { it.pnmlId to (it.label ?: "") }
+                    ?.toMap()
+                    ?: emptyMap()
+            
+            transitionIdsWithHints = value?.transitions
+                    ?.map { it.pnmlId to (it.label ?: "") }
+                    ?.toMap()
+                    ?: emptyMap()
+            
+            inputEdgeIdsWithHints = value?.transitions
+                    ?.flatMap { value.getInEdges(it) }
+                    ?.map { it.pnmlId to "${it.source.pnmlId}->${it.target.pnmlId}" }
+                    ?.toMap()
+                    ?: emptyMap()
+            
             field = value
         }
     
-    /** Place pnml ids of loaded petrinet, or empty set */
-    var placeIds: Set<String> = emptySet()
+    /** Place pnml ids of loaded petrinet, or empty map. Hints are labels. */
+    var placeIdsWithHints: Map<String, String> = emptyMap()
         private set
     
-    /** Arc pnml ids of loaded petrinet, or empty set */
-    var inputEdgeIds: Set<String> = emptySet()
+    /** Arc pnml ids of loaded petrinet, or empty map. Hints are "sourceId->targetId" */
+    var inputEdgeIdsWithHints: Map<String, String> = emptyMap()
         private set
     
-    /** Transition pnml ids of loaded petrinet, or empty set */
-    var transitionIds: Set<String> = emptySet()
+    /** Transition pnml ids of loaded petrinet, or empty map. Hints are labels. */
+    var transitionIdsWithHints: Map<String, String> = emptyMap()
         private set
     
     

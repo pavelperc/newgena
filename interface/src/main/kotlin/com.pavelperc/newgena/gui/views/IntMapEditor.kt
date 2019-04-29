@@ -53,6 +53,8 @@ class IntMapEditor(
         val onSuccess: (Map<String, Int>) -> Unit = {}
 ) : Fragment(title) {
     
+    private val hintNameUpper = hintName.first().toUpperCase() + hintName.substring(1)
+    
     private val predefinedHintsToValues = predefinedValuesToHints
             .filter { (_, v) -> v != null && v.isNotEmpty() }
             .map { (k, v) -> v!! to k }
@@ -107,6 +109,12 @@ class IntMapEditor(
             addEventFilter(KeyEvent.KEY_PRESSED) {
                 if (it.code == KeyCode.DELETE && selectedItem != null) {
                     objects.remove(selectedItem)
+                }
+            }
+    
+            focusedProperty().onChange { focused ->
+                if (!focused) {
+                    selectionModel.clearSelection()
                 }
             }
             
@@ -213,7 +221,9 @@ class IntMapEditor(
             }
             
             if (predefinedValuesToHints.size > 0) {
-                checkbox("Show $hintName", showHint)
+                checkbox("Show $hintName", showHint) {
+                    isFocusTraversable = false
+                }
             }
             
             // Sorting:
@@ -221,37 +231,37 @@ class IntMapEditor(
                 alignment = Pos.CENTER_LEFT
                 addClass(Styles.sortingPanel)
                 label("Sort: ")
-                button("Keys↓") {
+                button("Strings↓") {
                     alignment = Pos.BOTTOM_CENTER
                     action {
                         objects.sortBy { it.string }
                     }
                 }
-                button("Keys↑") {
+                button("Strings↑") {
                     action {
                         objects.sortByDescending { it.string }
                     }
                 }
-                button("Values↓") {
-                    action {
-                        objects.sortBy { it.int }
-                    }
-                }
-                button("Values↑") {
-                    action {
-                        objects.sortByDescending { it.int }
-                    }
-                }
-                button("${hintName}↓") {
+                button("${hintNameUpper}↓") {
                     removeWhen { showHint.not() }
                     action {
                         objects.sortBy { predefinedValuesToHints[it.string] ?: "" }
                     }
                 }
-                button("${hintName}↑") {
+                button("${hintNameUpper}↑") {
                     removeWhen { showHint.not() }
                     action {
                         objects.sortByDescending { predefinedValuesToHints[it.string] ?: "" }
+                    }
+                }
+                button("Numbers↓") {
+                    action {
+                        objects.sortBy { it.int }
+                    }
+                }
+                button("Numbers↑") {
+                    action {
+                        objects.sortByDescending { it.int }
                     }
                 }
             }

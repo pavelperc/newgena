@@ -7,7 +7,6 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.property.IntegerProperty
 import javafx.beans.property.Property
-import javafx.collections.ObservableList
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.control.*
@@ -72,7 +71,7 @@ class SettingsView : View("Settings") {
                             return@xx error("All place counts should be positive.")
                         
                         val input: Set<String> = map.keys
-                        val unknown = input - input.intersect(controller.placeIds)
+                        val unknown = input - input.intersect(controller.placeIdsWithHints.keys)
                         if (controller.petrinet != null && unknown.isNotEmpty()) {
                             warning("Not found places: $unknown")
                         } else {
@@ -81,8 +80,18 @@ class SettingsView : View("Settings") {
                     }
                     
                     checkboxField(marking.isUsingInitialMarkingFromPnml)
-                    intMapField(marking.initialPlaceIds, mapValidator = validatePlaces)
-                    intMapField(marking.finalPlaceIds, mapValidator = validatePlaces)
+                    intMapField(
+                            marking.initialPlaceIds,
+                            mapValidator = validatePlaces,
+                            predefinedValuesToHints = { controller.placeIdsWithHints },
+                            hintName = "label"
+                    )
+                    intMapField(
+                            marking.finalPlaceIds,
+                            mapValidator = validatePlaces,
+                            predefinedValuesToHints = { controller.placeIdsWithHints },
+                            hintName = "label"
+                    )
                 }
                 
                 
@@ -129,7 +138,11 @@ class SettingsView : View("Settings") {
                             checkboxField(noise.isSkippingTransitions)
                             checkboxField(noise.isUsingExternalTransitions)
                             checkboxField(noise.isUsingInternalTransitions)
-                            arrayField(noise.internalTransitionIds)
+                            arrayField(
+                                    noise.internalTransitionIds,
+                                    predefinedValuesToHints = { controller.transitionIdsWithHints },
+                                    hintName = "labels"
+                            )
                             
                             
                             field("artificialNoiseEvents") {
@@ -178,11 +191,11 @@ class SettingsView : View("Settings") {
                     }
                     
                     val input: Set<String> = map.keys
-                    val unknown = input - input.intersect(controller.transitionIds)
+                    val unknown = input - input.intersect(controller.transitionIdsWithHints.keys)
                     if (unknown.isNotEmpty()) {
                         warning("Not found transitions: $unknown")
                         
-                    } else if (map.size < controller.transitionIds.size) {
+                    } else if (map.size < controller.transitionIdsWithHints.size) {
                         return@xx warning("Not enough priorities defined!!")
                     } else {
                         null
@@ -205,7 +218,11 @@ class SettingsView : View("Settings") {
                                     staticPriorities.validate() // run both field to validate
                                 }
                             }
-                            intMapField(staticPriorities.transitionIdsToPriorities) { map ->
+                            intMapField(
+                                    staticPriorities.transitionIdsToPriorities,
+                                    predefinedValuesToHints = { controller.transitionIdsWithHints },
+                                    hintName = "label"
+                            ) { map ->
                                 validatePriorities(map)
                             }
                         }
@@ -389,14 +406,24 @@ class SettingsView : View("Settings") {
             
             val validateEdges: Validator<List<String>> = { list ->
                 val input = list.toSet()
-                val unknown = input - input.intersect(controller.inputEdgeIds)
+                val unknown = input - input.intersect(controller.inputEdgeIdsWithHints.keys)
                 if (controller.petrinet != null && unknown.isNotEmpty()) {
                     warning("Not found input edges: $unknown")
                 } else null
             }
             
-            arrayField(petrinetSetup.inhibitorArcIds, listValidator = validateEdges)
-            arrayField(petrinetSetup.resetArcIds, listValidator = validateEdges)
+            arrayField(
+                    petrinetSetup.inhibitorArcIds,
+                    listValidator = validateEdges,
+                    predefinedValuesToHints = { controller.inputEdgeIdsWithHints },
+                    hintName = "hint"
+            )
+            arrayField(
+                    petrinetSetup.resetArcIds,
+                    listValidator = validateEdges,
+                    predefinedValuesToHints = { controller.inputEdgeIdsWithHints },
+                    hintName = "hint"
+            )
 
 //            field {
 //                button("update arcs in petrinet") {

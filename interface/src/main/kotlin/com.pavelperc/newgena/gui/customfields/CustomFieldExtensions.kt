@@ -164,7 +164,7 @@ fun EventTarget.checkboxField(property: Property<Boolean>, op: CheckBox.() -> Un
 
 fun EventTarget.arrayField(
         listProp: Property<MutableList<String>>,
-        predefinedValuesToHints: Map<String, String?> = emptyMap(),
+        predefinedValuesToHints: () -> Map<String, String?> = { emptyMap() },
         hintName: String = "hint",
         listValidator: Validator<List<String>> = { null }
 ) =
@@ -216,7 +216,7 @@ fun EventTarget.arrayField(
                     val arrayEditor = ArrayEditor(
                             listProp.value.toList(),
                             listProp.name + " editor",
-                            predefinedValuesToHints,
+                            predefinedValuesToHints(),
                             hintName
                     ) { changedObjects ->
                         // set to textProp, textProp sets to list
@@ -245,7 +245,7 @@ val nonNegativeRange = 0..Int.MAX_VALUE
 fun EventTarget.intMapField(
         mapProp: Property<MutableMap<String, Int>>,
         intValueRange: IntRange = positiveRange,
-        predefinedValuesToHints: Map<String, String?> = emptyMap(),
+        predefinedValuesToHints: () -> Map<String, String?> = { emptyMap() },
         hintName: String = "hint",
         mapValidator: ValidationContext.(Map<String, Int>) -> ValidationMessage? = { null }
 ) =
@@ -307,7 +307,7 @@ fun EventTarget.intMapField(
                             mapProp.value,
                             mapProp.name + " editor",
                             intValueRange,
-                            predefinedValuesToHints,
+                            predefinedValuesToHints(),
                             hintName
                             ) { changedObjects ->
                         // set to textProp, textProp sets to mapProp
