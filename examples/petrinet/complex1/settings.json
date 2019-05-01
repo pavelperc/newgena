@@ -19,7 +19,7 @@
   "outputFolder" : "xes-out",
   "isRemovingEmptyTraces" : true,
   "isRemovingUnfinishedTraces" : true,
-  "isUsingNoise" : false,
+  "isUsingNoise" : true,
   "isUsingStaticPriorities" : false,
   "isUsingTime" : false,
   "maxNumberOfSteps" : 50,
@@ -69,10 +69,10 @@
       "granularityType" : "MINUTES_5"
     },
     "isUsingSynchronizationOnResources" : true,
-    "isUsingResources" : false,
     "isUsingLifecycle" : false,
-    "maximumIntervalBetweenActions" : 20,
+    "isUsingResources" : false,
     "isSeparatingStartAndFinish" : true,
+    "maximumIntervalBetweenActions" : 20,
     "isUsingComplexResourceSettings" : true,
     "minimumIntervalBetweenActions" : 10
   }

@@ -21,10 +21,18 @@ fun <T, K, V> ItemViewModel<T>.bindMap(prop: KMutableProperty1<T, MutableMap<K, 
 
 /** This is a subtype of [ItemViewModel], which allows to add inner models, from fields of [T]
  * with function [bindModel]. It updates all inner models on [item] rebind and [commit].
- * 
+ *
  * @see <a href=https://edvin.gitbooks.io/tornadofx-guide/part1/11.%20Editing%20Models%20and%20Validation.html>ItemViewModel guide</a>
  * @param T type of item, that this [ItemViewModel] holds in [ItemViewModel.item]. */
 abstract class NestingItemViewModel<T>(initial: T?) : ItemViewModel<T>(initial) {
+    
+    /** This and all inner models. */
+    val allModels: List<ItemViewModel<*>>
+        get() = listOf(this) + innerModelsToProps.keys.flatMap {
+            if (it is NestingItemViewModel<*>)
+                it.allModels
+            else listOf(it)
+        }
     
     protected val innerModelsToProps = mutableMapOf<ItemViewModel<Any>, KProperty1<T, Any>>()
     
@@ -127,6 +135,13 @@ class NoiseModel(initial: JsonNoise)
     val internalTransitionIds = bindList(JsonNoise::internalTransitionIds)
     
     val artificialNoiseEvents = bindList(JsonNoise::artificialNoiseEvents) // NoiseEvent class
+}
+
+class TimeModel(initial: JsonTimeDescription)
+    : NestingItemViewModel<JsonTimeDescription>(initial) {
+    
+    val transitionIdsToDelays = bindMap(JsonTimeDescription::transitionIdsToDelays)
+    
 }
 
 

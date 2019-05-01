@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit
  * Created on 03.03.2014
  */
 
-class NoiseEvent @JvmOverloads constructor(
+data class NoiseEvent @JvmOverloads constructor(
         var activity: Any,
         /** in seconds */
         var executionTimeSeconds: Long = DEFAULT_EXECUTION_TIME,

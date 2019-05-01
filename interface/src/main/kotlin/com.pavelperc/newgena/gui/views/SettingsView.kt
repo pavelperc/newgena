@@ -119,6 +119,8 @@ class SettingsView : View("Settings") {
                             settings.isUsingStaticPriorities.value = false
                     }
                 }
+                
+                // --- NOISE ---
                 squeezebox {
                     fold("Noise", settings.isUsingNoise.value) {
                         expandOn(settings.isUsingNoise)
@@ -149,7 +151,7 @@ class SettingsView : View("Settings") {
                                 fun eventsToString(newList: List<NoiseEvent>?) =
                                         newList?.joinToString("; ") { it.activity.toString() } ?: ""
                                 
-                                val lb = textfield(eventsToString(noise.artificialNoiseEvents.value)) {
+                                val tf = textfield(eventsToString(noise.artificialNoiseEvents.value)) {
                                     hgrow = Priority.ALWAYS
                                     isEditable = false
                                     style {
@@ -157,13 +159,13 @@ class SettingsView : View("Settings") {
                                     }
                                 }
                                 noise.artificialNoiseEvents.onChange { newList ->
-                                    lb.textProperty().value = eventsToString(newList)
+                                    tf.textProperty().value = eventsToString(newList)
                                 }
                                 button("Edit") {
                                     action {
                                         NoiseEventsEditor(noise.artificialNoiseEvents.value) { events ->
                                             noise.artificialNoiseEvents.value = events.toMutableList()
-                                        }.openWindow()
+                                        }.openWindow(escapeClosesWindow = false)
                                     }
                                 }
                             }
@@ -172,6 +174,8 @@ class SettingsView : View("Settings") {
                         }
                     }
                 }
+                
+                // --- PRIORITIES ---
                 
                 checkboxField(settings.isUsingStaticPriorities) {
                     action {
@@ -229,17 +233,10 @@ class SettingsView : View("Settings") {
                     }
                 }
                 
-                
-                
-                checkboxField(settings.isUsingTime) {
-                    action {
-                        if (isSelected)
-                            settings.isUsingStaticPriorities.value = false
-                    }
-                }
+                timeDescription()
             }
-            // ------- Non scrollable part --------
             
+            // ------- Non scrollable part --------
             form {
                 fieldset {
                     settingsLoadingPanel()
@@ -271,7 +268,23 @@ class SettingsView : View("Settings") {
         }
     }
     
-    fun EventTarget.settingsLoadingPanel() {
+    // ---TIME---
+    private fun EventTarget.timeDescription() {
+        checkboxField(settings.isUsingTime) {
+            action {
+                if (isSelected)
+                    settings.isUsingStaticPriorities.value = false
+            }
+        }
+        
+        
+        
+        
+    }
+    
+    
+    // ---LOADING SETTINGS---
+    private fun EventTarget.settingsLoadingPanel() {
         hbox {
             button("print") {
                 enableWhen(controller.allModelsAreValid)
@@ -355,6 +368,7 @@ class SettingsView : View("Settings") {
         }
     }
     
+    // ---PETRINET SETUP---
     fun EventTarget.petrinetSetupPanel() {
         fieldset("petrinetSetup") {
             addClass(Styles.fieldSetFrame)
@@ -401,7 +415,6 @@ class SettingsView : View("Settings") {
                         }
                     }
                 }
-                
             }
             
             val validateEdges: Validator<List<String>> = { list ->

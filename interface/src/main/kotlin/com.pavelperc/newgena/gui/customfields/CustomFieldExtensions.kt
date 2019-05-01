@@ -156,6 +156,29 @@ fun EventTarget.intField(
     fieldOp()
 }
 
+/** A field for fieldset for long property. Field name is taken from property.
+ * Add int validators in [nextValidator]  */
+fun EventTarget.longField(
+        property: Property<Long>,
+//        sliderRange: IntRange? = null,
+        fieldOp: Field.() -> Unit = {},
+        op: TextField.() -> Unit = {},
+        nextValidator: Validator<Long> = { null }
+) = field(property.name, Orientation.HORIZONTAL) {
+    textfield(property, QuiteLongConverter()) {
+        validator { newString ->
+            when {
+                newString.isNullOrEmpty() -> error("Should not be empty.")
+                !newString.isLong() -> error("Not a Long.")
+                else -> nextValidator(newString.toLong())
+            }
+        }
+        op()
+    }
+    fieldOp()
+}
+
+
 fun EventTarget.checkboxField(property: Property<Boolean>, op: CheckBox.() -> Unit = {}) =
         field(property.name) {
             checkbox(property = property, op = op)
@@ -309,7 +332,7 @@ fun EventTarget.intMapField(
                             intValueRange,
                             predefinedValuesToHints(),
                             hintName
-                            ) { changedObjects ->
+                    ) { changedObjects ->
                         // set to textProp, textProp sets to mapProp
                         textProp.value = changedObjects.makeString()
                     }

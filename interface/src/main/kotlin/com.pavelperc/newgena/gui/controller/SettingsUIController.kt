@@ -15,6 +15,7 @@ import com.pavelperc.newgena.models.pnmlId
 import com.pavelperc.newgena.utils.common.emptyMarking
 import com.pavelperc.newgena.utils.common.profile
 import guru.nidi.graphviz.engine.Graphviz
+import javafx.beans.binding.Bindings
 import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
@@ -102,22 +103,22 @@ class SettingsUIController : Controller() {
     val staticPrioritiesModel = settingsModel.staticPrioritiesModel
     val noiseModel = settingsModel.noiseDescription
     
-    val allModelsAreValid: BooleanBinding =
-            settingsModel.valid
-                    .and(petrinetSetupModel.valid)
-                    .and(markingModel.valid)
-                    .and(staticPrioritiesModel.valid)
-                    .and(noiseModel.valid)
+    val allModelsAreValid: BooleanBinding = settingsModel.allModels
+            .map { it.valid }
+            .let { validProps ->
+                Bindings.createBooleanBinding(
+                        { validProps.all { it.value } },
+                        validProps.toTypedArray()
+                )
+            }
     
     
     /** Warning! not dirty callback doesn't mean, that the settings are saved. */
     private fun onSomeModelGetsDirty(onDirty: () -> Unit) {
         // boolean binding doesn't work for some reason
-        settingsModel.dirty.onChange { dirty -> if (dirty) onDirty() }
-        petrinetSetupModel.dirty.onChange { dirty -> if (dirty) onDirty() }
-        markingModel.dirty.onChange { dirty -> if (dirty) onDirty() }
-        staticPrioritiesModel.dirty.onChange { dirty -> if (dirty) onDirty() }
-        noiseModel.dirty.onChange { dirty -> if (dirty) onDirty() }
+        settingsModel.allModels.forEach { model ->
+            model.dirty.onChange { dirty -> if (dirty) onDirty() }
+        }
     }
     
     private fun loadInitialSettings() {

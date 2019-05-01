@@ -231,13 +231,13 @@ class IntMapEditor(
                 alignment = Pos.CENTER_LEFT
                 addClass(Styles.sortingPanel)
                 label("Sort: ")
-                button("Strings↓") {
+                button("Values↓") {
                     alignment = Pos.BOTTOM_CENTER
                     action {
                         objects.sortBy { it.string }
                     }
                 }
-                button("Strings↑") {
+                button("Values↑") {
                     action {
                         objects.sortByDescending { it.string }
                     }
