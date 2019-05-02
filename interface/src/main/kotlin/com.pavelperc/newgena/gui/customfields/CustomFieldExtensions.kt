@@ -162,8 +162,8 @@ fun EventTarget.longField(
         property: Property<Long>,
 //        sliderRange: IntRange? = null,
         fieldOp: Field.() -> Unit = {},
-        op: TextField.() -> Unit = {},
-        nextValidator: Validator<Long> = { null }
+        nextValidator: Validator<Long> = { null },
+        op: TextField.() -> Unit = {}
 ) = field(property.name, Orientation.HORIZONTAL) {
     textfield(property, QuiteLongConverter()) {
         validator { newString ->

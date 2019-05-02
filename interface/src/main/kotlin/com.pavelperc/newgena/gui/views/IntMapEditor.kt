@@ -352,7 +352,7 @@ class IntMapEditor(
                         }
                     }
                 }
-                // jump on value on editing start.
+                // jump on value when editing starts.
                 whenVisible { tfValue.requestFocus() }
                 
                 // hint

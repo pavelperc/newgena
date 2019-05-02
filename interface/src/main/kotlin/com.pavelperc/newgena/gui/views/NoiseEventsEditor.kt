@@ -1,15 +1,17 @@
 package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.gui.app.Styles
-import com.pavelperc.newgena.gui.customfields.simpleLongField
-import javafx.beans.property.Property
-import javafx.beans.property.SimpleLongProperty
+import com.pavelperc.newgena.gui.customfields.QuiteIntConverter
+import com.pavelperc.newgena.gui.customfields.longField
 import javafx.beans.property.SimpleStringProperty
+import javafx.event.EventHandler
 import javafx.event.EventTarget
-import javafx.scene.control.TextField
+import javafx.scene.control.TableView
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
+import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
+import javafx.util.StringConverter
 import org.processmining.models.time_driven_behavior.NoiseEvent
 import tornadofx.*
 
@@ -20,51 +22,79 @@ class NoiseEventsEditor(
         val onSuccess: (List<NoiseEvent>) -> Unit = {}
 ) : Fragment("NoiseEventsEditor") {
     
-    
-    class ObservableNoiseEvent(noiseEvent: NoiseEvent) {
-        val activity = SimpleStringProperty(noiseEvent.activity.toString())
-        val executionTimeSeconds = SimpleLongProperty(noiseEvent.executionTimeSeconds) as Property<Long>
-        val maxTimeDeviationSeconds = SimpleLongProperty(noiseEvent.maxTimeDeviationSeconds) as Property<Long>
-        
-        fun toNoiseEvent() = NoiseEvent(activity.value, executionTimeSeconds.value, maxTimeDeviationSeconds.value)
+    private val activityConverter = object : StringConverter<Any>() {
+        override fun toString(obj: Any?): String = obj.toString()
+        override fun fromString(string: String): Any = string
     }
     
-    private val objects = initialObjects.map { ObservableNoiseEvent(it) }.observable()
+    class NoiseEventModel(initial: NoiseEvent) : ItemViewModel<NoiseEvent>(initial) {
+        
+        val activity = bind(NoiseEvent::activity)
+        
+        val executionTimeSeconds = bind(NoiseEvent::executionTimeSeconds)
+        val maxTimeDeviationSeconds = bind(NoiseEvent::maxTimeDeviationSeconds)
+    }
     
+    // without a copy the noise in onsuccess is considered unchanged!!! and we have some bad links.
+    private val objects = initialObjects.map { it.copy() }.observable()
+    
+    // --- HEADER ---
     fun EventTarget.header() {
         hbox {
-            prefWidth = 500.0
-            
+            prefWidth = 550.0
             addClass(Styles.addItemRoot)
-            val newEvent = ObservableNoiseEvent(NoiseEvent(""))
-            val validationContext = ValidationContext()
-            lateinit var tf: TextField
+            
+            
+            
             form {
+                val model = NoiseEventModel(NoiseEvent(""))
+                
+                fun commit(): Boolean {
+                    if (model.commit()) {
+                        // create a copy
+                        objects.add(model.item.copy())
+                        return true
+                    }
+                    return false
+                }
+                
                 fieldset {
+                    
                     field("Activity") {
-                        tf = textfield(newEvent.activity) {
-                            validationContext.addValidator(this, ValidationTrigger.OnChange()) { text ->
-                                if (text.isNullOrEmpty()) error("Should not be empty") else null
+                        textfield(model.activity, activityConverter) {
+                            validator { newActivity ->
+                                if (newActivity.isNullOrEmpty())
+                                    error("Should not be empty.")
+                                else null
+                            }
+                            promptText = "Click enter to add."
+                            action {
+                                if (commit()) {
+                                    selectAll()
+                                }
                             }
                         }
                     }
-                    field("executionTimeSeconds") {
-                        simpleLongField(newEvent.executionTimeSeconds, validationContext) { value ->
-                            if (value < 0L) error("Should not be negative.") else null
+                    longField(model.executionTimeSeconds, nextValidator={ value ->
+                        if (value < 0L) error("Should not be negative.") else null
+                    }) {
+                        action { 
+                            commit()
                         }
                     }
-                    field("maxTimeDeviationSeconds") {
-                        simpleLongField(newEvent.maxTimeDeviationSeconds, validationContext) { value ->
-                            if (value < 0L) error("Should not be negative.") else null
+                    
+                    longField(model.maxTimeDeviationSeconds, nextValidator =  { value ->
+                        if (value < 0L) error("Should not be negative.") else null
+                    }) {
+                        action {
+                            commit()
                         }
                     }
                 }
                 button("Add") {
-                    enableWhen(validationContext.valid)
+                    enableWhen(model.valid)
                     action {
-                        // create a copy
-                        objects.add(ObservableNoiseEvent(newEvent.toNoiseEvent()))
-                        tf.selectAll()
+                        commit()
                     }
                 }
             }
@@ -78,7 +108,7 @@ class NoiseEventsEditor(
                     }
                 }
                 action {
-                    onSuccess(objects.map { it.toNoiseEvent() })
+                    onSuccess(objects)
                     close()
                 }
             }
@@ -92,17 +122,49 @@ class NoiseEventsEditor(
         
         tableview(objects) {
             isEditable = true
+            useMaxSize = true
+            vgrow = Priority.ALWAYS
             
-            column("Activity", ObservableNoiseEvent::activity) {
+            column("Activity",NoiseEvent::activity) {
+//                makeEditable(activityConverter)
+                
+                cellFormat {
+                    val model = NoiseEventModel(rowItem)
+                    graphic = vbox {
+                        textfield(model.activity, activityConverter) {
+                            removeWhen(editingProperty().not())
+                            validator { newActivity ->
+                                if (newActivity.isNullOrEmpty())
+                                    error("Should not be empty.")
+                                else null
+                            }
+                            // Call cell.commitEdit() only if validation passes
+                            action {
+                                if(model.commit()) {
+//                                    cancelEdit()
+                                    commitEdit(model.activity.value)
+                                }
+                            }
+    
+                            // jump on value when editing starts.
+                            whenVisible { requestFocus() }
+                        }
+                        label(model.activity) {
+//                            removeWhen(editingProperty())
+                        }
+                    }
+                    onEditCancel = EventHandler { 
+                        model.rollback()
+                    }
+                }
+            }
+            column("executionTimeSeconds", NoiseEvent::executionTimeSeconds) {
                 makeEditable()
             }
-            column("executionTimeSeconds", ObservableNoiseEvent::executionTimeSeconds) {
+            column("maxTimeDeviationSeconds", NoiseEvent::maxTimeDeviationSeconds) {
                 makeEditable()
             }
-            column("executionTimeSeconds", ObservableNoiseEvent::maxTimeDeviationSeconds) {
-                makeEditable()
-            }
-            column("Delete", ObservableNoiseEvent::maxTimeDeviationSeconds) {
+            column("Delete", NoiseEvent::activity) {
                 cellFormat {
                     graphic = button {
                         style {
