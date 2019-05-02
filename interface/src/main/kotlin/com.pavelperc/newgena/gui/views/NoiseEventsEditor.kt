@@ -1,19 +1,21 @@
 package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.gui.app.Styles
-import com.pavelperc.newgena.gui.customfields.QuiteIntConverter
-import com.pavelperc.newgena.gui.customfields.longField
-import javafx.beans.property.SimpleStringProperty
-import javafx.event.EventHandler
+import com.pavelperc.newgena.gui.customfields.*
+import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventTarget
+import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
+import javafx.scene.control.TextField
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
+import javafx.util.Callback
 import javafx.util.StringConverter
 import org.processmining.models.time_driven_behavior.NoiseEvent
 import tornadofx.*
+import kotlin.reflect.KMutableProperty1
 
 
 /**  */
@@ -63,7 +65,7 @@ class NoiseEventsEditor(
                     field("Activity") {
                         textfield(model.activity, activityConverter) {
                             validator { newActivity ->
-                                if (newActivity.isNullOrEmpty())
+                                if (newActivity == null || newActivity.isEmpty())
                                     error("Should not be empty.")
                                 else null
                             }
@@ -75,15 +77,15 @@ class NoiseEventsEditor(
                             }
                         }
                     }
-                    longField(model.executionTimeSeconds, nextValidator={ value ->
+                    longField(model.executionTimeSeconds, nextValidator = { value ->
                         if (value < 0L) error("Should not be negative.") else null
                     }) {
-                        action { 
+                        action {
                             commit()
                         }
                     }
                     
-                    longField(model.maxTimeDeviationSeconds, nextValidator =  { value ->
+                    longField(model.maxTimeDeviationSeconds, nextValidator = { value ->
                         if (value < 0L) error("Should not be negative.") else null
                     }) {
                         action {
@@ -125,45 +127,20 @@ class NoiseEventsEditor(
             useMaxSize = true
             vgrow = Priority.ALWAYS
             
-            column("Activity",NoiseEvent::activity) {
-//                makeEditable(activityConverter)
-                
-                cellFormat {
-                    val model = NoiseEventModel(rowItem)
-                    graphic = vbox {
-                        textfield(model.activity, activityConverter) {
-                            removeWhen(editingProperty().not())
-                            validator { newActivity ->
-                                if (newActivity.isNullOrEmpty())
-                                    error("Should not be empty.")
-                                else null
-                            }
-                            // Call cell.commitEdit() only if validation passes
-                            action {
-                                if(model.commit()) {
-//                                    cancelEdit()
-                                    commitEdit(model.activity.value)
-                                }
-                            }
-    
-                            // jump on value when editing starts.
-                            whenVisible { requestFocus() }
-                        }
-                        label(model.activity) {
-//                            removeWhen(editingProperty())
-                        }
-                    }
-                    onEditCancel = EventHandler { 
-                        model.rollback()
-                    }
-                }
+            validatedColumn(NoiseEvent::activity, activityConverter) { newActivity ->
+                if (newActivity.isNullOrEmpty())
+                    error("Should not be empty.")
+                else null
             }
-            column("executionTimeSeconds", NoiseEvent::executionTimeSeconds) {
-                makeEditable()
+            
+            validatedLongColumn(NoiseEvent::executionTimeSeconds) { newLong ->
+                if (newLong < 0L) error("Should not be negative.") else null
             }
-            column("maxTimeDeviationSeconds", NoiseEvent::maxTimeDeviationSeconds) {
-                makeEditable()
+            
+            validatedLongColumn(NoiseEvent::maxTimeDeviationSeconds) { newLong ->
+                if (newLong < 0L) error("Should not be negative.") else null
             }
+            
             column("Delete", NoiseEvent::activity) {
                 cellFormat {
                     graphic = button {

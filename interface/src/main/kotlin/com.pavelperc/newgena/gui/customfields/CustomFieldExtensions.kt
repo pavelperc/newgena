@@ -17,12 +17,14 @@ import org.controlsfx.control.Notifications
 import tornadofx.*
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
+import javafx.beans.property.SimpleObjectProperty
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.Pane
-import org.controlsfx.control.textfield.AutoCompletionBinding
+import javafx.util.Callback
 import org.controlsfx.control.textfield.TextFields
+import kotlin.reflect.KMutableProperty1
 
 
 class QuiteIntConverter : StringConverter<Int>() {
@@ -30,7 +32,7 @@ class QuiteIntConverter : StringConverter<Int>() {
     override fun fromString(string: String?) = string?.toIntOrNull() ?: 0
 }
 
-class QuiteLongConverter : StringConverter<Long>() {
+object QuiteLongConverter : StringConverter<Long>() {
     override fun toString(obj: Long?) = obj.toString()
     override fun fromString(string: String?) = string?.toLongOrNull() ?: 0
 }
@@ -100,7 +102,7 @@ fun EventTarget.simpleLongField(
         validationContext: ValidationContext = ValidationContext(),
         nextValidator: Validator<Long> = { null }
 ) {
-    textfield(longProp, QuiteLongConverter()) {
+    textfield(longProp, QuiteLongConverter) {
         validationContext.addValidator(this, ValidationTrigger.OnChange()) { value ->
             when {
                 value == null -> error("Null")
@@ -165,7 +167,7 @@ fun EventTarget.longField(
         nextValidator: Validator<Long> = { null },
         op: TextField.() -> Unit = {}
 ) = field(property.name, Orientation.HORIZONTAL) {
-    textfield(property, QuiteLongConverter()) {
+    textfield(property, QuiteLongConverter) {
         validator { newString ->
             when {
                 newString.isNullOrEmpty() -> error("Should not be empty.")
@@ -411,3 +413,68 @@ inline fun confirmIf(
 }
 
 
+// --- TABLEVIEW ---
+
+
+fun <S, T> TableView<S>.validatedColumn(
+        itemProp: KMutableProperty1<S, T>,
+        converter: StringConverter<T>,
+        columnName: String = itemProp.name,
+        op: TextField.() -> Unit = {},
+        validator: Validator<String?> = { null }
+) {
+    // default column and label builders are inline and can not simply infer type T
+    // this is copied from column builder:
+    val column = TableColumn<S, T>(columnName)
+    column.cellValueFactory = Callback { observable(it.value, itemProp) }
+    addColumnInternal(column)
+    
+    with(column) {
+        cellFormat {
+            val validationContext = ValidationContext()
+            val tempProp = SimpleObjectProperty(item)
+            
+            graphic = vbox {
+                // edit:
+                textfield(tempProp, converter) {
+                    removeWhen(editingProperty().not())
+                    validationContext.addValidator(this) { newString ->
+                        validator(newString)
+                    }
+                    // Call cell.commitEdit() only if validation passes
+                    action {
+                        if (validationContext.isValid) {
+                            commitEdit(tempProp.value)
+                        }
+                    }
+                    
+                    // jump on value when editing starts.
+                    whenVisible { requestFocus() }
+                    op()
+                }
+                
+                // look:
+                label(converter.toString(item)) {
+                    itemProperty().onChange { newItem ->
+                        text = converter.toString(newItem)
+                    }
+                    removeWhen(editingProperty())
+                }
+            }
+        }
+    }
+}
+
+fun <S> TableView<S>.validatedLongColumn(
+        itemProp: KMutableProperty1<S, Long>,
+        columnName: String = itemProp.name,
+        op: TextField.() -> Unit = {},
+        nextValidator: Validator<Long> = { null }
+) = validatedColumn(itemProp, QuiteLongConverter, columnName, op) { newString ->
+    when {
+        // isNullOrEmpty breaks the kotlin compiler
+        newString == null || newString.isEmpty() -> error("Should not be empty.")
+        !newString.isLong() -> error("Not a Long.")
+        else -> nextValidator(newString.toLong())
+    }
+}
