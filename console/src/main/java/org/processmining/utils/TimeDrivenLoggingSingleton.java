@@ -12,6 +12,7 @@ import org.processmining.models.organizational_extension.Resource;
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.*;
 
 /**
@@ -196,7 +197,7 @@ public class TimeDrivenLoggingSingleton extends LoggingSingleton
 
         long resultedTimestamp = originalTimestamp + deviation;
 
-        Instant generationStartTime = description.getGenerationStart();
+        Instant generationStartTime = description.getGenerationStart().toInstant(ZoneOffset.UTC);
 
         if (resultedTimestamp < generationStartTime.toEpochMilli())
         {

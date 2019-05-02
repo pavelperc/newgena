@@ -12,6 +12,7 @@ import org.processmining.models.simple_behavior.SimpleTransition
 import org.processmining.models.time_driven_behavior.TimeDrivenPlace
 import org.processmining.models.time_driven_behavior.TimeDrivenToken
 import org.processmining.models.time_driven_behavior.TimeDrivenTransition
+import java.time.ZoneOffset
 
 import java.util.*
 import kotlin.random.Random
@@ -27,7 +28,7 @@ class TimeDrivenGenerationHelper(
         description: TimeDrivenGenerationDescription
 ) : PetriNetGenerationHelper<TimeDrivenPlace, TimeDrivenTransition, TimeDrivenToken>(initialMarking, finalMarking, allTransitions, allPlaces, description) {
     
-    private val generationStart = description.generationStart.toEpochMilli()
+    private val generationStart = description.generationStart.toInstant(ZoneOffset.UTC).toEpochMilli()
     
     override val generationDescription: TimeDrivenGenerationDescription
         get() = super.generationDescription as TimeDrivenGenerationDescription

@@ -130,9 +130,9 @@ class PetrinetPriorityTimeDrivenTest : GraphvizDrawer(false) {
         // fails with npe without this line)
         TimeDrivenLoggingSingleton.init(description)
         
-        description.generationStart = ZonedDateTime.of(2000, 12, 1, 0, 0, 0, 0, ZoneOffset.UTC).toInstant()
+        description.generationStart = LocalDateTime.of(2000, 12, 1, 0, 0, 0, 0)
 //                set(2000, Calendar.DECEMBER, 1, 0, 0)
-        val startDate: Instant = description.generationStart
+        val startDate: LocalDateTime = description.generationStart
         
         
         // launching generator
@@ -153,7 +153,7 @@ class PetrinetPriorityTimeDrivenTest : GraphvizDrawer(false) {
                 val names = trace.map { event -> event.name }
                 val timestamps = trace.map { event -> event.time }
                 // diffs in seconds
-                val diffs = timestamps.map { date -> date.time - startDate.toEpochMilli() }.map { it / 1000 }
+                val diffs = timestamps.map { date -> date.time - startDate.toInstant(ZoneOffset.UTC).toEpochMilli() }.map { it / 1000 }
                 
                 println(names)
 //                println(timestamps)

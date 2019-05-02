@@ -96,12 +96,13 @@ class SettingsUIController : Controller() {
     
     val hasNewSettings = jsonSettingsPath.isNull
     
-    // --- MODELS:
+    // --- MODELS---:
     val settingsModel = SettingsModel(JsonSettings()) // start from default jsonSettings.
     val petrinetSetupModel = settingsModel.petrinetSetupModel
     val markingModel = petrinetSetupModel.markingModel
     val staticPrioritiesModel = settingsModel.staticPrioritiesModel
-    val noiseModel = settingsModel.noiseDescription
+    val noiseModel = settingsModel.noiseModel
+    val timeModel = settingsModel.timeModel
     
     val allModelsAreValid: BooleanBinding = settingsModel.allModels
             .map { it.valid }

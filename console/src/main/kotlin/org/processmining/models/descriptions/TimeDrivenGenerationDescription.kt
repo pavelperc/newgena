@@ -7,6 +7,7 @@ import org.processmining.models.time_driven_behavior.GranularityTypes
 import org.processmining.models.time_driven_behavior.NoiseEvent
 import org.processmining.models.time_driven_behavior.ResourceMapping
 import java.time.Instant
+import java.time.LocalDateTime
 import java.util.*
 
 
@@ -41,7 +42,7 @@ class TimeDrivenGenerationDescription(
         /** transitionIdsToDelays: executionTime and maxTimeDeviation in seconds. */
         val time: Map<Transition, Pair<Long, Long>> = emptyMap(),
         override val isUsingLifecycle: Boolean = true,
-        var generationStart: Instant = Instant.now(),
+        var generationStart: LocalDateTime = LocalDateTime.now(),
         val resourceMapping: Map<Any, ResourceMapping> = emptyMap(),
         val resourceGroups: List<Group> = ArrayList(),
         

@@ -87,8 +87,9 @@ class SettingsModel(initial: JsonSettings) : NestingItemViewModel<JsonSettings>(
     
     // ---INNER MODELS:
     val petrinetSetupModel = bindModel(JsonSettings::petrinetSetup, PetrinetSetupModel::class)
+    val timeModel = bindModel(JsonSettings::timeDescription, TimeModel::class)
     val staticPrioritiesModel = bindModel(JsonSettings::staticPriorities, StaticPrioritiesModel::class)
-    val noiseDescription = bindModel(JsonSettings::noiseDescription, NoiseModel::class)
+    val noiseModel = bindModel(JsonSettings::noiseDescription, NoiseModel::class)
 }
 
 class PetrinetSetupModel(initial: JsonPetrinetSetup)
@@ -141,6 +142,14 @@ class TimeModel(initial: JsonTimeDescription)
     : NestingItemViewModel<JsonTimeDescription>(initial) {
     
     val transitionIdsToDelays = bindMap(JsonTimeDescription::transitionIdsToDelays)
+    val generationStart = bind(JsonTimeDescription::generationStart)
+    
+    val isUsingResources = bind(JsonTimeDescription::isUsingResources)
+    val simplifiedResources = bindList(JsonTimeDescription::simplifiedResources)
+    
+    val resourceGroups = bindList(JsonTimeDescription::resourceGroups)
+    
+    
     
 }
 

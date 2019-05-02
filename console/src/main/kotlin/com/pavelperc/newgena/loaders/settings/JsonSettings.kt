@@ -9,6 +9,7 @@ import org.processmining.models.GenerationDescription
 import org.processmining.models.time_driven_behavior.GranularityTypes
 import org.processmining.models.time_driven_behavior.NoiseEvent
 import java.time.Instant
+import java.time.LocalDateTime
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMemberProperties
@@ -237,7 +238,7 @@ class JsonTimeDescription {
     
     var transitionIdsToDelays = mutableMapOf<String, DelayWithDeviation>()
     
-    var generationStart: Instant = Instant.now()
+    var generationStart: LocalDateTime = LocalDateTime.now()
     
     // will be converted to resourceMapping
     var transitionIdsToResources = mutableMapOf<String, JsonResources.ResourceMapping>()

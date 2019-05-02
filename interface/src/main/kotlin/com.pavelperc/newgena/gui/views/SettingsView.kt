@@ -14,8 +14,14 @@ import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.util.Duration
+import javafx.util.StringConverter
 import org.processmining.models.time_driven_behavior.NoiseEvent
 import tornadofx.*
+import tornadofx.control.DateTimePicker
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 
 class SettingsView : View("Settings") {
@@ -27,6 +33,7 @@ class SettingsView : View("Settings") {
     private val marking = controller.markingModel
     private val staticPriorities = controller.staticPrioritiesModel
     private val noise = controller.noiseModel
+    private val time = controller.timeModel
     
     override val root = VBox()
     
@@ -44,6 +51,11 @@ class SettingsView : View("Settings") {
                 }
             }
         }
+    }
+    
+    private fun TitledPane.expandOn(prop: Property<Boolean>) {
+        // one direction binding
+        prop.onChange { checked -> this.isExpanded = checked!! }
     }
     
     init {
@@ -108,19 +120,13 @@ class SettingsView : View("Settings") {
                 checkboxField(settings.isRemovingUnfinishedTraces)
                 
                 
-                fun TitledPane.expandOn(prop: Property<Boolean>) {
-                    // one direction binding
-                    prop.onChange { checked -> this.isExpanded = checked!! }
-                }
-                
+                // --- NOISE ---
                 checkboxField(settings.isUsingNoise) {
                     action {
                         if (isSelected)
                             settings.isUsingStaticPriorities.value = false
                     }
                 }
-                
-                // --- NOISE ---
                 squeezebox {
                     fold("Noise", settings.isUsingNoise.value) {
                         expandOn(settings.isUsingNoise)
@@ -277,8 +283,46 @@ class SettingsView : View("Settings") {
             }
         }
         
-        
-        
+        squeezebox {
+            fold("Time and Resources", settings.isUsingTime.value) {
+                expandOn(settings.isUsingTime)
+                
+                fieldset {
+                    field("generationStart") {
+                        val timeConverter = object : StringConverter<LocalDateTime>() {
+                            val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+                            override fun toString(obj: LocalDateTime) = obj.format(pattern)
+                            override fun fromString(string: String) =
+                                    try {
+                                        LocalDateTime.parse(string, pattern)
+                                    } catch (e: DateTimeParseException) {
+                                        LocalDateTime.now()
+                                    }
+                        }
+                        
+                        textfield(time.generationStart, timeConverter) {
+                            validator(ValidationTrigger.OnBlur) { newString ->
+                                try {
+                                    LocalDateTime.parse(newString, timeConverter.pattern)
+                                    null
+                                } catch (e: DateTimeParseException) {
+                                    error("Bad time, format example: 2019-12-31 23:59")
+                                }
+                            }
+                            action {
+                                time.validationContext.validate(time.generationStart)
+                            }
+                        }
+                        button("Now") {
+                            action {
+                                time.generationStart.value = LocalDateTime.now()
+                            }
+                        }
+                    }
+                    
+                }
+            }
+        }
         
     }
     
@@ -437,26 +481,7 @@ class SettingsView : View("Settings") {
                     predefinedValuesToHints = { controller.inputEdgeIdsWithHints },
                     hintName = "hint"
             )
-
-//            field {
-//                button("update arcs in petrinet") {
-//                    enableWhen(controller.isPetrinetUpdated)
-//                    action {
-//                        try {
-//                            // what if it deletes old, but fails with adding new?
-//                            controller.updateInhResetArcsFromModel()
-//                            
-//                            notification {
-//                                title("Arcs are updated.")
-//                                text("Wow, Nothing crashed!")
-//                            }
-//                            
-//                        } catch (e: Exception) {
-//                            alert(Alert.AlertType.ERROR, "Failed to update arcs, previous arcs are reset to normal.", e.message)
-//                        }
-//                    }
-//                }
-//            }
+            // TODO restore inhibitor arcs!!
         }
     }
     

@@ -59,7 +59,7 @@
     "simplifiedResources" : [ ],
     "resourceGroups" : [ ],
     "transitionIdsToDelays" : { },
-    "generationStart" : "2019-04-07T22:27:06.991Z",
+    "generationStart" : "2019-04-07T22:27:06.991",
     "transitionIdsToResources" : { },
     "timeDrivenNoise" : {
       "isUsingTimestampNoise" : true,
