@@ -17,7 +17,6 @@ import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.util.Duration
 import javafx.util.StringConverter
-import org.processmining.models.time_driven_behavior.NoiseEvent
 import tornadofx.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -154,19 +153,11 @@ class SettingsView : View("Settings") {
                             
                             
                             field("artificialNoiseEvents") {
-                                fun eventsToString(newList: List<NoiseEvent>?) =
-                                        newList?.joinToString("; ") { it.activity.toString() } ?: ""
                                 
-                                val tf = textfield(eventsToString(noise.artificialNoiseEvents.value)) {
-                                    hgrow = Priority.ALWAYS
-                                    isEditable = false
-                                    style {
-                                        backgroundColor += Color.TRANSPARENT
-                                    }
-                                }
-                                noise.artificialNoiseEvents.onChange { newList ->
-                                    tf.textProperty().value = eventsToString(newList)
-                                }
+                                readOnlyTextField(noise.artificialNoiseEvents, { newList ->
+                                    newList.let { if (it.isEmpty()) "Empty." else it.joinToString("; ") }
+                                })
+                                
                                 button("Edit") {
                                     action {
                                         NoiseEventsEditor(noise.artificialNoiseEvents.value) { events ->
@@ -350,13 +341,13 @@ class SettingsView : View("Settings") {
                         time.transitionIdsToDelays.addValidator(label) {
                             getStatus().let { status ->
                                 label.text = status
-                                when(status) {
+                                when (status) {
                                     Status.correct, Status.unknown -> null
                                     else -> warning(status)
                                 }
                             }
                         }
-                        controller.petrinetProp.onChange { 
+                        controller.petrinetProp.onChange {
                             label.text = getStatus()
                         }
                         button("Edit") {
@@ -369,13 +360,35 @@ class SettingsView : View("Settings") {
                         }
                     }
                     
+                    // ---RESOURCES---
+                    
                     checkboxField(time.isUsingResources)
                     
                     squeezebox {
                         fold("Resources", time.isUsingResources.value) {
                             expandOn(time.isUsingResources)
-                            
-                            arrayField(time.simplifiedResources)
+                            fieldset {
+                                hgrow = Priority.ALWAYS
+                                arrayField(time.simplifiedResources)
+                                
+                                field("resourceGroups") {
+                                    readOnlyTextField(time.resourceGroups, { newList ->
+                                        newList.flatMap {
+                                            it.roles.flatMap {
+                                                it.resources.map { it.name }
+                                            }
+                                        }.let { if (it.isEmpty()) "Empty." else it.joinToString("; ") }
+                                    })
+                                    
+                                    button("Edit") {
+                                        action {
+                                            ResourceGroupsEditor(time.resourceGroups.value) { groups ->
+                                                time.resourceGroups.value = groups.toMutableList()
+                                            }.openWindow(escapeClosesWindow = false)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

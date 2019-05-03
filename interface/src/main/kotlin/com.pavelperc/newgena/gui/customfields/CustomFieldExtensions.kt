@@ -22,8 +22,9 @@ import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.Pane
+import javafx.scene.layout.Priority
+import javafx.scene.paint.Color
 import javafx.util.Callback
-import javafx.util.converter.DefaultStringConverter
 import org.controlsfx.control.textfield.TextFields
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty1
@@ -51,6 +52,19 @@ fun TextInputControl.validInt(
             value == null -> error("Null.")
             !value.isInt() -> error("Not an Int.")
             else -> nextValidator(value.toInt())
+        }
+    }
+    
+}
+
+/** The same as required, but with the next validator. */
+fun TextInputControl.notEmpty(
+        nextValidator: Validator<String> = { null }
+) {
+    this.validator { value ->
+        when {
+            value.isNullOrEmpty() -> error("Should not be empty.")
+            else -> nextValidator(value)
         }
     }
     
@@ -134,6 +148,51 @@ fun EventTarget.intSpinner(
     }
 }
 
+private class LongSpinnerValueFactory(val range: LongRange, val initialValue: Long) : SpinnerValueFactory<Long>() {
+    val min = range.first
+    val max = range.endInclusive
+    init {
+        converter = QuiteLongConverter
+        valueProperty().addListener { o, oldValue, newValue ->
+            if (newValue < min) {
+                value = min
+            } else if (newValue > max) {
+                value = max
+            }
+        }
+        value = if (initialValue in range) initialValue else min
+    }
+    override fun decrement(steps: Int) {
+        val newIndex = value - steps
+        value = if (newIndex >= min) newIndex else min
+    }
+    override fun increment(steps: Int) {
+        val newIndex = value + steps
+        value = if (newIndex <= max) newIndex else max
+    }
+}
+
+
+fun EventTarget.longSpinner(
+        prop: Property<Long>,
+        valueRange: LongRange = Long.MIN_VALUE..Long.MAX_VALUE,
+        style: String = Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL,
+        op: Spinner<Long>.() -> Unit = {}
+) {
+    spinner(LongSpinnerValueFactory(valueRange, prop.value)) {
+        valueFactory.valueProperty().bindBidirectional(prop)
+        styleClass.add(style)
+        isEditable = true
+        editor.textProperty().onChange { text ->
+            if (text?.isLong() == true) {
+                prop.value = text.toLong()
+            }
+        }
+        op()
+    }
+}
+
+
 fun EventTarget.intSpinnerField(
         intProp: Property<Int>,
         intValueRange: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
@@ -141,6 +200,16 @@ fun EventTarget.intSpinnerField(
         op: Spinner<Int>.() -> Unit = {}
 ) = field(intProp.name) {
     intSpinner(intProp, intValueRange, style, op)
+}
+
+
+fun EventTarget.longSpinnerField(
+        prop: Property<Long>,
+        valueRange: LongRange = Long.MIN_VALUE..Long.MAX_VALUE,
+        style: String = Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL,
+        op: Spinner<Long>.() -> Unit = {}
+) = field(prop.name) {
+    longSpinner(prop, valueRange, style, op)
 }
 
 
@@ -164,7 +233,7 @@ fun EventTarget.intField(
  * Add int validators in [nextValidator]  */
 fun EventTarget.longField(
         property: Property<Long>,
-//        sliderRange: IntRange? = null,
+        nonNegative: Boolean = false,
         fieldOp: Field.() -> Unit = {},
         nextValidator: Validator<Long> = { null },
         op: TextField.() -> Unit = {}
@@ -174,6 +243,7 @@ fun EventTarget.longField(
             when {
                 newString.isNullOrEmpty() -> error("Should not be empty.")
                 !newString.isLong() -> error("Not a Long.")
+                nonNegative && newString.toLong() < 0L -> error("Should not be negative.")
                 else -> nextValidator(newString.toLong())
             }
         }
@@ -196,6 +266,7 @@ fun EventTarget.arrayField(
         listValidator: Validator<List<String>> = { null }
 ) =
         field(listProp.name) {
+            hgrow = Priority.ALWAYS
             
             val viewModel = listProp.viewModel
             // textProp is now bound to ViewModel, so we can add a validator.
@@ -416,6 +487,20 @@ inline fun confirmIf(
     }
 }
 
+/** Read only text field with converter. */
+fun <T> EventTarget.readOnlyTextField(prop: Property<T>, converter: (T) -> String, op: TextField.() -> Unit = {}) {
+    val tf = textfield(converter(prop.value)) {
+        hgrow = Priority.ALWAYS
+        isEditable = false
+        style {
+            backgroundColor += Color.TRANSPARENT
+        }
+    }
+    prop.onChange { newValue ->
+        tf.text = newValue?.let { converter(it) } ?: ""
+    }
+    
+}
 
 // --- TABLEVIEW ---
 
@@ -510,11 +595,13 @@ fun <S, T> TableView<S>.validatedColumn(
 fun <S> TableView<S>.validatedLongColumn(
         itemProp: KMutableProperty1<S, Long>,
         columnName: String = itemProp.name,
+        nonNegative: Boolean = false,
         nextValidator: Validator<Long> = { null },
         op: TextField.() -> Unit = {}
 ) = validatedColumn(itemProp, QuiteLongConverter, columnName, true, true, { newString ->
     when {
         !newString.isLong() -> error("Not a Long.")
+        nonNegative && newString.toLong() < 0L -> error("Should not be negative.")
         else -> nextValidator(newString.toLong())
     }
 }, op)
@@ -541,11 +628,13 @@ fun <S, T> TableView<S>.validatedColumnProp(
 fun <S> TableView<S>.validatedLongColumnProp(
         itemProp: KProperty1<S, Property<Long>>,
         columnName: String = itemProp.name,
+        nonNegative: Boolean = false,
         nextValidator: Validator<Long> = { null },
         op: TextField.() -> Unit = {}
 ) = validatedColumnProp(itemProp, QuiteLongConverter, columnName, true, true, { newString ->
     when {
         !newString.isLong() -> error("Not a Long.")
+        nonNegative && newString.toLong() < 0L -> error("Should not be negative.")
         else -> nextValidator(newString.toLong())
     }
 }, op)

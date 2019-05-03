@@ -77,17 +77,13 @@ class NoiseEventsEditor(
                             }
                         }
                     }
-                    longField(model.executionTimeSeconds, nextValidator = { value ->
-                        if (value < 0L) error("Should not be negative.") else null
-                    }) {
+                    longField(model.executionTimeSeconds, nonNegative = true) {
                         action {
                             commit()
                         }
                     }
                     
-                    longField(model.maxTimeDeviationSeconds, nextValidator = { value ->
-                        if (value < 0L) error("Should not be negative.") else null
-                    }) {
+                    longField(model.maxTimeDeviationSeconds, nonNegative = true) {
                         action {
                             commit()
                         }

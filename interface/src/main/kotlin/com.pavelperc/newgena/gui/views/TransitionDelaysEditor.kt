@@ -117,20 +117,12 @@ class TransitionDelaysEditor(
                             }
                         }
                     }
-                    longField(model.delay, nextValidator = { value ->
-                        if (value < 0L) error("Should not be negative.") else null
-                    }) {
-                        action {
-                            commit()
-                        }
-                    }
                     
-                    longField(model.deviation, nextValidator = { value ->
-                        if (value < 0L) error("Should not be negative.") else null
-                    }) {
-                        action {
-                            commit()
-                        }
+                    longSpinnerField(model.delay, 0..Long.MAX_VALUE) {
+                        editor.action { commit() }
+                    }
+                    longSpinnerField(model.deviation, 0..Long.MAX_VALUE) {
+                        editor.action { commit() }
                     }
                 }
                 button("Add") {
