@@ -62,7 +62,8 @@ class GenerationView() : View("My View") {
     
     override fun onDock() {
         super.onDock()
-        
+        logArrayObservable.clear()
+        eventLogArray = null
         runAsync {
             PetrinetGenerators.generateFromKit(generationKit) { progress, maxProgress ->
                 runLater {

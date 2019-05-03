@@ -3,13 +3,16 @@ package com.pavelperc.newgena.gui.views
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
+import com.pavelperc.newgena.loaders.settings.JsonTimeDescription
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.property.IntegerProperty
 import javafx.beans.property.Property
 import javafx.event.EventTarget
 import javafx.geometry.Pos
-import javafx.scene.control.*
+import javafx.scene.control.Alert
+import javafx.scene.control.Button
+import javafx.scene.control.TitledPane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
@@ -17,9 +20,7 @@ import javafx.util.Duration
 import javafx.util.StringConverter
 import org.processmining.models.time_driven_behavior.NoiseEvent
 import tornadofx.*
-import tornadofx.control.DateTimePicker
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
@@ -319,7 +320,39 @@ class SettingsView : View("Settings") {
                             }
                         }
                     }
+                    field("transitionIdsToDelays") {
+                        fun delaysToString(newMap: Map<String, JsonTimeDescription.DelayWithDeviation>?) =
+                                newMap?.entries?.joinToString("; ") { (k, v) -> "$k: ${v.delay}+-${v.deviation}" } ?: ""
+        
+                        val tf = textfield(delaysToString(time.transitionIdsToDelays.value)) {
+                            hgrow = Priority.ALWAYS
+                            isEditable = false
+                            style {
+                                backgroundColor += Color.TRANSPARENT
+                            }
+                        }
+                        time.transitionIdsToDelays.onChange { newMap ->
+                            tf.textProperty().value = delaysToString(newMap)
+                        }
+                        button("Edit") {
+                            action {
+                                TransitionDelaysEditor(time.transitionIdsToDelays.value,
+                                        controller.transitionIdsWithHints) { newMap ->
+                                    time.transitionIdsToDelays.value = newMap.toMutableMap()
+                                }.openWindow(escapeClosesWindow = false)
+                            }
+                        }
+                    }
                     
+                    checkboxField(time.isUsingResources)
+    
+                    squeezebox {
+                        fold("Resources", time.isUsingResources.value) {
+                            expandOn(time.isUsingResources)
+                            
+                            arrayField(time.simplifiedResources)
+                        }
+                    }
                 }
             }
         }

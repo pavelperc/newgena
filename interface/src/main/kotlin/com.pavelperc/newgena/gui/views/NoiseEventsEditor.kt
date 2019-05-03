@@ -127,19 +127,15 @@ class NoiseEventsEditor(
             useMaxSize = true
             vgrow = Priority.ALWAYS
             
-            validatedColumn(NoiseEvent::activity, activityConverter) { newActivity ->
-                if (newActivity.isNullOrEmpty())
-                    error("Should not be empty.")
-                else null
-            }
+            validatedColumn(NoiseEvent::activity, activityConverter, required = true)
             
-            validatedLongColumn(NoiseEvent::executionTimeSeconds) { newLong ->
+            validatedLongColumn(NoiseEvent::executionTimeSeconds, nextValidator = { newLong ->
                 if (newLong < 0L) error("Should not be negative.") else null
-            }
+            })
             
-            validatedLongColumn(NoiseEvent::maxTimeDeviationSeconds) { newLong ->
+            validatedLongColumn(NoiseEvent::maxTimeDeviationSeconds, nextValidator = { newLong ->
                 if (newLong < 0L) error("Should not be negative.") else null
-            }
+            })
             
             column("Delete", NoiseEvent::activity) {
                 cellFormat {

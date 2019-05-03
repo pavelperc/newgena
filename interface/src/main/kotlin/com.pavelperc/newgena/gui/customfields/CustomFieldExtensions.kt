@@ -23,6 +23,7 @@ import javafx.event.EventHandler
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.Pane
 import javafx.util.Callback
+import javafx.util.converter.DefaultStringConverter
 import org.controlsfx.control.textfield.TextFields
 import kotlin.reflect.KMutableProperty1
 
@@ -420,8 +421,9 @@ fun <S, T> TableView<S>.validatedColumn(
         itemProp: KMutableProperty1<S, T>,
         converter: StringConverter<T>,
         columnName: String = itemProp.name,
-        op: TextField.() -> Unit = {},
-        validator: Validator<String?> = { null }
+        required: Boolean = true,
+        validator: Validator<String> = { null },
+        op: TextField.() -> Unit = {}
 ) {
     // default column and label builders are inline and can not simply infer type T
     // this is copied from column builder:
@@ -439,7 +441,11 @@ fun <S, T> TableView<S>.validatedColumn(
                 textfield(tempProp, converter) {
                     removeWhen(editingProperty().not())
                     validationContext.addValidator(this) { newString ->
-                        validator(newString)
+                        when {
+                            newString == null -> error("Null.")
+                            required && newString.isEmpty() -> error("ShouldNotBeEmpty")
+                            else -> validator(newString)
+                        }
                     }
                     // Call cell.commitEdit() only if validation passes
                     action {
@@ -465,16 +471,22 @@ fun <S, T> TableView<S>.validatedColumn(
     }
 }
 
+fun <S> TableView<S>.validatedStringColumn(
+        itemProp: KMutableProperty1<S, String>,
+        columnName: String = itemProp.name,
+        required: Boolean = true,
+        nextValidator: Validator<String> = { null },
+        op: TextField.() -> Unit = {}
+) = validatedColumn(itemProp, DefaultStringConverter(), columnName, required, nextValidator, op)
+
 fun <S> TableView<S>.validatedLongColumn(
         itemProp: KMutableProperty1<S, Long>,
         columnName: String = itemProp.name,
-        op: TextField.() -> Unit = {},
-        nextValidator: Validator<Long> = { null }
-) = validatedColumn(itemProp, QuiteLongConverter, columnName, op) { newString ->
+        nextValidator: Validator<Long> = { null },
+        op: TextField.() -> Unit = {}
+) = validatedColumn(itemProp, QuiteLongConverter, columnName, true, validator = { newString ->
     when {
-        // isNullOrEmpty breaks the kotlin compiler
-        newString == null || newString.isEmpty() -> error("Should not be empty.")
         !newString.isLong() -> error("Not a Long.")
         else -> nextValidator(newString.toLong())
     }
-}
+}, op = op)

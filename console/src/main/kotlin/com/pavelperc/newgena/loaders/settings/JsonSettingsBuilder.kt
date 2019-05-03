@@ -95,7 +95,7 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
             var resMapping = emptyMap<Any, ResourceMapping>()
             if (isUsingResources) {
                 
-                simpleRes = simplifiedResources.map { it.buildSimplified() }
+                simpleRes = simplifiedResources.map { buildSimplified(it) }
                 resGroups = resourceGroups.map { it.build() }
                 val complexRes = resGroups.flatMap { it.resources }
                 
@@ -196,13 +196,13 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
         }
     }
     
-    
-    private fun JsonResources.Resource.buildSimplified(): Resource {
+    /** Builds resource only by name. */
+    private fun buildSimplified(resourceName: String): Resource {
         return Resource(
-                name = name,
-                willBeFreed = willBeFreed,
-                minDelayBetweenActions = minDelayBetweenActionsMillis,
-                maxDelayBetweenActions = maxDelayBetweenActionsMillis,
+                name = resourceName,
+                willBeFreed = 0,
+                minDelayBetweenActions = 0,
+                maxDelayBetweenActions = 0,
                 group = null,
                 role = null
         )

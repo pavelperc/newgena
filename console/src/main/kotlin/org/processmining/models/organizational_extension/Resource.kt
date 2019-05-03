@@ -11,12 +11,12 @@ import kotlin.random.nextULong
  * Created on 02.04.2014
  */
 class Resource constructor(
-        var name: String,
+        val name: String,
         willBeFreed: Long = 0L,
-        var minDelayBetweenActions: Long = DEFAULT_MIN_DELAY_BETWEEN_ACTIONS,
-        var maxDelayBetweenActions: Long = DEFAULT_MAX_DELAY_BETWEEN_ACTIONS,
-        var group: Group? = null,
-        var role: Role? = null
+        val minDelayBetweenActions: Long = DEFAULT_MIN_DELAY_BETWEEN_ACTIONS,
+        val maxDelayBetweenActions: Long = DEFAULT_MAX_DELAY_BETWEEN_ACTIONS,
+        val group: Group? = null,
+        val role: Role? = null
 ) : Comparable<Resource>        //TODO неправильно рабоатет с одинаковыми именами ресурсов
 {
     init {
@@ -70,10 +70,10 @@ class Resource constructor(
 //        group?.removeResource(this)
 //    }
     
-    fun setDelayBetweenActions(minDelay: Long, maxDelay: Long) {
-        minDelayBetweenActions = minDelay
-        maxDelayBetweenActions = maxDelay
-    }
+//    fun setDelayBetweenActions(minDelay: Long, maxDelay: Long) {
+//        minDelayBetweenActions = minDelay
+//        maxDelayBetweenActions = maxDelay
+//    }
     
     companion object {
         /** 15 minutes in milliseconds */

@@ -215,7 +215,9 @@ class JsonTimeDrivenNoise() {
 /** Json representation of TimeDescription */
 class JsonTimeDescription {
     data class DelayWithDeviation @JsonCreator constructor(
+            /** In seconds. */
             var delay: Long,
+            /** In seconds. */
             var deviation: Long
     ) {
         fun toPair(): Pair<Long, Long> = delay to deviation
@@ -233,7 +235,7 @@ class JsonTimeDescription {
     
     var isSeparatingStartAndFinish: Boolean = true
     
-    var simplifiedResources = mutableListOf<JsonResources.Resource>()
+    var simplifiedResources = mutableListOf<String>()
     var resourceGroups = mutableListOf<JsonResources.Group>()
     
     var transitionIdsToDelays = mutableMapOf<String, DelayWithDeviation>()
