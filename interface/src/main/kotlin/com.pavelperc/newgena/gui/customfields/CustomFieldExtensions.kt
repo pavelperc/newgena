@@ -26,6 +26,7 @@ import javafx.util.Callback
 import javafx.util.converter.DefaultStringConverter
 import org.controlsfx.control.textfield.TextFields
 import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.KProperty1
 
 
 class QuiteIntConverter : StringConverter<Int>() {
@@ -418,11 +419,14 @@ inline fun confirmIf(
 
 // --- TABLEVIEW ---
 
-
-fun <S, T> TableView<S>.validatedColumn(
-        itemProp: KMutableProperty1<S, T>,
+/**
+ * This fun requires itemGetter and columnName.
+ * It has public overrides with KProp and javafx property as [itemGetter].
+ */
+private fun <S, T> TableView<S>.validatedColumnItemGetter(
+        itemGetter: (row: S) -> Property<T>,
         converter: StringConverter<T>,
-        columnName: String = itemProp.name,
+        columnName: String,
         required: Boolean = true,
         allowDuplicates: Boolean = true,
         validator: Validator<String> = { null },
@@ -431,7 +435,7 @@ fun <S, T> TableView<S>.validatedColumn(
     // default column and label builders are inline and can not simply infer type T
     // this is copied from column builder:
     val column = TableColumn<S, T>(columnName)
-    column.cellValueFactory = Callback { observable(it.value, itemProp) }
+    column.cellValueFactory = Callback { itemGetter(it.value) }
     addColumnInternal(column)
     
     with(column) {
@@ -443,7 +447,7 @@ fun <S, T> TableView<S>.validatedColumn(
                 val newValue = converter.fromString(newString)
                 val objects = tableView.items
                 return objects
-                        .map { itemProp.call(it) }
+                        .map { itemGetter(it).value }
                         .any { it == newValue && it != item }
             }
             
@@ -483,12 +487,63 @@ fun <S, T> TableView<S>.validatedColumn(
     }
 }
 
+
+fun <S, T> TableView<S>.validatedColumn(
+        itemProp: KMutableProperty1<S, T>,
+        converter: StringConverter<T>,
+        columnName: String = itemProp.name,
+        required: Boolean = true,
+        allowDuplicates: Boolean = true,
+        validator: Validator<String> = { null },
+        op: TextField.() -> Unit = {}
+) = validatedColumnItemGetter(
+        { row -> observable(row, itemProp) },
+        converter,
+        columnName,
+        required,
+        allowDuplicates,
+        validator,
+        op
+)
+
+
 fun <S> TableView<S>.validatedLongColumn(
         itemProp: KMutableProperty1<S, Long>,
         columnName: String = itemProp.name,
         nextValidator: Validator<Long> = { null },
         op: TextField.() -> Unit = {}
 ) = validatedColumn(itemProp, QuiteLongConverter, columnName, true, true, { newString ->
+    when {
+        !newString.isLong() -> error("Not a Long.")
+        else -> nextValidator(newString.toLong())
+    }
+}, op)
+
+fun <S, T> TableView<S>.validatedColumnProp(
+        itemProp: KProperty1<S, Property<T>>,
+        converter: StringConverter<T>,
+        columnName: String = itemProp.name,
+        required: Boolean = true,
+        allowDuplicates: Boolean = true,
+        validator: Validator<String> = { null },
+        op: TextField.() -> Unit = {}
+) = validatedColumnItemGetter(
+        itemProp, // this is substituted as KProperty1<S, Property<T>> !!!!
+        converter,
+        columnName,
+        required,
+        allowDuplicates,
+        validator,
+        op
+)
+
+
+fun <S> TableView<S>.validatedLongColumnProp(
+        itemProp: KProperty1<S, Property<Long>>,
+        columnName: String = itemProp.name,
+        nextValidator: Validator<Long> = { null },
+        op: TextField.() -> Unit = {}
+) = validatedColumnProp(itemProp, QuiteLongConverter, columnName, true, true, { newString ->
     when {
         !newString.isLong() -> error("Not a Long.")
         else -> nextValidator(newString.toLong())

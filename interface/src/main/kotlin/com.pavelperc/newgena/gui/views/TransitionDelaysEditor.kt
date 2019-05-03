@@ -18,50 +18,27 @@ class TransitionDelaysEditor(
         initialObjects: Map<String, JsonTimeDescription.DelayWithDeviation>,
         private val predefinedTransitionsToHints: Map<String, String> = emptyMap(),
         val onSuccess: (Map<String, JsonTimeDescription.DelayWithDeviation>) -> Unit = {}
-) : Fragment("NoiseEventsEditor") {
+) : Fragment("TransitionDelaysEditor") {
     
     private val predefinedHintsToTransitions = predefinedTransitionsToHints
             .filter { (_, v) -> v.isNotEmpty() }
             .map { (k, v) -> v to k }
             .toMap()
     
-    public inner class TransitionDelayTuple(
-            transitionId: String = "",
+    public data class TransitionDelayTuple(
+            var transitionId: String = "",
             var delay: Long = 5L,
             var deviation: Long = 1L
     ) {
-        val transitionIdProp = SimpleStringProperty(transitionId)
-        var transitionId by transitionIdProp
-        
-        val hintProp = SimpleStringProperty(predefinedTransitionsToHints[transitionId] ?: "")
-//        var hint by hintProp
-        
-        init {
-            // setup a hint
-            transitionIdProp.onChange { newString ->
-                // reset the hint if the value is unknown
-                hintProp.value = predefinedTransitionsToHints[newString] ?: ""
-            }
-            hintProp.onChange { hint ->
-                // update the value if the hint was found.
-                if (hint in predefinedHintsToTransitions) {
-                    transitionIdProp.value = predefinedHintsToTransitions[hint]
-                }
-            }
-        }
-        
-        fun copy() = TransitionDelayTuple(transitionId, delay, deviation)
-        
         constructor(transitionId: String, delayWithDeviation: JsonTimeDescription.DelayWithDeviation)
                 : this(transitionId, delayWithDeviation.delay, delayWithDeviation.deviation)
         
         fun toPair() = transitionId to JsonTimeDescription.DelayWithDeviation(delay, deviation)
     }
     
-    /** ViewModel is used here only for adding, not editing. */
-    private inner class TransitionDelayModel(initial: TransitionDelayTuple) : ItemViewModel<TransitionDelayTuple>(initial) {
+    public inner class TransitionDelayModel(initial: TransitionDelayTuple) : ItemViewModel<TransitionDelayTuple>(initial) {
         val transitionId = bind(TransitionDelayTuple::transitionId)
-        val hintProp = SimpleStringProperty(predefinedHintsToTransitions[transitionId.value] ?: "")
+        val hintProp = SimpleStringProperty(predefinedTransitionsToHints[transitionId.value] ?: "")
         
         val delay = bind(TransitionDelayTuple::delay)
         val deviation = bind(TransitionDelayTuple::deviation)
@@ -75,13 +52,14 @@ class TransitionDelaysEditor(
             }
             hintProp.onChange { hint ->
                 // always update the value
-                transitionId.value = predefinedHintsToTransitions[hint] ?: ""
+                if (!hint.isNullOrEmpty()) {
+                    transitionId.value = predefinedHintsToTransitions[hint] ?: ""
+                }
             }
         }
     }
     
-    // without a copy the noise in onsuccess is considered unchanged!!! and we have some bad links.
-    private val objects = initialObjects.map { (tr, delay) -> TransitionDelayTuple(tr, delay) }.observable()
+    private val objects = initialObjects.map { (tr, delay) -> TransitionDelayModel(TransitionDelayTuple(tr, delay)) }.observable()
     
     private val showLabel = predefinedTransitionsToHints.size > 0
     
@@ -91,15 +69,13 @@ class TransitionDelaysEditor(
             prefWidth = 550.0
             addClass(Styles.addItemRoot)
             
-            
-            
             form {
                 val model = TransitionDelayModel(TransitionDelayTuple())
                 
                 fun commit(): Boolean {
                     if (model.commit()) {
                         // create a copy
-                        objects.add(model.item.copy())
+                        objects.add(TransitionDelayModel(model.item.copy()))
                         return true
                     }
                     return false
@@ -111,7 +87,7 @@ class TransitionDelaysEditor(
                             validator { newString ->
                                 when {
                                     newString.isNullOrEmpty() -> error("Should not be empty.")
-                                    objects.any { it.transitionId == newString } -> error("Duplicate.")
+                                    objects.any { it.transitionId.value == newString } -> error("Duplicate.")
                                     else -> null
                                 }
                             }
@@ -173,14 +149,16 @@ class TransitionDelaysEditor(
                         }
                     }
                     action {
-                        onSuccess(objects.map { it.toPair() }.toMap())
+                        onSuccess(objects.map { it.commit(); it.item.toPair() }.toMap())
                         close()
                     }
                 }
                 if (showLabel) {
                     button("fill with default") {
                         action {
-                            objects.setAll(predefinedTransitionsToHints.keys.map { TransitionDelayTuple(it) })
+                            objects.setAll(predefinedTransitionsToHints.keys
+                                    .map { TransitionDelayTuple(it) }
+                                    .map { TransitionDelayModel(it) })
                         }
                     }
                 }
@@ -199,23 +177,30 @@ class TransitionDelaysEditor(
             useMaxSize = true
             vgrow = Priority.ALWAYS
             
-            validatedColumn(TransitionDelayTuple::transitionId, DefaultStringConverter(), allowDuplicates = false) {
+            validatedColumnProp(TransitionDelayModel::transitionId, DefaultStringConverter(), allowDuplicates = false) {
                 actionedAutoCompletion(predefinedTransitionsToHints.keys.toList())
             }
             
             if (showLabel) {
-                column("Label", TransitionDelayTuple::hintProp)
+                validatedColumnProp(TransitionDelayModel::hintProp, DefaultStringConverter(), "Label",
+                        validator = { newString ->
+                            if (newString !in predefinedHintsToTransitions)
+                                error("Unknown hint.")
+                            else null
+                        }) {
+                    actionedAutoCompletion(predefinedHintsToTransitions.keys.toList())
+                }
             }
             
-            validatedLongColumn(TransitionDelayTuple::delay, nextValidator = { newLong ->
+            validatedLongColumnProp(TransitionDelayModel::delay, nextValidator = { newLong ->
                 if (newLong < 0L) error("Should not be negative.") else null
             })
             
-            validatedLongColumn(TransitionDelayTuple::deviation, nextValidator = { newLong ->
+            validatedLongColumnProp(TransitionDelayModel::deviation, nextValidator = { newLong ->
                 if (newLong < 0L) error("Should not be negative.") else null
             })
             
-            column("Delete", TransitionDelayTuple::transitionId) {
+            column("Delete", TransitionDelayModel::transitionId) {
                 cellFormat {
                     graphic = button {
                         style {
