@@ -1,5 +1,6 @@
 package com.pavelperc.newgena.gui.customfields
 
+import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.views.ArrayEditor
 import com.pavelperc.newgena.gui.views.IntMapEditor
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
@@ -17,6 +18,7 @@ import org.controlsfx.control.Notifications
 import tornadofx.*
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
+import javafx.beans.property.ReadOnlyObjectWrapper
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
@@ -151,6 +153,7 @@ fun EventTarget.intSpinner(
 private class LongSpinnerValueFactory(val range: LongRange, val initialValue: Long) : SpinnerValueFactory<Long>() {
     val min = range.first
     val max = range.endInclusive
+    
     init {
         converter = QuiteLongConverter
         valueProperty().addListener { o, oldValue, newValue ->
@@ -162,10 +165,12 @@ private class LongSpinnerValueFactory(val range: LongRange, val initialValue: Lo
         }
         value = if (initialValue in range) initialValue else min
     }
+    
     override fun decrement(steps: Int) {
         val newIndex = value - steps
         value = if (newIndex >= min) newIndex else min
     }
+    
     override fun increment(steps: Int) {
         val newIndex = value + steps
         value = if (newIndex <= max) newIndex else max
@@ -638,3 +643,30 @@ fun <S> TableView<S>.validatedLongColumnProp(
         else -> nextValidator(newString.toLong())
     }
 }, op)
+
+
+fun <S> TableView<S>.makeDeleteColumn(): TableColumn<S, Any?> {
+    return TableColumn<S, Any?>("Delete").apply {
+        isSortable = false
+        prefWidth = width
+        
+        // if we use setCellFactory, it created infinite row of buttons.
+        setCellValueFactory { SimpleObjectProperty(Any()) }
+        
+        cellFormat {
+            style {
+                alignment = Pos.CENTER
+            }
+            graphic = button {
+                style {
+                    backgroundColor += Color.TRANSPARENT
+                }
+                graphic = Styles.closeIcon()
+                action {
+                    tableView.items.removeAt(index)
+                }
+            }
+        }
+        this@makeDeleteColumn.columns += this
+    }
+}

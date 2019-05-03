@@ -36,10 +36,6 @@ class Styles : Stylesheet() {
             }
         }
         
-        fun expandIcon() = FontAwesomeIconView(FontAwesomeIcon.EXPAND).apply {
-            //            addClass(closeIcon)
-        }
-        
     }
     
     init {

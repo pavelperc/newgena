@@ -69,11 +69,11 @@
       "granularityType" : "MINUTES_5"
     },
     "minimumIntervalBetweenActions" : 10,
-    "isSeparatingStartAndFinish" : true,
-    "isUsingResources" : false,
+    "isUsingResources" : true,
+    "isUsingLifecycle" : false,
     "isUsingComplexResourceSettings" : true,
     "maximumIntervalBetweenActions" : 20,
-    "isUsingLifecycle" : false,
+    "isSeparatingStartAndFinish" : true,
     "isUsingSynchronizationOnResources" : true
   }
 }

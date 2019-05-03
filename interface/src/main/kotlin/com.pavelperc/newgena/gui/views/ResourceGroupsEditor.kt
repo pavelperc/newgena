@@ -202,20 +202,7 @@ class ResourceGroupsEditor(
             validatedLongColumn(ResourceTuple::minDelayBetweenActionsMillis, nonNegative = true)
             validatedLongColumn(ResourceTuple::maxDelayBetweenActionsMillis, nonNegative = true)
             
-            
-            column("Delete", ResourceTuple::willBeFreed) {
-                cellFormat {
-                    graphic = button {
-                        style {
-                            backgroundColor += Color.TRANSPARENT
-                        }
-                        graphic = Styles.closeIcon()
-                        action {
-                            objects.remove(rowItem)
-                        }
-                    }
-                }
-            }
+            makeDeleteColumn()
         }
     }
 }

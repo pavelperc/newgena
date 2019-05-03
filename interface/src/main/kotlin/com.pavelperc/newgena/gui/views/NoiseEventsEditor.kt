@@ -132,20 +132,8 @@ class NoiseEventsEditor(
             validatedLongColumn(NoiseEvent::maxTimeDeviationSeconds, nextValidator = { newLong ->
                 if (newLong < 0L) error("Should not be negative.") else null
             })
-            
-            column("Delete", NoiseEvent::activity) {
-                cellFormat {
-                    graphic = button {
-                        style {
-                            backgroundColor += Color.TRANSPARENT
-                        }
-                        graphic = Styles.closeIcon()
-                        action {
-                            objects.remove(rowItem)
-                        }
-                    }
-                }
-            }
+    
+            makeDeleteColumn()
         }
     }
 }
