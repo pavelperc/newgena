@@ -3,7 +3,6 @@ package com.pavelperc.newgena.gui.views
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
-import com.pavelperc.newgena.loaders.settings.JsonTimeDescription
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.property.IntegerProperty
@@ -79,7 +78,7 @@ class SettingsView : View("Settings") {
                 fieldset("Marking") {
                     addClass(Styles.fieldSetFrame)
                     
-                    val validatePlaces: ValidationContext.(map: Map<String, Int>) -> ValidationMessage? = xx@{ map ->
+                    val validatePlaces: Validator<Map<String, Int>> = xx@{ map ->
                         if (map.values.any { it <= 0 })
                             return@xx error("All place counts should be positive.")
                         
@@ -232,7 +231,8 @@ class SettingsView : View("Settings") {
                             intMapField(
                                     staticPriorities.transitionIdsToPriorities,
                                     predefinedValuesToHints = { controller.transitionIdsWithHints },
-                                    hintName = "label"
+                                    hintName = "label",
+                                    fillDefaultButton = true
                             ) { map ->
                                 validatePriorities(map)
                             }
@@ -321,18 +321,43 @@ class SettingsView : View("Settings") {
                         }
                     }
                     field("transitionIdsToDelays") {
-                        fun delaysToString(newMap: Map<String, JsonTimeDescription.DelayWithDeviation>?) =
-                                newMap?.entries?.joinToString("; ") { (k, v) -> "$k: ${v.delay}+-${v.deviation}" } ?: ""
-        
-                        val tf = textfield(delaysToString(time.transitionIdsToDelays.value)) {
+                        val Status = object {
+                            val incorrect = "Ids doesn't match with model transitions."
+                            val correct = "Correct."
+                            val unknown = "Unknown: Petrinet is not loaded or empty"
+                            val empty = "Empty."
+                        }
+                        
+                        fun getStatus(): String {
+                            val delayIds = time.transitionIdsToDelays.value.keys
+                            val petrinetIds = controller.transitionIdsWithHints.keys
+                            
+                            return when {
+                                petrinetIds.isEmpty() -> Status.unknown
+                                delayIds.isEmpty() -> Status.empty
+                                petrinetIds != delayIds -> Status.incorrect
+                                else -> Status.correct
+                            }
+                        }
+                        
+                        val label = textfield(getStatus()) {
                             hgrow = Priority.ALWAYS
                             isEditable = false
                             style {
                                 backgroundColor += Color.TRANSPARENT
                             }
                         }
-                        time.transitionIdsToDelays.onChange { newMap ->
-                            tf.textProperty().value = delaysToString(newMap)
+                        time.transitionIdsToDelays.addValidator(label) {
+                            getStatus().let { status ->
+                                label.text = status
+                                when(status) {
+                                    Status.correct, Status.unknown -> null
+                                    else -> warning(status)
+                                }
+                            }
+                        }
+                        controller.petrinetProp.onChange { 
+                            label.text = getStatus()
                         }
                         button("Edit") {
                             action {
@@ -345,7 +370,7 @@ class SettingsView : View("Settings") {
                     }
                     
                     checkboxField(time.isUsingResources)
-    
+                    
                     squeezebox {
                         fold("Resources", time.isUsingResources.value) {
                             expandOn(time.isUsingResources)

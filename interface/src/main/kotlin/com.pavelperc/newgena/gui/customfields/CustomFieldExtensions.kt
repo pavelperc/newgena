@@ -273,6 +273,7 @@ fun EventTarget.intMapField(
         intValueRange: IntRange = positiveRange,
         predefinedValuesToHints: () -> Map<String, String?> = { emptyMap() },
         hintName: String = "hint",
+        fillDefaultButton: Boolean = false,
         mapValidator: ValidationContext.(Map<String, Int>) -> ValidationMessage? = { null }
 ) =
         field(mapProp.name) {
@@ -334,7 +335,8 @@ fun EventTarget.intMapField(
                             mapProp.name + " editor",
                             intValueRange,
                             predefinedValuesToHints(),
-                            hintName
+                            hintName,
+                            fillDefaultButton
                     ) { changedObjects ->
                         // set to textProp, textProp sets to mapProp
                         textProp.value = changedObjects.makeString()
@@ -422,6 +424,7 @@ fun <S, T> TableView<S>.validatedColumn(
         converter: StringConverter<T>,
         columnName: String = itemProp.name,
         required: Boolean = true,
+        allowDuplicates: Boolean = true,
         validator: Validator<String> = { null },
         op: TextField.() -> Unit = {}
 ) {
@@ -436,6 +439,14 @@ fun <S, T> TableView<S>.validatedColumn(
             val validationContext = ValidationContext()
             val tempProp = SimpleObjectProperty(item)
             
+            fun isDuplicate(newString: String): Boolean {
+                val newValue = converter.fromString(newString)
+                val objects = tableView.items
+                return objects
+                        .map { itemProp.call(it) }
+                        .any { it == newValue && it != item }
+            }
+            
             graphic = vbox {
                 // edit:
                 textfield(tempProp, converter) {
@@ -443,7 +454,8 @@ fun <S, T> TableView<S>.validatedColumn(
                     validationContext.addValidator(this) { newString ->
                         when {
                             newString == null -> error("Null.")
-                            required && newString.isEmpty() -> error("ShouldNotBeEmpty")
+                            required && newString.isEmpty() -> error("Should not be empty.")
+                            !allowDuplicates && isDuplicate(newString) -> error("Duplicate.")
                             else -> validator(newString)
                         }
                     }
@@ -471,22 +483,14 @@ fun <S, T> TableView<S>.validatedColumn(
     }
 }
 
-fun <S> TableView<S>.validatedStringColumn(
-        itemProp: KMutableProperty1<S, String>,
-        columnName: String = itemProp.name,
-        required: Boolean = true,
-        nextValidator: Validator<String> = { null },
-        op: TextField.() -> Unit = {}
-) = validatedColumn(itemProp, DefaultStringConverter(), columnName, required, nextValidator, op)
-
 fun <S> TableView<S>.validatedLongColumn(
         itemProp: KMutableProperty1<S, Long>,
         columnName: String = itemProp.name,
         nextValidator: Validator<Long> = { null },
         op: TextField.() -> Unit = {}
-) = validatedColumn(itemProp, QuiteLongConverter, columnName, true, validator = { newString ->
+) = validatedColumn(itemProp, QuiteLongConverter, columnName, true, true, { newString ->
     when {
         !newString.isLong() -> error("Not a Long.")
         else -> nextValidator(newString.toLong())
     }
-}, op = op)
+}, op)

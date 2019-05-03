@@ -21,7 +21,7 @@
   "isRemovingUnfinishedTraces" : true,
   "isUsingNoise" : true,
   "isUsingStaticPriorities" : false,
-  "isUsingTime" : false,
+  "isUsingTime" : true,
   "maxNumberOfSteps" : 50,
   "noiseDescription" : {
     "noiseLevel" : 50,
@@ -68,12 +68,12 @@
       "maxTimestampDeviationSeconds" : 0,
       "granularityType" : "MINUTES_5"
     },
-    "isUsingSynchronizationOnResources" : true,
-    "isUsingLifecycle" : false,
-    "isUsingResources" : false,
+    "minimumIntervalBetweenActions" : 10,
     "isSeparatingStartAndFinish" : true,
-    "maximumIntervalBetweenActions" : 20,
+    "isUsingResources" : false,
     "isUsingComplexResourceSettings" : true,
-    "minimumIntervalBetweenActions" : 10
+    "maximumIntervalBetweenActions" : 20,
+    "isUsingLifecycle" : false,
+    "isUsingSynchronizationOnResources" : true
   }
 }

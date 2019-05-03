@@ -18,6 +18,7 @@ import guru.nidi.graphviz.engine.Graphviz
 import javafx.beans.binding.Bindings
 import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.EventHandler
 import javafx.stage.DirectoryChooser
@@ -35,26 +36,30 @@ class SettingsUIController : Controller() {
     val jsonSettings: JsonSettings
         get() = settingsModel.item!!
     
-    var petrinet: ResetInhibitorNet? = null
-        private set(value) {
+    val petrinetProp = SimpleObjectProperty<ResetInhibitorNet?>(null).apply {
+        onChange { value ->
             placeIdsWithHints = value?.places
                     ?.map { it.pnmlId to (it.label ?: "") }
                     ?.toMap()
                     ?: emptyMap()
-            
+    
             transitionIdsWithHints = value?.transitions
                     ?.map { it.pnmlId to (it.label ?: "") }
                     ?.toMap()
                     ?: emptyMap()
-            
+    
             inputEdgeIdsWithHints = value?.transitions
                     ?.flatMap { value.getInEdges(it) }
                     ?.map { it.pnmlId to "${it.source.pnmlId}->${it.target.pnmlId}" }
                     ?.toMap()
                     ?: emptyMap()
-            
-            field = value
+    
+            // restart validation ???
+//            settingsModel.validate()
         }
+    }
+    
+    var petrinet by petrinetProp
     
     /** Place pnml ids of loaded petrinet, or empty map. Hints are labels. */
     var placeIdsWithHints: Map<String, String> = emptyMap()
@@ -85,7 +90,7 @@ class SettingsUIController : Controller() {
         }
     
     // --- javafx properties:
-    /** True if the loaded petrinet is from settings file path.*/
+    /** True if the loaded petrinet corresponds with settings file path. */
     val isPetrinetUpdated = SimpleBooleanProperty(false)
     val isPetrinetDirty = isPetrinetUpdated.not()
     
@@ -227,6 +232,8 @@ class SettingsUIController : Controller() {
     
     fun loadPetrinet(): ResetInhibitorNet {
         profile("Loading petrinet") {
+            petrinet = null
+            loadedPetrinetFilePath = null
             PnmlLoader.loadPetrinetWithOwnParser(petrinetSetupModel.petrinetFile.value).also { result ->
                 petrinet = result.first
                 pnmlMarking = result.second

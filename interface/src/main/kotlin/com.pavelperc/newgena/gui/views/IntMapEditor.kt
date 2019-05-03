@@ -50,6 +50,7 @@ class IntMapEditor(
         val predefinedValuesToHints: Map<String, String?> = emptyMap(),
         /** Name of the hints for predefined values. */
         private val hintName: String = "hint",
+        private val fillDefaultButton: Boolean = false,
         val onSuccess: (Map<String, Int>) -> Unit = {}
 ) : Fragment(title) {
     
@@ -111,7 +112,7 @@ class IntMapEditor(
                     objects.remove(selectedItem)
                 }
             }
-    
+            
             focusedProperty().onChange { focused ->
                 if (!focused && editingIndex == -1) {
                     selectionModel.clearSelection()
@@ -218,11 +219,22 @@ class IntMapEditor(
                         close()
                     }
                 }
+                
             }
-            
             if (predefinedValuesToHints.size > 0) {
-                checkbox("Show $hintName", showHint) {
-                    isFocusTraversable = false
+                borderpane {
+                    useMaxWidth = true
+                    vgrow = Priority.ALWAYS
+                    left = checkbox("Show $hintName", showHint) {
+                        isFocusTraversable = false
+                    }
+                    if (fillDefaultButton) {
+                        right = button("fill with default") {
+                            action {
+                                objects.setAll(predefinedValuesToHints.keys.map { MutablePair(it, 1) })
+                            }
+                        }
+                    }
                 }
             }
             
@@ -347,7 +359,7 @@ class IntMapEditor(
                         when {
                             newString == null -> error("Should not be null.")
                             newString.isBlank() -> error("Should not be blank.")
-                            objects.any { it.string == newString && it.string != item.string} -> error("Duplicate.")
+                            objects.any { it.string == newString && it.string != item.string } -> error("Duplicate.")
                             else -> null
                         }
                     }
