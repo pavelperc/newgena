@@ -7,7 +7,6 @@ import javafx.event.EventTarget
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
-import javafx.scene.paint.Color
 import javafx.util.converter.DefaultStringConverter
 import tornadofx.*
 import tornadofx.controlsfx.bindAutoCompletion

@@ -59,7 +59,7 @@ fun TextInputControl.validInt(
     
 }
 
-/** The same as required, but with the next validator. */
+/** Validator. The same as [required], but with the next validator. */
 fun TextInputControl.notEmpty(
         nextValidator: Validator<String> = { null }
 ) {
@@ -271,8 +271,6 @@ fun EventTarget.arrayField(
         listValidator: Validator<List<String>> = { null }
 ) =
         field(listProp.name) {
-            hgrow = Priority.ALWAYS
-            
             val viewModel = listProp.viewModel
             // textProp is now bound to ViewModel, so we can add a validator.
             val textProp = SimpleStringProperty(viewModel, "${listProp.name}_text", listProp.value.joinToString("; "))

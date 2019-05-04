@@ -144,10 +144,21 @@ class TimeModel(initial: JsonTimeDescription)
     val transitionIdsToDelays = bindMap(JsonTimeDescription::transitionIdsToDelays)
     val generationStart = bind(JsonTimeDescription::generationStart)
     
+    val isUsingLifecycle = bind(JsonTimeDescription::isUsingLifecycle)
+    val isSeparatingStartAndFinish = bind(JsonTimeDescription::isSeparatingStartAndFinish)
+    
+    val minimumIntervalBetweenActions = bind(JsonTimeDescription::minimumIntervalBetweenActions)
+    val maximumIntervalBetweenActions = bind(JsonTimeDescription::maximumIntervalBetweenActions)
+    
+    
+    
+    
     val isUsingResources = bind(JsonTimeDescription::isUsingResources)
     val simplifiedResources = bindList(JsonTimeDescription::simplifiedResources)
     
     val resourceGroups = bindList(JsonTimeDescription::resourceGroups)
+    
+    val transitionIdsToResources = bindMap(JsonTimeDescription::transitionIdsToResources)
     
     
     

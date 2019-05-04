@@ -136,6 +136,10 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
             } else {
                 timeNoiseDescriptionCreator = { TimeNoiseDescription() }
             }
+    
+            if (transitionIdsToDelays.size != petrinet.transitions.size) {
+                throw IllegalStateException("transitionIdsToDelays mapping should be specified for each transition.")
+            }
             
             TimeDrivenGenerationDescription(
                     numberOfLogs = numberOfLogs,
@@ -212,19 +216,18 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
         // we create roles and resources in special lambdas - creators,
         // because all roles need groups, all resources need roles and groups and vice versa
         
-        // oldRole, oldRes mean json role and res
         return Group(name) { newGroup ->
-            roles.map { oldRole ->
+            roles.map { jsonRole ->
                 Role(
-                        name = oldRole.name,
+                        name = jsonRole.name,
                         group = newGroup
                 ) { _, newRole ->
-                    oldRole.resources.map { oldRes ->
+                    jsonRole.resources.map { jsonRes ->
                         Resource(
-                                name = oldRes.name,
-                                willBeFreed = oldRes.willBeFreed,
-                                minDelayBetweenActions = oldRes.minDelayBetweenActionsMillis,
-                                maxDelayBetweenActions = oldRes.maxDelayBetweenActionsMillis,
+                                name = jsonRes.name,
+                                willBeFreed = jsonRes.willBeFreed,
+                                minDelayBetweenActions = jsonRes.minDelayBetweenActionsMillis,
+                                maxDelayBetweenActions = jsonRes.maxDelayBetweenActionsMillis,
                                 group = newGroup,
                                 role = newRole
                         )

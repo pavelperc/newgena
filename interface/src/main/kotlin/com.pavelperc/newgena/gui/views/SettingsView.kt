@@ -256,6 +256,7 @@ class SettingsView : View("Settings") {
                                 
                             } catch (e: Exception) {
                                 alert(Alert.AlertType.ERROR, "Couldn't apply settings:", e.message)
+                                e.printStackTrace()
                             }
                             
                         }
@@ -384,6 +385,61 @@ class SettingsView : View("Settings") {
                                         action {
                                             ResourceGroupsEditor(time.resourceGroups.value) { groups ->
                                                 time.resourceGroups.value = groups.toMutableList()
+                                            }.openWindow(escapeClosesWindow = false)
+                                        }
+                                    }
+                                }
+                                
+                                
+                                field("transitionIdsToResources") {
+//                                    val Status = object {
+//                                        val incorrect = "Ids doesn't match with model transitions."
+//                                        val correct = "Correct."
+//                                        val unknown = "Unknown: Petrinet is not loaded or empty"
+//                                        val empty = "Empty."
+//                                    }
+//    
+//                                    fun getStatus(): String {
+//                                        val delayIds = time.transitionIdsToDelays.value.keys
+//                                        val petrinetIds = controller.transitionIdsWithHints.keys
+//        
+//                                        return when {
+//                                            petrinetIds.isEmpty() -> Status.unknown
+//                                            delayIds.isEmpty() -> Status.empty
+//                                            petrinetIds != delayIds -> Status.incorrect
+//                                            else -> Status.correct
+//                                        }
+//                                    }
+//    
+//                                    val label = textfield(getStatus()) {
+//                                        hgrow = Priority.ALWAYS
+//                                        isEditable = false
+//                                        style {
+//                                            backgroundColor += Color.TRANSPARENT
+//                                        }
+//                                    }
+//                                    time.transitionIdsToDelays.addValidator(label) {
+//                                        getStatus().let { status ->
+//                                            label.text = status
+//                                            when (status) {
+//                                                Status.correct, Status.unknown -> null
+//                                                else -> warning(status)
+//                                            }
+//                                        }
+//                                    }
+//                                    controller.petrinetProp.onChange {
+//                                        label.text = getStatus()
+//                                    }
+                                    
+                                    button("Edit") {
+                                        action {
+                                            ResourceMappingEditor(
+                                                    time.transitionIdsToResources.value,
+                                                    controller.transitionIdsWithHints,
+                                                    time.simplifiedResources.value,
+                                                    time.resourceGroups.value
+                                            ) { newMapping ->
+                                                time.transitionIdsToResources.value = newMapping.toMutableMap()
                                             }.openWindow(escapeClosesWindow = false)
                                         }
                                     }

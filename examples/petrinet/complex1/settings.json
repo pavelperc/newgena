@@ -18,13 +18,13 @@
   },
   "outputFolder" : "xes-out",
   "isRemovingEmptyTraces" : true,
-  "isRemovingUnfinishedTraces" : true,
-  "isUsingNoise" : true,
+  "isRemovingUnfinishedTraces" : false,
+  "isUsingNoise" : false,
   "isUsingStaticPriorities" : false,
   "isUsingTime" : true,
-  "maxNumberOfSteps" : 50,
+  "maxNumberOfSteps" : 6,
   "noiseDescription" : {
-    "noiseLevel" : 50,
+    "noiseLevel" : 1,
     "isSkippingTransitions" : true,
     "isUsingExternalTransitions" : true,
     "isUsingInternalTransitions" : true,
@@ -56,11 +56,101 @@
     }
   },
   "timeDescription" : {
-    "simplifiedResources" : [ ],
-    "resourceGroups" : [ ],
-    "transitionIdsToDelays" : { },
+    "simplifiedResources" : [ "simple1", "simple2", "simple3", "simple4" ],
+    "resourceGroups" : [ {
+      "name" : "g1",
+      "roles" : [ {
+        "name" : "r1",
+        "resources" : [ {
+          "name" : "n1",
+          "willBeFreed" : 20,
+          "minDelayBetweenActionsMillis" : 25,
+          "maxDelayBetweenActionsMillis" : 30
+        }, {
+          "name" : "n2",
+          "willBeFreed" : 0,
+          "minDelayBetweenActionsMillis" : 0,
+          "maxDelayBetweenActionsMillis" : 0
+        } ]
+      }, {
+        "name" : "r2",
+        "resources" : [ {
+          "name" : "n3",
+          "willBeFreed" : 0,
+          "minDelayBetweenActionsMillis" : 3,
+          "maxDelayBetweenActionsMillis" : 10
+        } ]
+      }, {
+        "name" : "r3",
+        "resources" : [ {
+          "name" : "n3",
+          "willBeFreed" : 0,
+          "minDelayBetweenActionsMillis" : 0,
+          "maxDelayBetweenActionsMillis" : 0
+        } ]
+      } ]
+    } ],
+    "transitionIdsToDelays" : {
+      "transition1" : {
+        "delay" : 5,
+        "deviation" : 0
+      },
+      "transition2" : {
+        "delay" : 5,
+        "deviation" : 0
+      },
+      "transition4" : {
+        "delay" : 5,
+        "deviation" : 0
+      },
+      "transition5" : {
+        "delay" : 5,
+        "deviation" : 0
+      },
+      "transition6" : {
+        "delay" : 5,
+        "deviation" : 0
+      }
+    },
     "generationStart" : "2019-04-07T22:27:06.991",
-    "transitionIdsToResources" : { },
+    "transitionIdsToResources" : {
+      "transition1" : {
+        "fullResourceNames" : [ {
+          "groupName" : "g1",
+          "roleName" : "r1",
+          "resourceName" : "n1"
+        }, {
+          "groupName" : "g1",
+          "roleName" : "r3",
+          "resourceName" : "n3"
+        }, {
+          "groupName" : "g1",
+          "roleName" : "r1",
+          "resourceName" : "n2"
+        } ],
+        "simplifiedResourceNames" : [ "simple1", "simple2" ]
+      },
+      "transition2" : {
+        "fullResourceNames" : [ {
+          "groupName" : "g1",
+          "roleName" : "r2",
+          "resourceName" : "n3"
+        } ],
+        "simplifiedResourceNames" : [ ]
+      },
+      "transition4" : {
+        "fullResourceNames" : [ ],
+        "simplifiedResourceNames" : [ "simple3", "simple4" ]
+      },
+      "transition5" : {
+        "fullResourceNames" : [ ],
+        "simplifiedResourceNames" : [ "simple1" ]
+      },
+      "transition6" : {
+        "fullResourceNames" : [ ],
+        "simplifiedResourceNames" : [ "simple2" ]
+      }
+    },
     "timeDrivenNoise" : {
       "isUsingTimestampNoise" : true,
       "isUsingLifecycleNoise" : true,
@@ -68,12 +158,13 @@
       "maxTimestampDeviationSeconds" : 0,
       "granularityType" : "MINUTES_5"
     },
-    "minimumIntervalBetweenActions" : 10,
+    "isUsingSynchronizationOnResources" : true,
     "isUsingResources" : true,
     "isUsingLifecycle" : false,
-    "isUsingComplexResourceSettings" : true,
-    "maximumIntervalBetweenActions" : 20,
-    "isSeparatingStartAndFinish" : true,
-    "isUsingSynchronizationOnResources" : true
+    "minimumIntervalBetweenActions" : 10,
+    "isSeparatingStartAndFinish" : false,
+    
+    "isUsingComplexResourceSettings" : false,
+    "maximumIntervalBetweenActions" : 20
   }
 }

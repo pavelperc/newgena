@@ -21,17 +21,24 @@ class Resource constructor(
 {
     init {
         if ((role == null) xor (group == null))
-            throw IllegalArgumentException("Error in Resource.init(): role and group should be both null or not.")
+            throw IllegalArgumentException("Error in $this: role and group should be both null or not.")
         
         
         if (role?.group != group) {
-            throw IllegalArgumentException("Precondition violated in Resource.init(). Incorrect role")
+            throw IllegalArgumentException("Precondition violated in $this. Incorrect role.")
+        }
+        
+        if (minDelayBetweenActions > maxDelayBetweenActions) {
+            throw IllegalArgumentException("Precondition violated in $this. minDelayBetweenActions > maxDelayBetweenACtions.")
         }
         
         if (willBeFreed != 0L) {
             addDelay()
         }
     }
+    
+    val fullName: String
+        get() = "$name:${role?.name}:${group?.name}"
     
     var willBeFreed = willBeFreed
         private set
@@ -46,7 +53,7 @@ class Resource constructor(
             addDelay()
         }
     }
-    
+
 //    fun relocate(newGroup: Group, newRole: Role) {
 //        // TODO: logic?
 //        if (newGroup != newRole.group) {
@@ -62,14 +69,14 @@ class Resource constructor(
         willBeFreed += Random.nextLong(minDelayBetweenActions..maxDelayBetweenActions)
     }
     
-    override fun toString() = "Resource($name)"
+    override fun toString() = "Resource($fullName)"
     
     override fun compareTo(other: Resource) = this.name.compareTo(other.name)
-    
+
 //    fun removeResource() {
 //        group?.removeResource(this)
 //    }
-    
+
 //    fun setDelayBetweenActions(minDelay: Long, maxDelay: Long) {
 //        minDelayBetweenActions = minDelay
 //        maxDelayBetweenActions = maxDelay

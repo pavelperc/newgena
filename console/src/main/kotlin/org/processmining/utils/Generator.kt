@@ -18,6 +18,7 @@ import org.processmining.models.GenerationDescription
 import org.processmining.models.Movable
 import org.processmining.models.MovementResult
 import org.processmining.models.descriptions.SimpleGenerationDescription
+import org.processmining.models.descriptions.TimeDrivenGenerationDescription
 import org.processmining.utils.helpers.GenerationHelper
 import org.processmining.utils.helpers.PetriNetGenerationHelper
 
@@ -53,6 +54,7 @@ class Generator(private val callback: ProgressBarCallback) {
         log.globalTraceAttributes.addAll(conceptExtension.traceAttributes)
         
         if (generationDescription.isUsingTime) {
+            TimeDrivenLoggingSingleton.init(generationDescription as TimeDrivenGenerationDescription)
             log.extensions.add(XTimeExtension.instance())
         }
         
