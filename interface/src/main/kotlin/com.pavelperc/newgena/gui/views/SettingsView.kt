@@ -122,7 +122,7 @@ class SettingsView : View("Settings") {
                     }
                 }
                 
-                foldingFieldSet("Noise", settings.isUsingNoise, false) {
+                foldingFieldSet("Noise", settings.isUsingNoise) {
                     intField(noise.noiseLevel, validRange = 1..100, fieldOp = {
                         slider(1..100, noise.noiseLevel.value) {
                             blockIncrement = 1.0

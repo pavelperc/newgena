@@ -29,7 +29,7 @@ private fun <S, T> TableView<S>.validatedColumnItemGetter(
         op: TextField.() -> Unit = {},
         /** just an optimization for KProp. */
         rawItemGetter: ((row: S) -> T)? = { row -> itemGetter(row).value }
-) {
+) : TableColumn<S, T> {
     // default column and label builders are inline and can not simply infer type T
     // this is copied from column builder:
     val column = TableColumn<S, T>(columnName)
@@ -82,6 +82,7 @@ private fun <S, T> TableView<S>.validatedColumnItemGetter(
             }
         }
     }
+    return column
 }
 
 fun <S, T> TableView<S>.validatedColumn(
@@ -150,10 +151,10 @@ fun <S> TableView<S>.validatedLongColumnProp(
 }, op)
 
 fun <S> TableView<S>.makeDeleteColumn(): TableColumn<S, Any?> {
-    return TableColumn<S, Any?>("Delete").apply {
+    return TableColumn<S, Any?>("Del.").apply {
         isSortable = false
 //        prefWidth = width
-        fixedWidth(80.0)
+        fixedWidth(50.0)
         
         
         // if we use setCellFactory, it created infinite row of buttons.

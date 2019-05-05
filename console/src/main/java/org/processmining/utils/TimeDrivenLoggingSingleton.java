@@ -162,6 +162,10 @@ public class TimeDrivenLoggingSingleton extends LoggingSingleton
     {
         Map<Object, ResourceMapping> generalMapping = description.getResourceMapping();
         ResourceMapping mapping = generalMapping.get(modelActivity);
+        if (mapping == null) {
+            throw new IllegalStateException("Can not find resource mapping for activity " + modelActivity + ".");
+        }
+        
         List<Resource> availableResources = new ArrayList<Resource>(mapping.getSelectedResources());
         if (!description.isUsingComplexResourceSettings())
         {
@@ -235,7 +239,6 @@ public class TimeDrivenLoggingSingleton extends LoggingSingleton
 
         if (description.isUsingNoise() && noiseDescription.isUsingTimeGranularity())
         {
-            System.out.println("Timestamp is granulated"); //TODO delete?
             long precision = noiseDescription.getGranularityType().getPrecision();
             long modulo = timestamp % precision;
 
@@ -254,6 +257,10 @@ public class TimeDrivenLoggingSingleton extends LoggingSingleton
     public long getNearestResourceTime(Object modelActivity)
     {
         List<Resource> resources = getAllResourcesMappedToActivity(modelActivity);
+        if (resources.isEmpty()) {
+            throw new IllegalStateException("Can not find resources for activity " + modelActivity + ".");
+        }
+        
         long leastResourceTime = resources.get(0).getWillBeFreed();
         for (Resource resource : resources)
         {

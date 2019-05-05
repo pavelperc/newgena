@@ -69,7 +69,7 @@ class Resource constructor(
         willBeFreed += Random.nextLong(minDelayBetweenActions..maxDelayBetweenActions)
     }
     
-    override fun toString() = "Resource($fullName)"
+    override fun toString() = name
     
     override fun compareTo(other: Resource) = this.name.compareTo(other.name)
 

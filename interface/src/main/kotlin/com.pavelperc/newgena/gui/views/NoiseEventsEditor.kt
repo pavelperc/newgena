@@ -135,7 +135,7 @@ class NoiseEventsEditor(
             validatedLongColumn(NoiseEvent::maxTimeDeviationSeconds, nextValidator = { newLong ->
                 if (newLong < 0L) error("Should not be negative.") else null
             })
-    
+            
             makeDeleteColumn()
         }
     }

@@ -19,10 +19,10 @@
   "outputFolder" : "xes-out",
   "isRemovingEmptyTraces" : true,
   "isRemovingUnfinishedTraces" : false,
-  "isUsingNoise" : true,
+  "isUsingNoise" : false,
   "isUsingStaticPriorities" : false,
   "isUsingTime" : true,
-  "maxNumberOfSteps" : 6,
+  "maxNumberOfSteps" : 10,
   "noiseDescription" : {
     "noiseLevel" : 1,
     "isSkippingTransitions" : true,
@@ -154,11 +154,19 @@
         "simplifiedResourceNames" : [ ]
       },
       "transition4" : {
-        "fullResourceNames" : [ ],
+        "fullResourceNames" : [ {
+          "groupName" : "g1",
+          "roleName" : "r1",
+          "resourceName" : "n1"
+        } ],
         "simplifiedResourceNames" : [ "simple3", "simple4" ]
       },
       "transition5" : {
-        "fullResourceNames" : [ ],
+        "fullResourceNames" : [ {
+          "groupName" : "g1",
+          "roleName" : "r1",
+          "resourceName" : "n1"
+        } ],
         "simplifiedResourceNames" : [ "simple1" ]
       },
       "transition6" : {
@@ -177,12 +185,12 @@
       "maxTimestampDeviationSeconds" : 0,
       "granularityType" : "MINUTES_5"
     },
-    "isUsingComplexResourceSettings" : false,
-    "minimumIntervalBetweenActions" : 10,
+    "isUsingComplexResourceSettings" : true,
+    "isUsingResources" : true,
     "isUsingLifecycle" : false,
+    "minimumIntervalBetweenActions" : 10,
     "maximumIntervalBetweenActions" : 20,
     "isSeparatingStartAndFinish" : false,
-    "isUsingResources" : true,
     "isUsingSynchronizationOnResources" : true
   }
 }

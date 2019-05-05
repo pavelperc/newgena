@@ -12,7 +12,7 @@ class Role(
 {
     val resources = resourcesCreator(group, this)
     
-    override fun toString() = "Role($name)"
+    override fun toString() = name
     
     override fun compareTo(other: Role) = name.compareTo(other.name)
 }

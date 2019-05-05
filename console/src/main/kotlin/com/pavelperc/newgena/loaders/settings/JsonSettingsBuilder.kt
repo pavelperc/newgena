@@ -223,6 +223,7 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
                         group = newGroup
                 ) { _, newRole ->
                     jsonRole.resources.map { jsonRes ->
+//                        println("Creating resource ${jsonRes.name}: ${newRole.name} : ${newGroup.name} ")
                         Resource(
                                 name = jsonRes.name,
                                 willBeFreed = jsonRes.willBeFreed,

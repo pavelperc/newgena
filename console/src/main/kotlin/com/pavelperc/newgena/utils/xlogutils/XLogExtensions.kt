@@ -41,7 +41,9 @@ fun XTrace.eventNames() = map { event -> event.name }
 fun XLog.eventNames() = map { trace -> trace.eventNames() }
 
 fun EventLogArray.toSeq(): Sequence<XLog> = sequence {
-    0.until(size).forEach { i -> yield(getLog(i)) }
+    repeat(size) { i ->
+        yield(getLog(i))
+    }
 }
 
 fun EventLogArray.toList() = this.toSeq().toList()

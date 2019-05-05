@@ -54,6 +54,6 @@ class Group(
     // computed just once, as the resources are immutable
     val resources = roles.flatMap { it.resources }
     
-    override fun toString() = "Group($name)"
+    override fun toString() = name
     override fun compareTo(other: Group) = this.name.compareTo(other.name)
 }
