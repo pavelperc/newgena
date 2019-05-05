@@ -66,7 +66,6 @@ class TransitionDelaysEditor(
     // --- HEADER ---
     fun EventTarget.header() {
         hbox {
-            prefWidth = 550.0
             addClass(Styles.addItemRoot)
             
             form {
@@ -161,13 +160,16 @@ class TransitionDelaysEditor(
     
     
     override val root = vbox {
-        
+        prefWidth = 500.0
         header()
         
         tableview(objects) {
             isEditable = true
             useMaxSize = true
             vgrow = Priority.ALWAYS
+            regainFocusAfterEdit()
+            selectionModel.isCellSelectionEnabled = true
+            columnResizePolicy = SmartResize.POLICY
             
             validatedColumnProp(TransitionDelayModel::transitionId, DefaultStringConverter(), allowDuplicates = false) {
                 actionedAutoCompletion(predefinedTransitionsToHints.keys.toList())

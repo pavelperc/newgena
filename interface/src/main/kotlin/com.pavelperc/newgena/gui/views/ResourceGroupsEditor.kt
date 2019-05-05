@@ -81,7 +81,6 @@ class ResourceGroupsEditor(
     // --- HEADER ---
     fun EventTarget.header() {
         hbox {
-            prefWidth = 550.0
             addClass(Styles.addItemRoot)
             
             form {
@@ -180,13 +179,17 @@ class ResourceGroupsEditor(
     
     
     override val root = vbox {
-        
+        prefWidth = 1000.0
         header()
         
         tableview(objects) {
             isEditable = true
             useMaxSize = true
             vgrow = Priority.ALWAYS
+            regainFocusAfterEdit()
+            selectionModel.isCellSelectionEnabled = true
+            columnResizePolicy = SmartResize.POLICY
+            
             
             validatedColumn(ResourceTuple::resourceName, DefaultStringConverter())
             validatedColumn(ResourceTuple::roleName, DefaultStringConverter()) {

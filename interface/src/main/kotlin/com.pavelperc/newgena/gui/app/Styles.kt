@@ -22,7 +22,7 @@ class Styles : Stylesheet() {
 //        val intMapEditorItem by cssclass()
         val sortingPanel by cssclass()
         val upDownPanel by cssclass()
-    
+        
         fun closeIcon() = FontAwesomeIconView(FontAwesomeIcon.CLOSE).apply {
             glyphSize = 22
 //            addClass(closeIcon)

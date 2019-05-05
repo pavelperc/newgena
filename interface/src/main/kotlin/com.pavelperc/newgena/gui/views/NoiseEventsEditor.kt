@@ -43,7 +43,6 @@ class NoiseEventsEditor(
     // --- HEADER ---
     fun EventTarget.header() {
         hbox {
-            prefWidth = 550.0
             addClass(Styles.addItemRoot)
             
             
@@ -115,13 +114,17 @@ class NoiseEventsEditor(
     
     
     override val root = vbox {
-        
+        prefWidth = 600.0
         header()
         
         tableview(objects) {
             isEditable = true
             useMaxSize = true
             vgrow = Priority.ALWAYS
+            regainFocusAfterEdit()
+            selectionModel.isCellSelectionEnabled = true
+            columnResizePolicy = SmartResize.POLICY
+            
             
             validatedColumn(NoiseEvent::activity, activityConverter, required = true)
             
