@@ -6,17 +6,16 @@ import com.pavelperc.newgena.gui.customfields.*
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.property.IntegerProperty
-import javafx.beans.property.Property
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
-import javafx.scene.control.TitledPane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.util.Duration
 import javafx.util.StringConverter
+import org.processmining.models.time_driven_behavior.GranularityTypes
 import tornadofx.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -33,6 +32,7 @@ class SettingsView : View("Settings") {
     private val staticPriorities = controller.staticPrioritiesModel
     private val noise = controller.noiseModel
     private val time = controller.timeModel
+    private val timeNoise = controller.timeNoiseModel
     
     override val root = VBox()
     
@@ -52,14 +52,9 @@ class SettingsView : View("Settings") {
         }
     }
     
-    private fun TitledPane.expandOn(prop: Property<Boolean>) {
-        // one direction binding
-        prop.onChange { checked -> this.isExpanded = checked!! }
-    }
-    
     init {
         with(root) {
-            scrollablefieldset {
+            scrollableFieldset {
                 field("outputFolder") {
                     textfield(settings.outputFolder).required()
                     
@@ -106,9 +101,9 @@ class SettingsView : View("Settings") {
                 }
                 
                 
-                intField(settings.numberOfLogs) { validUint() }
-                intField(settings.numberOfTraces) { validUint() }
-                intField(settings.maxNumberOfSteps) { validUint() }
+                intField(settings.numberOfLogs, nonNegative = true)
+                intField(settings.numberOfTraces, nonNegative = true)
+                intField(settings.maxNumberOfSteps, nonNegative = true)
 
 //                intSpinnerField(settings.numberOfLogs, nonNegativeRange)
 //                intSpinnerField(settings.numberOfTraces, nonNegativeRange)
@@ -126,48 +121,52 @@ class SettingsView : View("Settings") {
                             settings.isUsingStaticPriorities.value = false
                     }
                 }
-                squeezebox {
-                    fold("Noise", settings.isUsingNoise.value) {
-                        expandOn(settings.isUsingNoise)
+                
+                foldingFieldSet("Noise", settings.isUsingNoise, false) {
+                    intField(noise.noiseLevel, validRange = 1..100, fieldOp = {
+                        slider(1..100, noise.noiseLevel.value) {
+                            blockIncrement = 1.0
+                            valueProperty().bindBidirectional(noise.noiseLevel as IntegerProperty)
+                        }
+                    }) {
+                        minWidth = 50.0
+                        maxWidth = 50.0
+                    }
+                    
+                    checkboxField(noise.isSkippingTransitions)
+                    checkboxField(noise.isUsingExternalTransitions)
+                    checkboxField(noise.isUsingInternalTransitions)
+                    arrayField(
+                            noise.internalTransitionIds,
+                            predefinedValuesToHints = { controller.transitionIdsWithHints },
+                            hintName = "labels"
+                    )
+                    
+                    
+                    field("artificialNoiseEvents") {
                         
-                        fieldset {
-                            intField(noise.noiseLevel, fieldOp = {
-                                slider(1..100, noise.noiseLevel.value) {
-                                    blockIncrement = 1.0
-                                    valueProperty().bindBidirectional(noise.noiseLevel as IntegerProperty)
-                                }
-                            }) {
-                                minWidth = 50.0
-                                maxWidth = 50.0
-                                validRangeInt(1..100)
+                        readOnlyTextField(noise.artificialNoiseEvents, { newList ->
+                            newList.let { if (it.isEmpty()) "Empty." else it.joinToString("; ") }
+                        })
+                        
+                        button("Edit") {
+                            action {
+                                NoiseEventsEditor(noise.artificialNoiseEvents.value) { events ->
+                                    noise.artificialNoiseEvents.value = events.toMutableList()
+                                }.openWindow(escapeClosesWindow = false)
                             }
-                            
-                            checkboxField(noise.isSkippingTransitions)
-                            checkboxField(noise.isUsingExternalTransitions)
-                            checkboxField(noise.isUsingInternalTransitions)
-                            arrayField(
-                                    noise.internalTransitionIds,
-                                    predefinedValuesToHints = { controller.transitionIdsWithHints },
-                                    hintName = "labels"
-                            )
-                            
-                            
-                            field("artificialNoiseEvents") {
-                                
-                                readOnlyTextField(noise.artificialNoiseEvents, { newList ->
-                                    newList.let { if (it.isEmpty()) "Empty." else it.joinToString("; ") }
-                                })
-                                
-                                button("Edit") {
-                                    action {
-                                        NoiseEventsEditor(noise.artificialNoiseEvents.value) { events ->
-                                            noise.artificialNoiseEvents.value = events.toMutableList()
-                                        }.openWindow(escapeClosesWindow = false)
-                                    }
-                                }
-                            }
-
-//                            arrayField(noise.existingNoiseEvents)
+                        }
+                    }
+                    
+                    
+                    foldingFieldSet("timeDrivenNoise", settings.isUsingTime) {
+                        checkboxField(timeNoise.isUsingTimestampNoise)
+                        checkboxField(timeNoise.isUsingLifecycleNoise)
+                        checkboxField(timeNoise.isUsingTimeGranularity)
+                        intField(timeNoise.maxTimestampDeviationSeconds)
+                        
+                        field("granularityType") {
+                            combobox(timeNoise.granularityType, GranularityTypes.values().toList())
                         }
                     }
                 }
@@ -203,31 +202,19 @@ class SettingsView : View("Settings") {
                     }
                 }
                 
-                squeezebox {
-                    fold("Static priorities", settings.isUsingStaticPriorities.value) {
-                        expandOn(settings.isUsingStaticPriorities)
-                        
-                        fieldset {
-                            intField(staticPriorities.maxPriority) {
-                                validInt { value ->
-                                    when {
-                                        value <= 0 -> error("maxPriority should > 0")
-                                        else -> null
-                                    }
-                                }
-                                textProperty().onChange {
-                                    staticPriorities.validate() // run both field to validate
-                                }
-                            }
-                            intMapField(
-                                    staticPriorities.transitionIdsToPriorities,
-                                    predefinedValuesToHints = { controller.transitionIdsWithHints },
-                                    hintName = "label",
-                                    fillDefaultButton = true
-                            ) { map ->
-                                validatePriorities(map)
-                            }
+                foldingFieldSet("Static priorities", settings.isUsingStaticPriorities) {
+                    intField(staticPriorities.maxPriority, nonNegative = true) {
+                        textProperty().onChange {
+                            staticPriorities.validate() // run both field to validate
                         }
+                    }
+                    intMapField(
+                            staticPriorities.transitionIdsToPriorities,
+                            predefinedValuesToHints = { controller.transitionIdsWithHints },
+                            hintName = "label",
+                            fillDefaultButton = true
+                    ) { map ->
+                        validatePriorities(map)
                     }
                 }
                 
@@ -276,122 +263,126 @@ class SettingsView : View("Settings") {
             }
         }
         
-        squeezebox {
-            fold("Time and Resources", settings.isUsingTime.value) {
-                expandOn(settings.isUsingTime)
+        foldingFieldSet("Time and Resources", settings.isUsingTime) {
+            field("generationStart") {
+                val timeConverter = object : StringConverter<LocalDateTime>() {
+                    val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+                    override fun toString(obj: LocalDateTime) = obj.format(pattern)
+                    override fun fromString(string: String) =
+                            try {
+                                LocalDateTime.parse(string, pattern)
+                            } catch (e: DateTimeParseException) {
+                                LocalDateTime.now()
+                            }
+                }
                 
-                fieldset {
-                    field("generationStart") {
-                        val timeConverter = object : StringConverter<LocalDateTime>() {
-                            val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-                            override fun toString(obj: LocalDateTime) = obj.format(pattern)
-                            override fun fromString(string: String) =
-                                    try {
-                                        LocalDateTime.parse(string, pattern)
-                                    } catch (e: DateTimeParseException) {
-                                        LocalDateTime.now()
-                                    }
-                        }
-                        
-                        textfield(time.generationStart, timeConverter) {
-                            validator(ValidationTrigger.OnBlur) { newString ->
-                                try {
-                                    LocalDateTime.parse(newString, timeConverter.pattern)
-                                    null
-                                } catch (e: DateTimeParseException) {
-                                    error("Bad time, format example: 2019-12-31 23:59")
-                                }
-                            }
-                            action {
-                                time.validationContext.validate(time.generationStart)
-                            }
-                        }
-                        button("Now") {
-                            action {
-                                time.generationStart.value = LocalDateTime.now()
-                            }
+                textfield(time.generationStart, timeConverter) {
+                    validator(ValidationTrigger.OnBlur) { newString ->
+                        try {
+                            LocalDateTime.parse(newString, timeConverter.pattern)
+                            null
+                        } catch (e: DateTimeParseException) {
+                            error("Bad time, format example: 2019-12-31 23:59")
                         }
                     }
-                    field("transitionIdsToDelays") {
-                        val Status = object {
-                            val incorrect = "Ids doesn't match with model transitions."
-                            val correct = "Correct."
-                            val unknown = "Unknown: Petrinet is not loaded or empty"
-                            val empty = "Empty."
-                        }
-                        
-                        fun getStatus(): String {
-                            val delayIds = time.transitionIdsToDelays.value.keys
-                            val petrinetIds = controller.transitionIdsWithHints.keys
-                            
-                            return when {
-                                petrinetIds.isEmpty() -> Status.unknown
-                                delayIds.isEmpty() -> Status.empty
-                                petrinetIds != delayIds -> Status.incorrect
-                                else -> Status.correct
-                            }
-                        }
-                        
-                        val label = textfield(getStatus()) {
-                            hgrow = Priority.ALWAYS
-                            isEditable = false
-                            style {
-                                backgroundColor += Color.TRANSPARENT
-                            }
-                        }
-                        time.transitionIdsToDelays.addValidator(label) {
-                            getStatus().let { status ->
-                                label.text = status
-                                when (status) {
-                                    Status.correct, Status.unknown -> null
-                                    else -> warning(status)
-                                }
-                            }
-                        }
-                        controller.petrinetProp.onChange {
-                            label.text = getStatus()
-                        }
-                        button("Edit") {
-                            action {
-                                TransitionDelaysEditor(time.transitionIdsToDelays.value,
-                                        controller.transitionIdsWithHints) { newMap ->
-                                    time.transitionIdsToDelays.value = newMap.toMutableMap()
-                                }.openWindow(escapeClosesWindow = false)
-                            }
+                    action {
+                        time.validationContext.validate(time.generationStart)
+                    }
+                }
+                button("Now") {
+                    action {
+                        time.generationStart.value = LocalDateTime.now()
+                    }
+                }
+            }
+            
+            checkboxField(time.isUsingResources)
+            checkboxField(time.isSeparatingStartAndFinish)
+            
+            intField(time.minimumIntervalBetweenActions, nonNegative = true)
+            intField(time.maximumIntervalBetweenActions, nonNegative = true)
+            
+            field("transitionIdsToDelays") {
+                val Status = object {
+                    val incorrect = "Ids doesn't match with model transitions."
+                    val correct = "Correct."
+                    val unknown = "Unknown: Petrinet is not loaded or empty"
+                    val empty = "Empty."
+                }
+                
+                fun getStatus(): String {
+                    val delayIds = time.transitionIdsToDelays.value.keys
+                    val petrinetIds = controller.transitionIdsWithHints.keys
+                    
+                    return when {
+                        petrinetIds.isEmpty() -> Status.unknown
+                        delayIds.isEmpty() -> Status.empty
+                        petrinetIds != delayIds -> Status.incorrect
+                        else -> Status.correct
+                    }
+                }
+                
+                val label = textfield(getStatus()) {
+                    hgrow = Priority.ALWAYS
+                    isEditable = false
+                    style {
+                        backgroundColor += Color.TRANSPARENT
+                    }
+                }
+                time.transitionIdsToDelays.addValidator(label) {
+                    getStatus().let { status ->
+                        label.text = status
+                        when (status) {
+                            Status.correct, Status.unknown -> null
+                            else -> warning(status)
                         }
                     }
+                }
+                controller.petrinetProp.onChange {
+                    label.text = getStatus()
+                }
+                button("Edit") {
+                    action {
+                        TransitionDelaysEditor(time.transitionIdsToDelays.value,
+                                controller.transitionIdsWithHints) { newMap ->
+                            time.transitionIdsToDelays.value = newMap.toMutableMap()
+                        }.openWindow(escapeClosesWindow = false)
+                    }
+                }
+            }
+            
+            // ---RESOURCES---
+            
+            checkboxField(time.isUsingResources)
+            
+            foldingFieldSet("Resources", time.isUsingResources) {
+                hgrow = Priority.ALWAYS
+                
+                checkboxField(time.isUsingComplexResourceSettings)
+                checkboxField(time.isUsingSynchronizationOnResources)
+                
+                arrayField(time.simplifiedResources)
+                
+                field("resourceGroups") {
+                    readOnlyTextField(time.resourceGroups, { newList ->
+                        newList.flatMap {
+                            it.roles.flatMap {
+                                it.resources.map { it.name }
+                            }
+                        }.let { if (it.isEmpty()) "Empty." else it.joinToString("; ") }
+                    })
                     
-                    // ---RESOURCES---
-                    
-                    checkboxField(time.isUsingResources)
-                    
-                    squeezebox {
-                        fold("Resources", time.isUsingResources.value) {
-                            expandOn(time.isUsingResources)
-                            fieldset {
-                                hgrow = Priority.ALWAYS
-                                arrayField(time.simplifiedResources)
-                                
-                                field("resourceGroups") {
-                                    readOnlyTextField(time.resourceGroups, { newList ->
-                                        newList.flatMap {
-                                            it.roles.flatMap {
-                                                it.resources.map { it.name }
-                                            }
-                                        }.let { if (it.isEmpty()) "Empty." else it.joinToString("; ") }
-                                    })
-                                    
-                                    button("Edit") {
-                                        action {
-                                            ResourceGroupsEditor(time.resourceGroups.value) { groups ->
-                                                time.resourceGroups.value = groups.toMutableList()
-                                            }.openWindow(escapeClosesWindow = false)
-                                        }
-                                    }
-                                }
-                                
-                                
-                                field("transitionIdsToResources") {
+                    button("Edit") {
+                        action {
+                            ResourceGroupsEditor(time.resourceGroups.value) { groups ->
+                                time.resourceGroups.value = groups.toMutableList()
+                            }.openWindow(escapeClosesWindow = false)
+                        }
+                    }
+                }
+                
+                field("transitionIdsToResources") {
+                    // TODO status text for transitionIdsToResources 
 //                                    val Status = object {
 //                                        val incorrect = "Ids doesn't match with model transitions."
 //                                        val correct = "Correct."
@@ -430,40 +421,35 @@ class SettingsView : View("Settings") {
 //                                    controller.petrinetProp.onChange {
 //                                        label.text = getStatus()
 //                                    }
-                                    
-                                    button("Edit") {
-                                        action {
-                                            ResourceMappingEditor(
-                                                    time.transitionIdsToResources.value,
-                                                    controller.transitionIdsWithHints,
-                                                    time.simplifiedResources.value,
-                                                    time.resourceGroups.value
-                                            ) { newMapping ->
-                                                time.transitionIdsToResources.value = newMapping.toMutableMap()
-                                            }.openWindow(escapeClosesWindow = false)
-                                        }
-                                    }
-                                }
-                            }
+                    
+                    button("Edit") {
+                        action {
+                            ResourceMappingEditor(
+                                    time.transitionIdsToResources.value,
+                                    controller.transitionIdsWithHints,
+                                    time.simplifiedResources.value,
+                                    time.resourceGroups.value
+                            ) { newMapping ->
+                                time.transitionIdsToResources.value = newMapping.toMutableMap()
+                            }.openWindow(escapeClosesWindow = false)
                         }
                     }
                 }
             }
         }
-        
     }
     
     
     // ---LOADING SETTINGS---
     private fun EventTarget.settingsLoadingPanel() {
         hbox {
-            button("print") {
-                enableWhen(controller.allModelsAreValid)
-                action {
-                    settings.commit()
-                    println(controller.jsonSettings)
-                }
-            }
+            //            button("print") {
+//                enableWhen(controller.allModelsAreValid)
+//                action {
+//                    settings.commit()
+//                    println(controller.jsonSettings)
+//                }
+//            }
             vbox {
                 // just to bind tooltip!
                 button("Save settings") {

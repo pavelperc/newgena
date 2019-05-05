@@ -100,91 +100,85 @@ class ResourceMappingEditor(
     
     // --- TRANSITION HEADER ---
     fun EventTarget.headerTransition() {
-        vbox {
-            //            prefWidth = 550.0
-//            addClass(Styles.addItemRoot)
+        form {
             style {
                 padding = box(5.px)
             }
             
-            form {
-                val model = TransitionResourcesModel(TransitionResourcesTuple())
-                
-                fun commit(): Boolean {
-                    if (model.commit()) {
-                        objects.add(model.item)
-                        // create a copy
-                        model.item = TransitionResourcesTuple(model.item.transitionId)
-                        return true
-                    }
-                    return false
+            val model = TransitionResourcesModel(TransitionResourcesTuple())
+            
+            fun commit(): Boolean {
+                if (model.commit()) {
+                    objects.add(model.item)
+                    // create a copy
+                    model.item = TransitionResourcesTuple(model.item.transitionId)
+                    return true
                 }
+                return false
+            }
+            
+            fieldset {
+                field("transitionId") {
+                    textfield(model.transitionId) {
+                        notEmpty { newString ->
+                            if (objects.any { it.transitionId == newString })
+                                error("Duplicate.")
+                            else null
+                        }
+                        promptText = "Click enter to add."
+                        action {
+                            if (commit()) {
+                                selectAll()
+                            }
+                        }
+                        actionedAutoCompletion(predefinedTransitionsToHints.keys.toList())
+                    }
+                }
+                // hint (label)
+                // hint synchronization is hidden in viewModel
+                field("Search by label:") {
+                    removeWhen { showLabel.not() }
+                    
+                    textfield(model.hint) {
+                        promptText = "Search by label"
+                        action {
+                            if (commit()) {
+                                selectAll()
+                            }
+                        }
+                        
+                        actionedAutoCompletion(predefinedHintsToTransitions.keys.toList())
+                    }
+                }
+            }
+            hbox {
+                alignment = Pos.CENTER_LEFT
+                spacing = 5.0
                 
-                fieldset {
-                    field("transitionId") {
-                        textfield(model.transitionId) {
-                            notEmpty { newString ->
-                                if (objects.any { it.transitionId == newString })
-                                    error("Duplicate.")
-                                else null
-                            }
-                            promptText = "Click enter to add."
-                            action {
-                                if (commit()) {
-                                    selectAll()
-                                }
-                            }
-                            actionedAutoCompletion(predefinedTransitionsToHints.keys.toList())
+                button("save") {
+                    addEventFilter(KeyEvent.KEY_PRESSED) {
+                        if (it.code == KeyCode.ENTER) {
+                            fire()
                         }
                     }
-                    // hint (label)
-                    // hint synchronization is hidden in viewModel
-                    field("Search by label:") {
-                        removeWhen { showLabel.not() }
-                        
-                        textfield(model.hint) {
-                            promptText = "Search by label"
-                            action {
-                                if (commit()) {
-                                    selectAll()
-                                }
-                            }
-                            
-                            actionedAutoCompletion(predefinedHintsToTransitions.keys.toList())
+                    action {
+                        onSuccess(objects.map {
+                            it.toResourceMapping()
+                        }.toMap())
+                        close()
+                    }
+                }
+                if (predefinedTransitionsToHints.size > 0) {
+                    button("fill transitions") {
+                        action {
+                            objects.setAll(predefinedTransitionsToHints.keys
+                                    .map { TransitionResourcesTuple(it) })
                         }
                     }
                 }
             }
-            vbox {
-                hbox {
-                alignment = Pos.CENTER_LEFT
-                spacing = 5.0
-                    
-                    button("save") {
-                        addEventFilter(KeyEvent.KEY_PRESSED) {
-                            if (it.code == KeyCode.ENTER) {
-                                fire()
-                            }
-                        }
-                        action {
-                            onSuccess(objects.map {
-                                it.toResourceMapping()
-                            }.toMap())
-                            close()
-                        }
-                    }
-                    if (predefinedTransitionsToHints.size > 0) {
-                        button("fill transitions") {
-                            action {
-                                objects.setAll(predefinedTransitionsToHints.keys
-                                        .map { TransitionResourcesTuple(it) })
-                            }
-                        }
-                    }
-                }
-                if (predefinedTransitionsToHints.size > 0) {
-                    checkbox("Show label", showLabel)
-                }
+            if (predefinedTransitionsToHints.size > 0) {
+                checkbox("Show label", showLabel)
             }
         }
     }
@@ -318,7 +312,7 @@ class ResourceMappingEditor(
                             useMaxWidth = true
                             hgrow = Priority.ALWAYS
                             promptText = "Search by label"
-    
+                            
                             removeWhen { showLabel.not() }
                             
                             action { commitEdit(item) }

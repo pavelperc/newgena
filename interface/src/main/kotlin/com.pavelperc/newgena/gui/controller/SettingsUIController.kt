@@ -108,6 +108,7 @@ class SettingsUIController : Controller() {
     val staticPrioritiesModel = settingsModel.staticPrioritiesModel
     val noiseModel = settingsModel.noiseModel
     val timeModel = settingsModel.timeModel
+    val timeNoiseModel = timeModel.timeDrivenNoise
     
     val allModelsAreValid: BooleanBinding = settingsModel.allModels
             .map { it.valid }
@@ -147,8 +148,10 @@ class SettingsUIController : Controller() {
     
     
     init {
-        // grephviz: speedup first draw
-        Graphviz.useDefaultEngines()
+        profile("Graphviz, loading engine:") {
+            // graphviz: speedup first draw
+            Graphviz.useDefaultEngines()
+        }
         
         // check if the entered file path is synchronized with the model.
         petrinetSetupModel.petrinetFile.onChange { enteredFile ->
@@ -231,7 +234,7 @@ class SettingsUIController : Controller() {
     }
     
     fun loadPetrinet(): ResetInhibitorNet {
-        profile("Loading petrinet") {
+        profile("Loading petrinet:") {
             petrinet = null
             loadedPetrinetFilePath = null
             PnmlLoader.loadPetrinetWithOwnParser(petrinetSetupModel.petrinetFile.value).also { result ->
@@ -261,7 +264,7 @@ class SettingsUIController : Controller() {
     }
     
     fun loadJsonSettingsFromPath(path: String) {
-        profile("Loading json settings") {
+        profile("Loading json settings:") {
             settingsModel.itemProperty.value = JsonSettings.fromFilePath(path)
         }
         

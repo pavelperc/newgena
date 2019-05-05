@@ -134,11 +134,10 @@ class Styles : Stylesheet() {
         
         fieldSetFrame {
             borderColor += box(Color.GRAY.brighter())
-            borderRadius += box(5.px)
+//            borderRadius += box(5.px)
             borderWidth += box(1.px)
             borderInsets += box(4.px, 0.px)
             padding = box(4.px, 8.px)
         }
-        
     }
 }

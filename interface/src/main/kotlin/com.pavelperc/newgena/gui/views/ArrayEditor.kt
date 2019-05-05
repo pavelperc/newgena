@@ -42,8 +42,13 @@ class ArrayEditor(
     // ---HEADER:---
     fun EventTarget.header() {
         vbox {
-            addClass(Styles.addItemRoot)
+            style {
+                spacing = 10.px
+                padding = box(10.px)
+            }
+            
             hbox {
+                alignment = Pos.CENTER_LEFT
                 label("Add: ") {
                     tooltip("Press enter inside a text field to add.") {
                         delayHack(100)
@@ -159,10 +164,7 @@ class ArrayEditor(
     
     override val root = vbox {
         header()
-        style {
-            //            backgroundColor += Color.RED
-            padding = box(1.em)
-        }
+        
         hgrow = Priority.ALWAYS
         
         listview(objects) {

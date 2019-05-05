@@ -22,6 +22,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
+import javafx.geometry.Insets
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
@@ -56,7 +57,6 @@ fun TextInputControl.validInt(
             else -> nextValidator(value.toInt())
         }
     }
-    
 }
 
 /** Validator. The same as [required], but with the next validator. */
@@ -72,31 +72,8 @@ fun TextInputControl.notEmpty(
     
 }
 
-fun TextInputControl.validUint(
-        nextValidator: Validator<Int> = { null }
-) {
-    validInt { value ->
-        when {
-            value < 0 -> error("Should not be negative.")
-            else -> nextValidator(value)
-        }
-    }
-}
 
-fun TextInputControl.validRangeInt(
-        intRange: IntRange,
-        nextValidator: Validator<Int> = { null }
-) {
-    validInt { value ->
-        when {
-            value !in intRange -> error("Should be in $intRange")
-            else -> nextValidator(value)
-        }
-    }
-}
-
-
-fun Pane.scrollablefieldset(op: EventTarget.() -> Unit) {
+fun Pane.scrollableFieldset(op: Fieldset.() -> Unit) {
     scrollpane {
         val scrollPane = this
         form {
@@ -113,6 +90,50 @@ fun Pane.scrollablefieldset(op: EventTarget.() -> Unit) {
     }
 }
 
+private fun TitledPane.expandOn(prop: Property<Boolean>) {
+    // one direction binding
+    prop.onChange { checked -> this.isExpanded = checked!! }
+}
+
+fun EventTarget.foldingFieldSet(
+        name: String,
+        /** One direction binding: [expandOn] affects folding.
+         * But folding doesn't affect [expandOn].*/
+        expandOn: Property<Boolean>? = null,
+        isNewForm: Boolean = true,
+        op: Fieldset.() -> Unit = {}
+) {
+    squeezebox {
+        fold(name, expandOn?.value ?: false) {
+            if (expandOn != null) {
+                expandOn(expandOn)
+            }
+            if (isNewForm) {
+                form {
+                    style {
+                        padding = box(0.px)
+                    }
+                    fieldset {
+                        style {
+                            padding = box(10.px, 10.px, 0.px, 10.px)
+                        }
+                        op()
+                    }
+                }
+            } else {
+                fieldset {
+                    style {
+                        padding = box(10.px, 10.px, 0.px, 10.px)
+                        spacing = 10.px
+                    }
+                    op()
+                }
+            }
+            
+        }
+    }
+}
+
 
 /** Just a Long textField outside a fieldset, which is not bound to ItemViewModel. */
 fun EventTarget.simpleLongField(
@@ -124,7 +145,7 @@ fun EventTarget.simpleLongField(
         validationContext.addValidator(this, ValidationTrigger.OnChange()) { value ->
             when {
                 value == null -> error("Null")
-                !value.isLong() -> error("Not a Long")
+                !value.isLong() -> error("Not a Long.")
                 else -> nextValidator(value.toLong())
             }
         }
@@ -222,15 +243,24 @@ fun EventTarget.longSpinnerField(
  * Int validators for textfield are not included!! add them in [op] lambda. */
 fun EventTarget.intField(
         property: Property<Int>,
-//        sliderRange: IntRange? = null,
         fieldOp: Field.() -> Unit = {},
+        nextValidator: Validator<Int> = { null },
+        nonNegative: Boolean = false,
+        positive: Boolean = false,
+        validRange: IntRange? = null,
         op: TextField.() -> Unit = {}
 ) = field(property.name, Orientation.HORIZONTAL) {
-    textfield(property, QuiteIntConverter(), op)
-//    slider(1..100, property.value) {
-//        blockIncrement = 1.0
-//        valueProperty().bindBidirectional(property as IntegerProperty)
-//    }
+    textfield(property, QuiteIntConverter()) {
+        validInt { value ->
+            when {
+                nonNegative && value < 0 -> error("Should not be negative.")
+                positive && value <= 0 -> error("Should be positive.")
+                validRange != null && value !in validRange -> error("Should be in $validRange.")
+                else -> nextValidator(value)
+            }
+        }
+        op()
+    }
     fieldOp()
 }
 

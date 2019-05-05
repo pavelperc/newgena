@@ -27,14 +27,13 @@ class MainView : View("Main View") {
                     textfield(person.name).required()
                 }
                 
-                intField(person.age) {
-                    validInt { newValue ->
-                        when {
-                            newValue < 0 -> error("Age should not be negative.")
-                            else -> null
-                        }
+                intField(person.age, nextValidator = { newValue ->
+                    when {
+                        newValue < 0 -> error("Age should not be negative.")
+                        else -> null
                     }
-                }
+                })
+                
                 
                 val nameRegex = Regex("""[A-Z][a-z]*""")
                 

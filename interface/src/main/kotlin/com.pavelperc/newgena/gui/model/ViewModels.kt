@@ -151,17 +151,26 @@ class TimeModel(initial: JsonTimeDescription)
     val maximumIntervalBetweenActions = bind(JsonTimeDescription::maximumIntervalBetweenActions)
     
     
-    
-    
     val isUsingResources = bind(JsonTimeDescription::isUsingResources)
+    
+    val isUsingComplexResourceSettings = bind(JsonTimeDescription::isUsingComplexResourceSettings)
+    val isUsingSynchronizationOnResources = bind(JsonTimeDescription::isUsingSynchronizationOnResources)
+    
     val simplifiedResources = bindList(JsonTimeDescription::simplifiedResources)
     
     val resourceGroups = bindList(JsonTimeDescription::resourceGroups)
     
     val transitionIdsToResources = bindMap(JsonTimeDescription::transitionIdsToResources)
     
-    
-    
+    val timeDrivenNoise = bindModel(JsonTimeDescription::timeDrivenNoise, TimeNoiseModel::class)
+}
+
+class TimeNoiseModel(initial: JsonTimeDrivenNoise) : NestingItemViewModel<JsonTimeDrivenNoise>(initial) {
+    val isUsingTimestampNoise = bind(JsonTimeDrivenNoise::isUsingTimestampNoise)
+    val isUsingLifecycleNoise = bind(JsonTimeDrivenNoise::isUsingLifecycleNoise)
+    val isUsingTimeGranularity = bind(JsonTimeDrivenNoise::isUsingTimeGranularity)
+    val maxTimestampDeviationSeconds = bind(JsonTimeDrivenNoise::maxTimestampDeviationSeconds)
+    val granularityType = bind(JsonTimeDrivenNoise::granularityType)
 }
 
 

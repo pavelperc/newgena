@@ -15,7 +15,7 @@ fun emptyMarking() = Marking()
 
 
 fun profile(message:String, op: () -> Unit) {
-    print("$message: ")
+    println("$message <<<<")
     val time = measureNanoTime(op)
-    println("${String.format("%.2f", time / 1000_000.0)}ms")
+    println(">>>> ${String.format("%.2f", time / 1000_000.0)}ms")
 }

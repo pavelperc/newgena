@@ -89,6 +89,17 @@
           "maxDelayBetweenActionsMillis" : 0
         } ]
       } ]
+    }, {
+      "name" : "g3",
+      "roles" : [ {
+        "name" : "rooole",
+        "resources" : [ {
+          "name" : "naaaame",
+          "willBeFreed" : 0,
+          "minDelayBetweenActionsMillis" : 0,
+          "maxDelayBetweenActionsMillis" : 0
+        } ]
+      } ]
     } ],
     "transitionIdsToDelays" : {
       "transition1" : {
@@ -112,7 +123,7 @@
         "deviation" : 0
       }
     },
-    "generationStart" : "2019-04-07T22:27:06.991",
+    "generationStart" : "2019-05-05T03:09:50.656",
     "transitionIdsToResources" : {
       "transition1" : {
         "fullResourceNames" : [ {
@@ -127,6 +138,10 @@
           "groupName" : "g1",
           "roleName" : "r1",
           "resourceName" : "n2"
+        }, {
+          "groupName" : "g3",
+          "roleName" : "rooole",
+          "resourceName" : "naaaame"
         } ],
         "simplifiedResourceNames" : [ "simple1", "simple2" ]
       },
@@ -147,7 +162,11 @@
         "simplifiedResourceNames" : [ "simple1" ]
       },
       "transition6" : {
-        "fullResourceNames" : [ ],
+        "fullResourceNames" : [ {
+          "groupName" : "g3",
+          "roleName" : "rooole",
+          "resourceName" : "naaaame"
+        } ],
         "simplifiedResourceNames" : [ "simple2" ]
       }
     },
@@ -159,12 +178,11 @@
       "granularityType" : "MINUTES_5"
     },
     "isUsingSynchronizationOnResources" : true,
-    "isUsingResources" : true,
     "isUsingLifecycle" : false,
     "minimumIntervalBetweenActions" : 10,
-    "isSeparatingStartAndFinish" : false,
-    
     "isUsingComplexResourceSettings" : false,
-    "maximumIntervalBetweenActions" : 20
+    "maximumIntervalBetweenActions" : 20,
+    "isSeparatingStartAndFinish" : false,
+    "isUsingResources" : true
   }
 }

@@ -4,7 +4,8 @@ import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.customfields.actionedAutoCompletion
 import com.pavelperc.newgena.gui.customfields.delayHack
 import com.pavelperc.newgena.gui.customfields.intSpinner
-import javafx.beans.property.*
+import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
 import javafx.event.EventTarget
 import javafx.geometry.Pos
@@ -98,10 +99,6 @@ class IntMapEditor(
     val objects = initialObjects.entries.map { (k, v) -> MutablePair(k, v) }.observable()
     
     override val root = vbox {
-        style {
-            padding = box(1.em)
-        }
-        
         header()
         
         listview(objects) {
@@ -131,8 +128,12 @@ class IntMapEditor(
     // ---HEADER:---
     fun EventTarget.header() {
         vbox {
-            addClass(Styles.addItemRoot)
+            style {
+                spacing = 10.px
+                padding = box(10.px)
+            }
             hbox {
+                alignment = Pos.CENTER_LEFT
                 label("Add: ") {
                     tooltip("Press enter inside a text field to add.") {
                         delayHack(100)

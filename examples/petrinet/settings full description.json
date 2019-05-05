@@ -88,69 +88,75 @@
   "isUsingTime" : false,
   // секция описания времени: не null, если isUsingTime=true
   "timeDescription" : {
-    // добавление ресурсов
-    "timeDescription" : {
-      // задержки срабатываний переходов в секундах. Должны быть заполнены для всех переходов.
-      "transitionIdsToDelays" : {
-        "transition1" : {
-          "delay" : 2,
-          "deviation" : 1
-        }
-      },
-      // начало генерации
-      "generationStart" : "2019-04-22T01:17:48.509Z",
+    // задержки срабатываний переходов в секундах. Должны быть заполнены для всех переходов.
+    "transitionIdsToDelays" : {
+      "transition1" : {
+        "delay" : 2,
+        "deviation" : 1
+      }
+    },
+    // начало генерации
+    "generationStart" : "2019-04-22T01:17:48.509Z",
+    
+    "isUsingLifecycle" : false,
+    "isSeparatingStartAndFinish" : true,
+    
+    // вроде секунды....
+    "minimumIntervalBetweenActions" : 10,
+    "maximumIntervalBetweenActions" : 20,
+    
+    // используем ли мы ресурсы
+    "isUsingResources" : true,
 
-      // используем ли мы ресурсы
-      "isUsingResources" : true,
+    // используем ли мы ресурсы с группами и ролями.
+    // пока true отключает simplifiedResources.
+    "isUsingComplexResourceSettings" : true,
+    // синхронизация ресурсов
+    "isUsingSynchronizationOnResources" : true,
 
-      // все упрощённые ресурсы (содержат только название)
-      "simplifiedResources" : [ "simpleResource1", "simpleResource2"],
-      // ресурсы по группам и ролям
-      "resourceGroups" : [ {
-        "name" : "group1",
-        "roles" : [ {
-          "name" : "role1",
-          "resources" : [ {
-            "name" : "resource1",
-            // через сколько миллисекунд данный ресурс считается свободным
-            "willBeFreed" : 10,
-            "minDelayBetweenActionsMillis" : 100,
-            "maxDelayBetweenActionsMillis" : 200
-          } ]
+
+    // все упрощённые ресурсы (содержат только название)
+    "simplifiedResources" : [ "simpleResource1", "simpleResource2"],
+    // ресурсы по группам и ролям
+    "resourceGroups" : [ {
+      "name" : "group1",
+      "roles" : [ {
+        "name" : "role1",
+        "resources" : [ {
+          "name" : "resource1",
+          // через сколько миллисекунд данный ресурс считается свободным
+          "willBeFreed" : 10,
+          "minDelayBetweenActionsMillis" : 100,
+          "maxDelayBetweenActionsMillis" : 200
         } ]
-      } ],
-      
-      // сопостовление переходов ресурсам
-      "transitionIdsToResources" : {
-        "transition1" : {
-          "fullResourceNames" : [ {
-            "groupName" : "group1",
-            "roleName" : "role1",
-            "resourceName" : "resource1"
-          } ],
-          "simplifiedResourceNames" : [ ]
-        },
-        "transition2" : {
-          "fullResourceNames" : [ ],
-          "simplifiedResourceNames" : [ "simpleResource1", "simpleResource2" ]
-        }
+      } ]
+    } ],
+    
+    // сопостовление переходов ресурсам
+    "transitionIdsToResources" : {
+      "transition1" : {
+        "fullResourceNames" : [ {
+          "groupName" : "group1",
+          "roleName" : "role1",
+          "resourceName" : "resource1"
+        } ],
+        "simplifiedResourceNames" : [ ]
       },
-      // шум, связанный с временными метками.
-      "timeDrivenNoise" : {
-        "isUsingTimestampNoise" : true,
-        "isUsingLifecycleNoise" : true,
-        "isUsingTimeGranularity" : true,
-        "maxTimestampDeviationSeconds" : 0,
-        "granularityType" : "MINUTES_5"
-      },
-      "isUsingLifecycle" : false,
-      "minimumIntervalBetweenActions" : 10,
-      "maximumIntervalBetweenActions" : 20,
-      "isSeparatingStartAndFinish" : true,
-      // используем ли мы ресурсы с группами и ролями.
-      "isUsingComplexResourceSettings" : true,
-      // синхронизация ресурсов
-      "isUsingSynchronizationOnResources" : true
+      "transition2" : {
+        "fullResourceNames" : [ ],
+        "simplifiedResourceNames" : [ "simpleResource1", "simpleResource2" ]
+      }
+    },
+
+
+    // шум, связанный с временными метками.
+    "timeDrivenNoise" : {
+      "isUsingTimestampNoise" : true,
+      "isUsingLifecycleNoise" : true,
+      "isUsingTimeGranularity" : true,
+      "maxTimestampDeviationSeconds" : 0,
+      "granularityType" : "MINUTES_5"
     }
   }
+
 }
