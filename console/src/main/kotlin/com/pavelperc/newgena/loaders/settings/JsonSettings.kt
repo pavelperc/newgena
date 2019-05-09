@@ -91,6 +91,9 @@ class JsonSettings() {
     companion object {}
     
     override fun toString() = reflectionToString(this)
+    
+    
+    
 }
 
 fun reflectionToString(any: Any) =

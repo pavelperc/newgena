@@ -1,75 +1,107 @@
 package com.pavelperc.newgena.loaders.settings
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.pavelperc.newgena.utils.propertyinitializers.NonNegativeInt
-import com.pavelperc.newgena.utils.propertyinitializers.NonNegativeLong
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import org.junit.Test
-import kotlin.system.measureTimeMillis
 
 
 class JsonCommonTest {
     
+    @Serializable
     class Sample {
+        @Required
+        val settingsInfo = SettingsInfo("petrinet", "0.1")
+        @Required
         var a: String? = "hello"
-        var b by NonNegativeLong(20)
-        
-        
+        @Required
+        var b = 20
         var c: String = "empty"
         
-        @JsonCreator
-        constructor(a: String?, b: Long, c: String) {
-            this.a = a
-            this.b = b
-            this.c = c
+        init {
+            check(b >= 0) { " b should not be negative, but it equals $b." }
         }
         
         override fun toString() = "Sample(a=$a, b=$b, c=$c)"
     }
     
-    data class Data @JsonCreator constructor(
-            @param:JsonProperty val a: String = "default",
-            @param:JsonProperty(required = true) val b: String = "default", // don't want to be default
-            @param:JsonProperty val c: String? = "default"
-    ) {
-        val d: String? = "d"
-        
-        override fun toString() = "Data(a='$a', b='$b', c=$c, d=$d)"
-        
+    
+    val `migrate 0_0 0_1` = Migrator("""
+        0.0 -> 0.1:
+        Added field c with default value "EMPTY".
+        b is now Integer. (default is 0)
+    """.trimIndent()) { oldSettings ->
+        oldSettings.replace { map ->
+            map.setVersion("0.1")
+            
+            map["c"] = JsonPrimitive("EMPTY")
+            map["b"] = JsonPrimitive(map["b"]?.contentOrNull?.toIntOrNull() ?: 0)
+        }
     }
     
+    fun getPetrinetMigratorsTest(settingsJE: JsonElement): List<Migrator> {
+        
+        val info = getSettingsInfo(settingsJE)
+        
+        if (info.type != "petrinet") {
+            throw IllegalArgumentException("Settings type should be `petrinet`.")
+        }
+        
+        val versionsToMigrators = listOf(
+                "0.0" to `migrate 0_0 0_1`,
+                "0.1" to Migrator.empty
+        )
+        val versions = versionsToMigrators.map { it.first }
+        
+        if (info.version !in versions) {
+            throw IllegalArgumentException("Unknown settings version: ${info.version}." +
+                    "Possible versions are $versions.")
+        }
+        
+        return versionsToMigrators
+                .dropWhile { it.first != info.version }
+                .map { it.second }
+                .dropLast(1)
+    }
+    
+    
+    @UnstableDefault
+    @ImplicitReflectionSerializer
     @Test
     fun deserialize() {
         
-        val str = """
+        val sampleStr = """
             {
-                "a": null,
-                "b": 11,
-                "c": "c"
-            }
+            // hello
+                "settingsInfo" : { "version": "0.0", "type" : "petrinet" }
+                "a": "a",
+                "b": "2" // bye
+            } // okey
+            // good
         """.trimIndent()
         
-        measureTimeMillis {
-            val sample = fromJson<Sample>(str)
-            println(sample)
-        }.also { println("time1: $it ms") }
+        val noComments = removeComments(sampleStr)
         
-        measureTimeMillis {
-            val sample = fromJson<Sample>(str)
-            println(sample)
-        }.also { println("time2: $it ms") }
+        println("no comments:")
+        println(noComments)
         
+        val jo = MyJson.parseJson(noComments).jsonObject
+        println("jo:")
+        println(jo)
         
-        val data = fromJson<Data>("""
-            {
-                "a": "1",
-                "c": "3"
-            }
-        """.trimIndent())
-        println(data)
+        val migrations = getPetrinetMigratorsTest(jo)
         
+        val migrated = if (migrations.isEmpty()) {
+            jo
+        } else {
+            println("Applying migrations:")
+            migrations.fold(jo) { old, migrator -> println(migrator.description); migrator(old) }
+        }
+        println("Migrated:")
+        println(migrated)
+        
+        val sample = MyJson.fromJson<Sample>(migrated)
+        println(sample)
+        println(MyJson.stringify(sample))
         
     }
 }
