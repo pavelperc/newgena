@@ -1,4 +1,8 @@
 {
+  "settingsInfo": {
+    "type": "petrinet",
+    "version": "0.1"
+  },
   "petrinetSetup" : {
     "petrinetFile" : "examples\\petrinet\\weights\\weights.pnml",
     "inhibitorArcIds" : [ ],

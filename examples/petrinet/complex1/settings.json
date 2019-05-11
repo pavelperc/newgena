@@ -1,196 +1,257 @@
 {
-  "petrinetSetup" : {
-    "petrinetFile" : "examples\\petrinet\\complex1\\complex1.pnml",
-    "inhibitorArcIds" : [ "arc17" ],
-    "marking" : {
-      "initialPlaceIds" : {
-        "place1" : 2,
-        "place2" : 1,
-        "place5" : 1
+  "settingsInfo": {
+    "type": "petrinet",
+    "version": "0.1"
+  },
+  "petrinetSetup": {
+    "petrinetFile": "examples/petrinet/complex1/complex1.pnml",
+    "marking": {
+      "initialPlaceIds": {
+        "place1": 2,
+        "place2": 1,
+        "place5": 1
       },
-      "finalPlaceIds" : {
-        "place7" : 2,
-        "place6" : 1
+      "finalPlaceIds": {
+        "place7": 2,
+        "place6": 1
       },
-      "isUsingInitialMarkingFromPnml" : false
+      "isUsingInitialMarkingFromPnml": false
     },
-    "resetArcIds" : [ "arc12", "arc13" ]
+    "inhibitorArcIds": [
+      "arc17"
+    ],
+    "resetArcIds": [
+      "arc12",
+      "arc13"
+    ]
   },
-  "outputFolder" : "xes-out",
-  "isRemovingEmptyTraces" : true,
-  "isRemovingUnfinishedTraces" : false,
-  "isUsingNoise" : false,
-  "isUsingStaticPriorities" : false,
-  "isUsingTime" : true,
-  "maxNumberOfSteps" : 10,
-  "noiseDescription" : {
-    "noiseLevel" : 1,
-    "isSkippingTransitions" : true,
-    "isUsingExternalTransitions" : true,
-    "isUsingInternalTransitions" : true,
-    "internalTransitionIds" : [ ],
-    "artificialNoiseEvents" : [ {
-      "activity" : "NoiseEvent",
-      "executionTimeSeconds" : 0,
-      "maxTimeDeviationSeconds" : 0
-    }, {
-      "activity" : "XXXXX",
-      "executionTimeSeconds" : 5,
-      "maxTimeDeviationSeconds" : 11
-    }, {
-      "activity" : "YYYYYY",
-      "executionTimeSeconds" : 600,
-      "maxTimeDeviationSeconds" : 120
-    } ]
+  "outputFolder": "xes-out",
+  "numberOfLogs": 5,
+  "numberOfTraces": 10,
+  "maxNumberOfSteps": 10,
+  "isRemovingEmptyTraces": true,
+  "isRemovingUnfinishedTraces": false,
+  "isUsingNoise": false,
+  "noiseDescription": {
+    "noiseLevel": 1,
+    "isSkippingTransitions": true,
+    "isUsingExternalTransitions": true,
+    "isUsingInternalTransitions": true,
+    "internalTransitionIds": [
+    ],
+    "artificialNoiseEvents": [
+      {
+        "activity": "NoiseEvent",
+        "executionTimeSeconds": 0,
+        "maxTimeDeviationSeconds": 0
+      },
+      {
+        "activity": "XXXXX",
+        "executionTimeSeconds": 5,
+        "maxTimeDeviationSeconds": 11
+      },
+      {
+        "activity": "YYYYYY",
+        "executionTimeSeconds": 600,
+        "maxTimeDeviationSeconds": 120
+      }
+    ]
   },
-  "numberOfLogs" : 5,
-  "numberOfTraces" : 10,
-  "staticPriorities" : {
-    "maxPriority" : 100,
-    "transitionIdsToPriorities" : {
-      "transition1" : 5,
-      "transition2" : 4,
-      "transition4" : 1,
-      "transition5" : 2,
-      "transition6" : 3
+  "isUsingStaticPriorities": false,
+  "staticPriorities": {
+    "maxPriority": 100,
+    "transitionIdsToPriorities": {
+      "transition1": 5,
+      "transition2": 4,
+      "transition4": 1,
+      "transition5": 2,
+      "transition6": 3
     }
   },
-  "timeDescription" : {
-    "simplifiedResources" : [ "simple1", "simple2", "simple3", "simple4" ],
-    "resourceGroups" : [ {
-      "name" : "g1",
-      "roles" : [ {
-        "name" : "r1",
-        "resources" : [ {
-          "name" : "n1",
-          "willBeFreed" : 20,
-          "minDelayBetweenActionsMillis" : 25,
-          "maxDelayBetweenActionsMillis" : 30
-        }, {
-          "name" : "n2",
-          "willBeFreed" : 0,
-          "minDelayBetweenActionsMillis" : 0,
-          "maxDelayBetweenActionsMillis" : 0
-        } ]
-      }, {
-        "name" : "r2",
-        "resources" : [ {
-          "name" : "n3",
-          "willBeFreed" : 0,
-          "minDelayBetweenActionsMillis" : 3,
-          "maxDelayBetweenActionsMillis" : 10
-        } ]
-      }, {
-        "name" : "r3",
-        "resources" : [ {
-          "name" : "n3",
-          "willBeFreed" : 0,
-          "minDelayBetweenActionsMillis" : 0,
-          "maxDelayBetweenActionsMillis" : 0
-        } ]
-      } ]
-    }, {
-      "name" : "g3",
-      "roles" : [ {
-        "name" : "rooole",
-        "resources" : [ {
-          "name" : "naaaame",
-          "willBeFreed" : 0,
-          "minDelayBetweenActionsMillis" : 0,
-          "maxDelayBetweenActionsMillis" : 0
-        } ]
-      } ]
-    } ],
-    "transitionIdsToDelays" : {
-      "transition1" : {
-        "delay" : 5,
-        "deviation" : 0
+  "isUsingTime": true,
+  "timeDescription": {
+    "transitionIdsToDelays": {
+      "transition1": {
+        "delay": 5,
+        "deviation": 0
       },
-      "transition2" : {
-        "delay" : 5,
-        "deviation" : 0
+      "transition2": {
+        "delay": 5,
+        "deviation": 0
       },
-      "transition4" : {
-        "delay" : 5,
-        "deviation" : 0
+      "transition4": {
+        "delay": 5,
+        "deviation": 0
       },
-      "transition5" : {
-        "delay" : 5,
-        "deviation" : 0
+      "transition5": {
+        "delay": 5,
+        "deviation": 0
       },
-      "transition6" : {
-        "delay" : 5,
-        "deviation" : 0
+      "transition6": {
+        "delay": 5,
+        "deviation": 0
       }
     },
-    "generationStart" : "2019-05-05T03:09:50.656",
-    "transitionIdsToResources" : {
-      "transition1" : {
-        "fullResourceNames" : [ {
-          "groupName" : "g1",
-          "roleName" : "r1",
-          "resourceName" : "n1"
-        }, {
-          "groupName" : "g1",
-          "roleName" : "r3",
-          "resourceName" : "n3"
-        }, {
-          "groupName" : "g1",
-          "roleName" : "r1",
-          "resourceName" : "n2"
-        }, {
-          "groupName" : "g3",
-          "roleName" : "rooole",
-          "resourceName" : "naaaame"
-        } ],
-        "simplifiedResourceNames" : [ "simple1", "simple2" ]
+    "generationStart": "2019-05-05T03:09:50.656Z",
+    "isUsingLifecycle": false,
+    "isSeparatingStartAndFinish": false,
+    "minimumIntervalBetweenActions": 10,
+    "maximumIntervalBetweenActions": 20,
+    "isUsingResources": true,
+    "isUsingComplexResourceSettings": true,
+    "isUsingSynchronizationOnResources": true,
+    "simplifiedResources": [
+      "simple1",
+      "simple2",
+      "simple3",
+      "simple4"
+    ],
+    "resourceGroups": [
+      {
+        "name": "g1",
+        "roles": [
+          {
+            "name": "r1",
+            "resources": [
+              {
+                "name": "n1",
+                "willBeFreed": 20,
+                "minDelayBetweenActionsMillis": 25,
+                "maxDelayBetweenActionsMillis": 30
+              },
+              {
+                "name": "n2",
+                "willBeFreed": 0,
+                "minDelayBetweenActionsMillis": 0,
+                "maxDelayBetweenActionsMillis": 0
+              }
+            ]
+          },
+          {
+            "name": "r2",
+            "resources": [
+              {
+                "name": "n3",
+                "willBeFreed": 0,
+                "minDelayBetweenActionsMillis": 3,
+                "maxDelayBetweenActionsMillis": 10
+              }
+            ]
+          },
+          {
+            "name": "r3",
+            "resources": [
+              {
+                "name": "n3",
+                "willBeFreed": 0,
+                "minDelayBetweenActionsMillis": 0,
+                "maxDelayBetweenActionsMillis": 0
+              }
+            ]
+          }
+        ]
       },
-      "transition2" : {
-        "fullResourceNames" : [ {
-          "groupName" : "g1",
-          "roleName" : "r2",
-          "resourceName" : "n3"
-        } ],
-        "simplifiedResourceNames" : [ ]
+      {
+        "name": "g3",
+        "roles": [
+          {
+            "name": "rooole",
+            "resources": [
+              {
+                "name": "naaaame",
+                "willBeFreed": 0,
+                "minDelayBetweenActionsMillis": 0,
+                "maxDelayBetweenActionsMillis": 0
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "transitionIdsToResources": {
+      "transition1": {
+        "fullResourceNames": [
+          {
+            "groupName": "g1",
+            "roleName": "r1",
+            "resourceName": "n1"
+          },
+          {
+            "groupName": "g1",
+            "roleName": "r3",
+            "resourceName": "n3"
+          },
+          {
+            "groupName": "g1",
+            "roleName": "r1",
+            "resourceName": "n2"
+          },
+          {
+            "groupName": "g3",
+            "roleName": "rooole",
+            "resourceName": "naaaame"
+          }
+        ],
+        "simplifiedResourceNames": [
+          "simple1",
+          "simple2"
+        ]
       },
-      "transition4" : {
-        "fullResourceNames" : [ {
-          "groupName" : "g1",
-          "roleName" : "r1",
-          "resourceName" : "n1"
-        } ],
-        "simplifiedResourceNames" : [ "simple3", "simple4" ]
+      "transition2": {
+        "fullResourceNames": [
+          {
+            "groupName": "g1",
+            "roleName": "r2",
+            "resourceName": "n3"
+          }
+        ],
+        "simplifiedResourceNames": [
+        ]
       },
-      "transition5" : {
-        "fullResourceNames" : [ {
-          "groupName" : "g1",
-          "roleName" : "r1",
-          "resourceName" : "n1"
-        } ],
-        "simplifiedResourceNames" : [ "simple1" ]
+      "transition4": {
+        "fullResourceNames": [
+          {
+            "groupName": "g1",
+            "roleName": "r1",
+            "resourceName": "n1"
+          }
+        ],
+        "simplifiedResourceNames": [
+          "simple3",
+          "simple4"
+        ]
       },
-      "transition6" : {
-        "fullResourceNames" : [ {
-          "groupName" : "g3",
-          "roleName" : "rooole",
-          "resourceName" : "naaaame"
-        } ],
-        "simplifiedResourceNames" : [ "simple2" ]
+      "transition5": {
+        "fullResourceNames": [
+          {
+            "groupName": "g1",
+            "roleName": "r1",
+            "resourceName": "n1"
+          }
+        ],
+        "simplifiedResourceNames": [
+          "simple1"
+        ]
+      },
+      "transition6": {
+        "fullResourceNames": [
+          {
+            "groupName": "g3",
+            "roleName": "rooole",
+            "resourceName": "naaaame"
+          }
+        ],
+        "simplifiedResourceNames": [
+          "simple2"
+        ]
       }
     },
-    "timeDrivenNoise" : {
-      "isUsingTimestampNoise" : true,
-      "isUsingLifecycleNoise" : true,
-      "isUsingTimeGranularity" : true,
-      "maxTimestampDeviationSeconds" : 0,
-      "granularityType" : "MINUTES_5"
-    },
-    "isUsingComplexResourceSettings" : true,
-    "isUsingResources" : true,
-    "isUsingLifecycle" : false,
-    "minimumIntervalBetweenActions" : 10,
-    "maximumIntervalBetweenActions" : 20,
-    "isSeparatingStartAndFinish" : false,
-    "isUsingSynchronizationOnResources" : true
+    "timeDrivenNoise": {
+      "isUsingTimestampNoise": true,
+      "isUsingLifecycleNoise": true,
+      "isUsingTimeGranularity": true,
+      "maxTimestampDeviationSeconds": 0,
+      "granularityType": "MINUTES_5"
+    }
   }
 }

@@ -208,12 +208,7 @@ class SettingsUIController : Controller() {
     private val File.relativePath: String
         get() {
             val cwd = File(System.getProperty("user.dir"))
-            val absPath = absolutePath
-            
-            return if (absPath.startsWith(cwd.path + "\\"))
-                absPath.substringAfter(cwd.path + "\\")
-            else
-                absPath
+            return this.toRelativeString(cwd).replace("\\", "/")
         }
     
     

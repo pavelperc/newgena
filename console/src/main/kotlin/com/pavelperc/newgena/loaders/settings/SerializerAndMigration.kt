@@ -6,7 +6,8 @@ import java.io.File
 
 val MyJson = Json(JsonConfiguration(
         prettyPrint = true,
-        encodeDefaults = true
+        encodeDefaults = true,
+        indent = "  "
 ))
 
 

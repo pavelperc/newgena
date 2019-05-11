@@ -1,4 +1,8 @@
 {
+  "settingsInfo": {
+    "type": "petrinet",
+    "version": "0.1"
+  },
   "petrinetSetup" : {
     "petrinetFile" : "examples\\petrinet\\cycle1\\cycle1.pnml",
     "inhibitorArcIds" : [ "arc6" ],

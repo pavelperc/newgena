@@ -1,0 +1,515 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<pnml>
+  <net id="net1" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>dining_inh_reset</text>
+    </name>
+    <page id="n0">
+      <place id="fork4">
+        <graphics>
+          <position x="70" y="90" />
+          <dimension x="30" y="30" />
+        </graphics>
+      </place>
+      <place id="wait1">
+        <graphics>
+          <position x="190" y="90" />
+          <dimension x="30" y="30" />
+        </graphics>
+      </place>
+      <place id="eat1">
+        <graphics>
+          <position x="310" y="90" />
+          <dimension x="30" y="30" />
+        </graphics>
+      </place>
+      <place id="fork1">
+        <graphics>
+          <position x="430" y="90" />
+          <dimension x="30" y="30" />
+        </graphics>
+      </place>
+      <place id="wait2">
+        <graphics>
+          <position x="427.685950413223" y="236.570247933884" />
+          <dimension x="30" y="30" />
+        </graphics>
+      </place>
+      <place id="eat2">
+        <graphics>
+          <position x="430" y="370" />
+          <dimension x="30" y="30" />
+        </graphics>
+      </place>
+      <place id="fork2">
+        <graphics>
+          <position x="430" y="510" />
+          <dimension x="30" y="30" />
+        </graphics>
+      </place>
+      <place id="wait3">
+        <graphics>
+          <position x="310" y="510" />
+          <dimension x="30" y="30" />
+        </graphics>
+      </place>
+      <place id="eat3">
+        <graphics>
+          <position x="190" y="510" />
+          <dimension x="30" y="30" />
+        </graphics>
+      </place>
+      <place id="fork3">
+        <graphics>
+          <position x="70" y="510" />
+          <dimension x="30" y="30" />
+        </graphics>
+      </place>
+      <place id="wait4">
+        <graphics>
+          <position x="70" y="370" />
+          <dimension x="30" y="30" />
+        </graphics>
+      </place>
+      <place id="eat4">
+        <graphics>
+          <position x="70" y="230" />
+          <dimension x="30" y="30" />
+        </graphics>
+      </place>
+      <transition id="p1done">
+        <name>
+          <text>Ф1: Я поел!</text>
+        </name>
+        <graphics>
+          <position x="250" y="10" />
+          <dimension x="35" y="35" />
+        </graphics>
+      </transition>
+      <transition id="p1take">
+        <name>
+          <text>Ф1: Вилки мои!</text>
+        </name>
+        <graphics>
+          <position x="250" y="150" />
+          <dimension x="35" y="35" />
+        </graphics>
+      </transition>
+      <transition id="p2take">
+        <name>
+          <text>Ф2: Вилки мои!</text>
+        </name>
+        <graphics>
+          <position x="370" y="290" />
+          <dimension x="35" y="35" />
+        </graphics>
+      </transition>
+      <transition id="p2done">
+        <name>
+          <text>Ф2: Я поел!</text>
+        </name>
+        <graphics>
+          <position x="490" y="290" />
+          <dimension x="35" y="35" />
+        </graphics>
+      </transition>
+      <transition id="p3take">
+        <name>
+          <text>Ф3: А я ем без вилок!</text>
+        </name>
+        <graphics>
+          <position x="250" y="430" />
+          <dimension x="35" y="35" />
+        </graphics>
+      </transition>
+      <transition id="p3done">
+        <name>
+          <text>Ф3: Держите вилки!</text>
+        </name>
+        <graphics>
+          <position x="250" y="570" />
+          <dimension x="35" y="35" />
+        </graphics>
+      </transition>
+      <transition id="p4take">
+        <name>
+          <text>Ф4: Вилки мои!</text>
+        </name>
+        <graphics>
+          <position x="130" y="290" />
+          <dimension x="35" y="35" />
+        </graphics>
+      </transition>
+      <transition id="p4done">
+        <name>
+          <text>Ф4: Я поел!</text>
+        </name>
+        <graphics>
+          <position x="10" y="290" />
+          <dimension x="35" y="35" />
+        </graphics>
+      </transition>
+      <transition id="granny">
+        <name>
+          <text>Б: А ну хватит есть!</text>
+        </name>
+        <graphics>
+          <position x="625.6" y="411.2" />
+          <dimension x="35" y="35" />
+        </graphics>
+      </transition>
+      <arc id="arc1" source="p1done" target="wait1">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc2" source="wait1" target="p1take">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc3" source="p1take" target="eat1">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc4" source="eat1" target="p1done">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc5" source="wait2" target="p2take">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc6" source="p2take" target="eat2">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc7" source="eat2" target="p2done">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc8" source="p2done" target="wait2">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc9" source="p3take" target="eat3">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc10" source="eat3" target="p3done">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc11" source="p3done" target="wait3">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc12" source="wait3" target="p3take">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc13" source="eat4" target="p4done">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc14" source="p4done" target="wait4">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc15" source="wait4" target="p4take">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc16" source="p4take" target="eat4">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc17" source="fork4" target="p4take">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc18" source="fork3" target="p4take">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc19" source="p4done" target="fork4">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc20" source="p4done" target="fork3">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc21" source="p1done" target="fork4">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc22" source="p1done" target="fork1">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc23" source="fork1" target="p1take">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc24" source="fork4" target="p1take">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc25" source="p2done" target="fork1">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc26" source="p2done" target="fork2">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc27" source="fork2" target="p2take">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc28" source="fork1" target="p2take">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc29" source="p3done" target="fork2">
+        <name>
+          <text>3</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc30" source="p3done" target="fork3">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="inh1" source="fork3" target="p3take">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="inh2" source="fork2" target="p3take">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="arc33" source="eat3" target="granny">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="r1" source="wait3" target="granny">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="r2" source="fork2" target="granny">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="r3" source="eat2" target="granny">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="r4" source="wait2" target="granny">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="r5" source="fork1" target="granny">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="r6" source="eat1" target="granny">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="r7" source="wait1" target="granny">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="r8" source="fork4" target="granny">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="r9" source="eat4" target="granny">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="r10" source="wait4" target="granny">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="r11" source="fork3" target="granny">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+    </page>
+  </net>
+</pnml>

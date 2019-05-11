@@ -4,27 +4,31 @@
     "version": "0.1"
   },
   "petrinetSetup" : {
-    "petrinetFile" : "examples/petrinet/simpleExample/simple.pnml",
-    "inhibitorArcIds" : [ "arc1" ],
+    "petrinetFile" : "examples\\petrinet\\dining\\dining_inh_reset.pnml",
+    "inhibitorArcIds" : [ "inh1", "inh2" ],
     "marking" : {
       "initialPlaceIds" : {
-        "place3" : 2,
-        "place2" : 1
+        "fork1" : 1,
+        "fork2" : 1,
+        "fork3" : 1,
+        "fork4" : 1,
+        "wait1" : 1,
+        "wait2" : 1,
+        "wait3" : 1,
+        "wait4" : 1
       },
-      "finalPlaceIds" : {
-        "place4" : 2
-      },
+      "finalPlaceIds" : { },
       "isUsingInitialMarkingFromPnml" : false
     },
-    "resetArcIds" : [ "arc6" ]
+    "resetArcIds" : [ "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11" ]
   },
-  "outputFolder" : "xes-out/simple",
+  "outputFolder" : "xes-out",
   "isRemovingEmptyTraces" : true,
   "isRemovingUnfinishedTraces" : true,
   "isUsingNoise" : false,
   "isUsingStaticPriorities" : false,
   "isUsingTime" : false,
-  "maxNumberOfSteps" : 100,
+  "maxNumberOfSteps" : 15,
   "noiseDescription" : {
     "noiseLevel" : 5,
     "isSkippingTransitions" : true,
@@ -41,13 +45,23 @@
   "numberOfTraces" : 10,
   "staticPriorities" : {
     "maxPriority" : 100,
-    "transitionIdsToPriorities" : { }
+    "transitionIdsToPriorities" : {
+      "p1done" : 2,
+      "p2done" : 2,
+      "p3done" : 2,
+      "p4done" : 2,
+      "p1take" : 2,
+      "p2take" : 2,
+      "p3take" : 2,
+      "p4take" : 2,
+      "granny" : 3
+    }
   },
   "timeDescription" : {
     "simplifiedResources" : [ ],
     "resourceGroups" : [ ],
     "transitionIdsToDelays" : { },
-    "generationStart" : "2019-04-21T23:37:27.966Z",
+    "generationStart" : "2019-04-22T18:19:52.219Z",
     "transitionIdsToResources" : { },
     "timeDrivenNoise" : {
       "isUsingTimestampNoise" : true,
@@ -56,12 +70,12 @@
       "maxTimestampDeviationSeconds" : 0,
       "granularityType" : "MINUTES_5"
     },
-    "isUsingLifecycle" : false,
-    "isUsingComplexResourceSettings" : true,
-    "minimumIntervalBetweenActions" : 10,
-    "maximumIntervalBetweenActions" : 20,
     "isSeparatingStartAndFinish" : true,
     "isUsingResources" : false,
-    "isUsingSynchronizationOnResources" : true
+    "isUsingLifecycle" : false,
+    "isUsingSynchronizationOnResources" : true,
+    "isUsingComplexResourceSettings" : true,
+    "maximumIntervalBetweenActions" : 20,
+    "minimumIntervalBetweenActions" : 10
   }
 }
