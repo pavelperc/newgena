@@ -28,7 +28,7 @@ class TimeDrivenGenerationHelper(
         description: TimeDrivenGenerationDescription
 ) : PetriNetGenerationHelper<TimeDrivenPlace, TimeDrivenTransition, TimeDrivenToken>(initialMarking, finalMarking, allTransitions, allPlaces, description) {
     
-    private val generationStart = description.generationStart.toInstant(ZoneOffset.UTC).toEpochMilli()
+    private val generationStart = description.generationStart.toEpochMilli()
     
     override val generationDescription: TimeDrivenGenerationDescription
         get() = super.generationDescription as TimeDrivenGenerationDescription

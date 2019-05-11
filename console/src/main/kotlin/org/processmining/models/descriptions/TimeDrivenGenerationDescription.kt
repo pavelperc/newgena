@@ -42,7 +42,7 @@ class TimeDrivenGenerationDescription(
         /** transitionIdsToDelays: executionTime and maxTimeDeviation in seconds. */
         val time: Map<Transition, Pair<Long, Long>> = emptyMap(),
         override val isUsingLifecycle: Boolean = true,
-        var generationStart: LocalDateTime = LocalDateTime.now(),
+        var generationStart: Instant = Instant.now(),
         val resourceMapping: Map<Any, ResourceMapping> = emptyMap(),
         val resourceGroups: List<Group> = ArrayList(),
         

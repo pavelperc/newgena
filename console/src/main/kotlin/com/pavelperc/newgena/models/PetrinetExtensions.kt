@@ -11,6 +11,7 @@ import kotlin.reflect.KProperty
  * Arcs are given as ids.
  * @throws IllegalArgumentException if one of given edges not found in petrinet
  */
+@Suppress("UNCHECKED_CAST")
 @Throws(IllegalArgumentException::class)
 fun ResetInhibitorNet.markInhResetArcsByIds(
         inhibitorArcIds: List<String> = listOf(),

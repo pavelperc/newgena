@@ -134,7 +134,12 @@ class SettingsUIController : Controller() {
         
         val lastSettingsPath = prefController.loadLastSettingsPath()
         if (lastSettingsPath != null) {
-            loadJsonSettingsFromPath(lastSettingsPath)
+            try {
+                loadJsonSettingsFromPath(lastSettingsPath)
+            } catch (e: Exception) {
+                error("Failed loading settings from $lastSettingsPath:", e.message)
+                e.printStackTrace()
+            }
         }
     }
     

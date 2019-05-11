@@ -201,7 +201,7 @@ public class TimeDrivenLoggingSingleton extends LoggingSingleton
 
         long resultedTimestamp = originalTimestamp + deviation;
 
-        Instant generationStartTime = description.getGenerationStart().toInstant(ZoneOffset.UTC);
+        Instant generationStartTime = description.getGenerationStart();
 
         if (resultedTimestamp < generationStartTime.toEpochMilli())
         {

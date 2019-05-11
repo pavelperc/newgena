@@ -1,20 +1,8 @@
-buildscript {
-    ext.kotlin_version = '1.3.30'
-    repositories { jcenter() }
 
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
-    }
-}
 
-plugins {
-    id 'java'
-    id 'org.jetbrains.kotlin.jvm'
-    id 'org.jetbrains.dokka'
-}
+// plugins setup and versions are in parent (multi-project) build script
 
-apply plugin: 'kotlinx-serialization'
+
 
 //group 'com.pavelperc'
 version '1.0-SNAPSHOT'
@@ -52,10 +40,10 @@ dependencies {
 //    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.2.0')
 
     // json parser
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
+//    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
     // java8 time
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8'
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.8"
+//    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8'
+//    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.8"
 //    implementation 'com.google.code.gson:gson:2.8.5'
 //    implementation 'com.beust:klaxon:5.0.1'
 

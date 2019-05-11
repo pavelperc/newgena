@@ -82,7 +82,7 @@ class JsonSettingsTest {
                             fullResourceNames = mutableListOf(),
                             simplifiedResourceNames = mutableListOf("simpleResource1", "simpleResource2")
                     )
-                    
+            
             )
             transitionIdsToDelays = mutableMapOf("t1" to JsonTimeDescription.DelayWithDeviation(2L, 1L))
         }
@@ -90,7 +90,7 @@ class JsonSettingsTest {
         
         settings.isUsingNoise = false
         settings.isUsingTime = true
-
+        
 //        settings.timeDescription?.timeDrivenNoise = null
         
         var json = settings.toJson()

@@ -99,7 +99,7 @@ class JsonCommonTest {
         println("Migrated:")
         println(migrated)
         
-        val sample = MyJson.fromJson<Sample>(migrated)
+        val sample = MyJson.fromJson(Sample.serializer(), migrated)
         println(sample)
         println(MyJson.stringify(sample))
         

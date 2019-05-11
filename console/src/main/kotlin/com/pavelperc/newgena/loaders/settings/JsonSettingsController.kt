@@ -53,9 +53,6 @@ class JsonSettingsController(var jsonSettings: JsonSettings) {
     
     /** When we are ready for generation. */
     fun getGenerationKit(): PetrinetGenerators.GenerationKit<GenerationDescription> {
-        val petrinet = petrinet
-                ?: throw IllegalStateException("Can not get GenerationKit. Petrinet is not loaded.")
-        
         updateInhResetArcsFromSettings()
         
         val builder = JsonSettingsBuilder(petrinet, jsonSettings)

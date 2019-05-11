@@ -28,8 +28,8 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
                 marking.run {
                     val idsToPlaces = petrinet.places.map { it.pnmlId to it!! }.toMap()
                     
-                    val initialMarking = initialPlaceIds.mapKeys { (id, repeat) -> idsToPlaces.getValue(id) }
-                    val finalMarking = finalPlaceIds.mapKeys { (id, repeat) -> idsToPlaces.getValue(id) }
+                    val initialMarking = initialPlaceIds.mapKeys { (id, _) -> idsToPlaces.getValue(id) }
+                    val finalMarking = finalPlaceIds.mapKeys { (id, _) -> idsToPlaces.getValue(id) }
                     
                     markingOf(initialMarking) to markingOf(finalMarking)
                 }
@@ -47,7 +47,7 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
         
         
         if (isUsingStaticPriorities) {
-            description = staticPriorities?.run {
+            description = staticPriorities.run {
                 GenerationDescriptionWithStaticPriorities(
                         maxPriority = maxPriority,
                         numberOfLogs = numberOfLogs,
@@ -57,20 +57,20 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
                         isRemovingEmptyTraces = isRemovingEmptyTraces,
                         priorities = transitionIdsToPriorities.mapKeys { it.key.toTrans() }
                 )
-            } ?: throw IllegalStateException("staticPriorities is null, but isUsingStaticPriorities is true.")
+            } // ?: throw IllegalStateException("staticPriorities is null, but isUsingStaticPriorities is true.")
         } else {
             
             val noiseDescriptionCreator: NoiseDescriptionCreator
             if (isUsingNoise) {
-                noiseDescriptionCreator = noiseDescription?.build()
-                        ?: throw IllegalStateException("noiseDescription is null, but isUsingNoise is true.")
+                noiseDescriptionCreator = noiseDescription.build()
+                        // ?: throw IllegalStateException("noiseDescription is null, but isUsingNoise is true.")
             } else
                 noiseDescriptionCreator = { NoiseDescription() }
             
             if (isUsingTime) {
                 
-                description = timeDescription?.build(this)
-                        ?: throw IllegalStateException("timeDescription is null, but isUsingTime is true.")
+                description = timeDescription.build(this)
+                        // ?: throw IllegalStateException("timeDescription is null, but isUsingTime is true.")
                 
             } else {
                 description = SimpleGenerationDescription(
@@ -101,9 +101,10 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
                 
                 val simpleResFromNames = simpleRes.map { it.name to it }.toMap()
                 val complexResFromFullNames = complexRes.map {
-                    JsonResources.ResourceMapping.FullResourceName(it.group?.name
-                            ?: "null", it.role?.name
-                            ?: "null", it.name) to it
+                    JsonResources.ResourceMapping.FullResourceName(
+                            it.group?.name ?: "null",
+                            it.role?.name?: "null",
+                            it.name) to it
                 }.toMap()
                 
                 resMapping = transitionIdsToResources
@@ -128,15 +129,15 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
             val timeNoiseDescriptionCreator: TimeNoiseDescriptionCreator
             if (isUsingNoise) {
                 val commonNoise = noiseDescription
-                        ?: throw IllegalStateException("noiseDescription is null, but isUsingNoise is true.")
+                        //?: throw IllegalStateException("noiseDescription is null, but isUsingNoise is true.")
                 val timeNoise = timeDrivenNoise
-                        ?: throw IllegalStateException("timeDrivenNoise is null, but isUsingNoise is true.")
+                        //?: throw IllegalStateException("timeDrivenNoise is null, but isUsingNoise is true.")
                 
                 timeNoiseDescriptionCreator = timeNoise.build(commonNoise)
             } else {
                 timeNoiseDescriptionCreator = { TimeNoiseDescription() }
             }
-    
+            
             if (transitionIdsToDelays.size != petrinet.transitions.size) {
                 throw IllegalStateException("transitionIdsToDelays mapping should be specified for each transition.")
             }
@@ -223,7 +224,7 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
                         group = newGroup
                 ) { _, newRole ->
                     jsonRole.resources.map { jsonRes ->
-//                        println("Creating resource ${jsonRes.name}: ${newRole.name} : ${newGroup.name} ")
+                        //                        println("Creating resource ${jsonRes.name}: ${newRole.name} : ${newGroup.name} ")
                         Resource(
                                 name = jsonRes.name,
                                 willBeFreed = jsonRes.willBeFreed,

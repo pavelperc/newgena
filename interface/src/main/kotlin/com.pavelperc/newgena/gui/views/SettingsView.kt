@@ -17,7 +17,9 @@ import javafx.util.Duration
 import javafx.util.StringConverter
 import org.processmining.models.time_driven_behavior.GranularityTypes
 import tornadofx.*
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
@@ -265,24 +267,24 @@ class SettingsView : View("Settings") {
         
         foldingFieldSet("Time and Resources", settings.isUsingTime) {
             field("generationStart") {
-                val timeConverter = object : StringConverter<LocalDateTime>() {
-                    val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-                    override fun toString(obj: LocalDateTime) = obj.format(pattern)
+                val timeConverter = object : StringConverter<Instant>() {
+                    
+                    override fun toString(obj: Instant) = obj.toString()
                     override fun fromString(string: String) =
                             try {
-                                LocalDateTime.parse(string, pattern)
+                                Instant.parse(string)
                             } catch (e: DateTimeParseException) {
-                                LocalDateTime.now()
+                                Instant.now()
                             }
                 }
                 
                 textfield(time.generationStart, timeConverter) {
                     validator(ValidationTrigger.OnBlur) { newString ->
                         try {
-                            LocalDateTime.parse(newString, timeConverter.pattern)
+                            Instant.parse(newString)
                             null
                         } catch (e: DateTimeParseException) {
-                            error("Bad time, format example: 2019-12-31 23:59")
+                            error("Bad time, format example: 2007-12-03T10:15:30.00Z")
                         }
                     }
                     action {
@@ -291,7 +293,7 @@ class SettingsView : View("Settings") {
                 }
                 button("Now") {
                     action {
-                        time.generationStart.value = LocalDateTime.now()
+                        time.generationStart.value = Instant.now()
                     }
                 }
             }

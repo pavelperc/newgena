@@ -120,6 +120,7 @@ class Generator(private val callback: ProgressBarCallback) {
         
     }
     
+    @Suppress("UNCHECKED_CAST")
     private fun <K : Movable, F : Movable> generateTrace(generationHelper: GenerationHelper<K, F>, traceName: String): XTrace? {
         var trace: XTrace?
         
