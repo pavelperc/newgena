@@ -2,7 +2,7 @@
   "settingsInfo": {
     "type": "petrinet",
     "version": "0.2"
-  },
+  }, 
   "petrinetSetup": {
     "petrinetFile": "examples/petrinet/complex1/complex1.pnml",
     "marking": {

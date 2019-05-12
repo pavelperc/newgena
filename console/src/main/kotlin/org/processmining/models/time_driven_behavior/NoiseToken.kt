@@ -28,7 +28,7 @@ class NoiseToken(
     
     private fun registerEvent(trace: XTrace) {
         
-        val logger = TimeDrivenLoggingSingleton.timeDrivenInstance()
+        val logger = TimeDrivenLoggingSingleton.timeDrivenInstance
         
         if (resource == null) {
             logger.log(trace, modelActivity, timestamp, true)

@@ -5,13 +5,15 @@ import com.pavelperc.newgena.launchers.PetrinetGenerators
 import com.pavelperc.newgena.utils.xlogutils.eventNames
 import com.pavelperc.newgena.utils.xlogutils.exportXml
 import com.pavelperc.newgena.utils.xlogutils.toList
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
-import javafx.scene.Parent
+import javafx.collections.ObservableList
 import javafx.scene.control.ProgressBar
+import javafx.scene.control.TableView
 import javafx.scene.layout.Priority
-import javafx.scene.layout.VBox
 import org.deckfour.xes.model.XEvent
+import org.deckfour.xes.model.XLog
 import org.deckfour.xes.model.XTrace
 import org.processmining.log.models.EventLogArray
 import tornadofx.*
@@ -22,7 +24,8 @@ class GenerationView() : View("My View") {
     val outputFolder: String by param()
     
     
-    val logArrayObservable = observableList<XTrace>()
+    /** Log index and trace. */
+    val logArrayObservable = observableList<Pair<Int, XTrace>>()
     
     var eventLogArrayProp = SimpleObjectProperty<EventLogArray?>(null)
     var eventLogArray by eventLogArrayProp
@@ -58,10 +61,17 @@ class GenerationView() : View("My View") {
             vgrow = Priority.ALWAYS
             
             cellFormat {
-                text = item.eventNames().toString()
+                val (logIndex, trace) = item
+                
+                text = trace.eventNames().toString()
                 
                 onDoubleClick {
-                    OneTraceFragment(item).openWindow()
+                    val traceName = trace.attributes["concept:name"]?.toString() ?: "Some Trace"
+                    val name = "Log ${logIndex + 1}, $traceName"
+                    find<OneTraceFragment>(mapOf(
+                            "trace" to trace,
+                            "name" to name
+                    )).openWindow()
                 }
             }
         }
@@ -86,42 +96,65 @@ class GenerationView() : View("My View") {
 //                event.toString()
 //            }
             
-            logArrayObservable.setAll(logArray.toList().flatten())
+            logArrayObservable.setAll(logArray.toList().mapIndexed { i, log ->
+                log.map { trace -> i to trace }
+            }.flatten())
         }
     }
 }
 
 
-class OneTraceFragment(
-        trace: XTrace,
-        time: Boolean = true,
-        lifecycle: Boolean = true,
-        resources: Boolean = true,
-        complexResources: Boolean = true
-) : Fragment(
-        trace.attributes["concept:name"]?.toString() ?: "One Trace"
-) {
+class OneTraceFragment : Fragment() {
+    
+    val observableTrace: ObservableList<XEvent> = observableList()
+    
+    override fun onDock() {
+        super.onDock()
+        
+        title = params["name"]?.toString() ?: "Some trace"
+        
+        observableTrace.setAll(params["trace"] as? XTrace ?: mutableListOf<XEvent>())
+    }
+    
+    val showSimpleTime = SimpleBooleanProperty(false)
     
     
     override val root = vbox {
-        tableview(trace.observable()) {
+        
+        checkbox("Show simple time.", showSimpleTime)
+        
+        tableview(observableTrace) {
+            showSimpleTime.onChange {
+                this@tableview.refresh()
+            }
+            
             columnResizePolicy = SmartResize.POLICY
             useMaxSize = true
             vgrow = Priority.ALWAYS
             
             selectionModel = null
             
-            fun attrColumn(name: String, attr: String) {
+            fun attrColumn(name: String, attr: String, attrConverter: (String) -> String = { it }) {
                 column<XEvent, String>(name, valueProvider = { cellDataFeatures ->
                     val value = cellDataFeatures.value
-                    SimpleStringProperty(value.attributes[attr].toString())
+                    val attrStr = value.attributes[attr].toString()
+                    SimpleStringProperty(attrConverter(attrStr))
                 }).apply {
                     isSortable = false
                 }
             }
             
             attrColumn("Name", "concept:name")
-            attrColumn("Timestamp", "time:timestamp")
+            
+            val timeRegex = Regex("""\d\d:\d\d:\d\d""")
+            
+            attrColumn("Timestamp", "time:timestamp") { timestamp ->
+                if (showSimpleTime.value) {
+                    timeRegex.find(timestamp)?.value ?: timestamp
+                } else {
+                    timestamp
+                }
+            }
             attrColumn("Lifecycle", "lifecycle:transition")
             attrColumn("Resource", "org:resource")
             attrColumn("Role", "org:role")

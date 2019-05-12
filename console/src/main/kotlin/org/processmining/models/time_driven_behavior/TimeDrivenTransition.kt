@@ -36,9 +36,6 @@ class TimeDrivenTransition(
     private val executionTime: Long
     private val maxTimeDeviation: Long
     
-    private val distortionType: Int
-        get() = Random.nextInt(3)
-    
     private val noiseEventsBasedOnSettings: List<NoiseEvent>
         get() {
             val noiseEvents = ArrayList<NoiseEvent>()
@@ -62,7 +59,7 @@ class TimeDrivenTransition(
         val movementResult = MovementResult<TimeDrivenToken>()
         movementResult.isActualStep = false
         val time = findMinimalTokenTime() //TODO такой способ нахождения времени не оптимален
-        if (generationDescription.isUsingSynchronizationOnResources && !TimeDrivenLoggingSingleton.timeDrivenInstance().areResourcesAvailable(node, time)) {
+        if (generationDescription.isUsingSynchronizationOnResources && !TimeDrivenLoggingSingleton.timeDrivenInstance.areResourcesAvailable(node, time)) {
             takeSynchronizationStep(movementResult)
             return movementResult
         }
@@ -70,14 +67,14 @@ class TimeDrivenTransition(
         
         if (tokensHaveTheSameTimestamp) {
             if (shouldDistortEvent()) {
-                val distortionType = distortionType
+                val distortionType = Random.nextInt(3)
                 
                 when (distortionType) {
                     NOISE_BEFORE_ACTUAL_EVENT -> {
                         println("Noise before actual event: $node")//TODO delete?
                         registerNoiseTransition(trace, time, movementResult)
                         if (generationDescription.isUsingSynchronizationOnResources) {
-                            if (TimeDrivenLoggingSingleton.timeDrivenInstance().areResourcesAvailable(node, time)) {
+                            if (TimeDrivenLoggingSingleton.timeDrivenInstance.areResourcesAvailable(node, time)) {
                                 actuallyMove(trace, movementResult)
                             } else {
                                 takeSynchronizationStep(movementResult)
@@ -98,7 +95,7 @@ class TimeDrivenTransition(
                         val registeredPair = registerNoiseTransition(trace, time, extraResult)
                         if (registeredPair == null) {
                             if (generationDescription.isUsingSynchronizationOnResources) {
-                                if (TimeDrivenLoggingSingleton.timeDrivenInstance().areResourcesAvailable(node, time)) {
+                                if (TimeDrivenLoggingSingleton.timeDrivenInstance.areResourcesAvailable(node, time)) {
                                     actuallyMove(trace, movementResult)
                                 } else {
                                     takeSynchronizationStep(movementResult)
@@ -119,7 +116,7 @@ class TimeDrivenTransition(
                 }
             } else {
                 if (generationDescription.isUsingSynchronizationOnResources) {
-                    if (TimeDrivenLoggingSingleton.timeDrivenInstance().areResourcesAvailable(node, time)) {
+                    if (TimeDrivenLoggingSingleton.timeDrivenInstance.areResourcesAvailable(node, time)) {
                         actuallyMove(trace, movementResult)
                     } else {
                         takeSynchronizationStep(movementResult)
@@ -139,7 +136,7 @@ class TimeDrivenTransition(
         val smallestTimestamp = findMinimalTokenTime()
         var secondSmallestTimestamp = findNextMinimalTimestamp(smallestTimestamp)
         if (generationDescription.isUsingSynchronizationOnResources) {
-            val minimalResourceTime = TimeDrivenLoggingSingleton.timeDrivenInstance().getNearestResourceTime(node)
+            val minimalResourceTime = TimeDrivenLoggingSingleton.timeDrivenInstance.getNearestResourceTime(node)
             if (secondSmallestTimestamp < minimalResourceTime) {
                 secondSmallestTimestamp = minimalResourceTime
             }
@@ -215,7 +212,7 @@ class TimeDrivenTransition(
         }
         val producedToken: TimeDrivenToken
         if (generationDescription.isUsingResources) {
-            val usedResource = TimeDrivenLoggingSingleton.timeDrivenInstance().logStartEventWithResource(trace, node, timeStamp)
+            val usedResource = TimeDrivenLoggingSingleton.timeDrivenInstance.logStartEventWithResource(trace, node, timeStamp)
             val finishTime = timeStamp + (executionTime + timeDeviation) * 1000
             if (generationDescription.isUsingSynchronizationOnResources) {
                 usedResource.setTime(finishTime)
@@ -224,7 +221,7 @@ class TimeDrivenTransition(
             producedToken = TimeDrivenToken(this, finishTime, usedResource)
         } else {
             if (generationDescription.isSeparatingStartAndFinish) {
-                TimeDrivenLoggingSingleton.timeDrivenInstance().log(trace, node, timeStamp, false)
+                TimeDrivenLoggingSingleton.timeDrivenInstance.log(trace, node, timeStamp, false)
             }
             producedToken = TimeDrivenToken(this, timeStamp + (executionTime + timeDeviation) * 1000)
         }
@@ -244,7 +241,7 @@ class TimeDrivenTransition(
     }
     
     private fun registerNoiseTransition(trace: XTrace, timestamp: Long, movementResult: MovementResult<TimeDrivenToken>): Pair<Any, Resource>? {
-        val loggingSingleton = TimeDrivenLoggingSingleton.timeDrivenInstance()
+        val loggingSingleton = TimeDrivenLoggingSingleton.timeDrivenInstance
         val noiseEvents = noiseEventsBasedOnSettings
         val noiseEventList = LinkedList(noiseEvents)
         while (noiseEventList.size > 0) {
@@ -310,7 +307,7 @@ class TimeDrivenTransition(
         val movementResult = MovementResult<TimeDrivenToken>()
         movementResult.addConsumedExtraToken(token)
         val maxTimeStamp = token.timestamp
-        if (generationDescription.isUsingResources) {
+        if (generationDescription.isUsingResources && token.resource != null) {
             completeTransition(trace, token.resource, maxTimeStamp)
         } else {
             completeTransition(trace, maxTimeStamp)
@@ -319,12 +316,12 @@ class TimeDrivenTransition(
     }
     
     private fun completeTransition(trace: XTrace, maxTimeStamp: Long) {
-        TimeDrivenLoggingSingleton.timeDrivenInstance().log(trace, node, maxTimeStamp, true)
+        TimeDrivenLoggingSingleton.timeDrivenInstance.log(trace, node, maxTimeStamp, true)
         addTokensToOutputPlaces(maxTimeStamp)
     }
     
-    private fun completeTransition(trace: XTrace, resource: Resource?, maxTimeStamp: Long) {
-        TimeDrivenLoggingSingleton.timeDrivenInstance().logCompleteEventWithResource(trace, node, resource, maxTimeStamp)
+    private fun completeTransition(trace: XTrace, resource: Resource, maxTimeStamp: Long) {
+        TimeDrivenLoggingSingleton.timeDrivenInstance.logCompleteEventWithResource(trace, node, resource, maxTimeStamp)
         addTokensToOutputPlaces(maxTimeStamp)
     }
     

@@ -49,7 +49,7 @@ class ReplacementToken(
     }
     
     private fun registerEvent(trace: XTrace) {
-        val logger = TimeDrivenLoggingSingleton.timeDrivenInstance()
+        val logger = TimeDrivenLoggingSingleton.timeDrivenInstance
         
         if (resource == null) {
             logger.log(trace, recorderActivity, timestamp, true)
