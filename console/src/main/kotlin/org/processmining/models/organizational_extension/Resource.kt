@@ -12,40 +12,44 @@ import kotlin.random.nextULong
  */
 class Resource constructor(
         val name: String,
-        willBeFreed: Long = 0L,
+        val role: Role? = null,
         val minDelayBetweenActions: Long = DEFAULT_MIN_DELAY_BETWEEN_ACTIONS,
-        val maxDelayBetweenActions: Long = DEFAULT_MAX_DELAY_BETWEEN_ACTIONS,
-        val group: Group? = null,
-        val role: Role? = null
+        val maxDelayBetweenActions: Long = DEFAULT_MAX_DELAY_BETWEEN_ACTIONS
 ) : Comparable<Resource>        //TODO неправильно рабоатет с одинаковыми именами ресурсов
 {
+    companion object {
+        /** 15 minutes in milliseconds */
+        val DEFAULT_MAX_DELAY_BETWEEN_ACTIONS = TimeUnit.MINUTES.toMillis(20)
+        /** 20 minutes in milliseconds */
+        val DEFAULT_MIN_DELAY_BETWEEN_ACTIONS = TimeUnit.MINUTES.toMillis(15)
+        
+        fun simplified(name: String) = Resource(name, null, 0, 0)
+    }
+    
+    /** Group is taken from the role. */
+    val group = role?.group
+    
+    
     init {
-        if ((role == null) xor (group == null))
-            throw IllegalArgumentException("Error in $this: role and group should be both null or not.")
-        
-        
-        if (role?.group != group) {
-            throw IllegalArgumentException("Precondition violated in $this. Incorrect role.")
-        }
-        
         if (minDelayBetweenActions > maxDelayBetweenActions) {
             throw IllegalArgumentException("Precondition violated in $this. minDelayBetweenActions > maxDelayBetweenACtions.")
         }
-        
-        if (willBeFreed != 0L) {
-            addDelay()
-        }
     }
     
+    /** Name in format name:role:group .*/
     val fullName: String
         get() = "$name:${role?.name}:${group?.name}"
     
-    var willBeFreed = willBeFreed
+    
+    /** Time in milliseconds, when the resource will be freed. */
+    var willBeFreed: Long = 0
         private set
     
+    /** Is vacant. (Can we use this resource.) */
     var isIdle = true
     
-    /** set [willBeFreed] and add a delay */
+    
+    /** Set [Resource.willBeFreed] and add a delay, if the [willBeFreed] not equals zero. */
     fun setTime(willBeFreed: Long)//TODO подумать получше над названием
     {
         this.willBeFreed = willBeFreed
@@ -53,17 +57,6 @@ class Resource constructor(
             addDelay()
         }
     }
-
-//    fun relocate(newGroup: Group, newRole: Role) {
-//        // TODO: logic?
-//        if (newGroup != newRole.group) {
-//            group?.removeResource(this)
-//        }
-//        group = newGroup
-//        role?.resources?.remove(this)
-//        role = newRole
-//        newRole.resources.add(this)
-//    }
     
     private fun addDelay() {
         willBeFreed += Random.nextLong(minDelayBetweenActions..maxDelayBetweenActions)
@@ -72,20 +65,4 @@ class Resource constructor(
     override fun toString() = name
     
     override fun compareTo(other: Resource) = this.name.compareTo(other.name)
-
-//    fun removeResource() {
-//        group?.removeResource(this)
-//    }
-
-//    fun setDelayBetweenActions(minDelay: Long, maxDelay: Long) {
-//        minDelayBetweenActions = minDelay
-//        maxDelayBetweenActions = maxDelay
-//    }
-    
-    companion object {
-        /** 15 minutes in milliseconds */
-        val DEFAULT_MAX_DELAY_BETWEEN_ACTIONS = TimeUnit.MINUTES.toMillis(20)
-        /** 20 minutes in milliseconds */
-        val DEFAULT_MIN_DELAY_BETWEEN_ACTIONS = TimeUnit.MINUTES.toMillis(15)
-    }
 }

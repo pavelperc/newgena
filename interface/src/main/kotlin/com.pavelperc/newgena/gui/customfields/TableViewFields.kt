@@ -14,6 +14,11 @@ import tornadofx.*
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty1
 
+
+/** R is itemRow. T is validated type. */
+typealias ColumnValidator<T, R> = ValidationContext.(newValue: T, rowItem: R) -> ValidationMessage?
+
+
 /**
  * Custom column builder.
  * This fun requires itemGetter and columnName.
@@ -25,11 +30,11 @@ private fun <S, T> TableView<S>.validatedColumnItemGetter(
         columnName: String,
         required: Boolean = true,
         allowDuplicates: Boolean = true,
-        validator: Validator<String> = { null },
+        validator: ColumnValidator<String, S> = { _, _ -> null },
         op: TextField.() -> Unit = {},
         /** just an optimization for KProp. */
         rawItemGetter: ((row: S) -> T)? = { row -> itemGetter(row).value }
-) : TableColumn<S, T> {
+): TableColumn<S, T> {
     // default column and label builders are inline and can not simply infer type T
     // this is copied from column builder:
     val column = TableColumn<S, T>(columnName)
@@ -57,7 +62,7 @@ private fun <S, T> TableView<S>.validatedColumnItemGetter(
                             newString == null -> error("Null.")
                             required && newString.isEmpty() -> error("Should not be empty.")
                             !allowDuplicates && isDuplicate(newString) -> error("Duplicate.")
-                            else -> validator(newString)
+                            else -> validator(newString, rowItem)
                         }
                     }
                     // Call cell.commitEdit() only if validation passes
@@ -91,7 +96,7 @@ fun <S, T> TableView<S>.validatedColumn(
         columnName: String = itemProp.name,
         required: Boolean = true,
         allowDuplicates: Boolean = true,
-        validator: Validator<String> = { null },
+        validator: ColumnValidator<String, S> = { _, _ -> null },
         op: TextField.() -> Unit = {}
 ) = validatedColumnItemGetter(
         { row -> observable(row, itemProp) },
@@ -108,13 +113,13 @@ fun <S> TableView<S>.validatedLongColumn(
         itemProp: KMutableProperty1<S, Long>,
         columnName: String = itemProp.name,
         nonNegative: Boolean = false,
-        nextValidator: Validator<Long> = { null },
+        nextValidator: ColumnValidator<Long, S> = { _, _ -> null },
         op: TextField.() -> Unit = {}
-) = validatedColumn(itemProp, QuiteLongConverter, columnName, true, true, { newString ->
+) = validatedColumn(itemProp, QuiteLongConverter, columnName, true, true, { newString, rowItem ->
     when {
         !newString.isLong() -> error("Not a Long.")
         nonNegative && newString.toLong() < 0L -> error("Should not be negative.")
-        else -> nextValidator(newString.toLong())
+        else -> nextValidator(newString.toLong(), rowItem)
     }
 }, op)
 
@@ -124,7 +129,7 @@ fun <S, T> TableView<S>.validatedColumnProp(
         columnName: String = itemProp.name,
         required: Boolean = true,
         allowDuplicates: Boolean = true,
-        validator: Validator<String> = { null },
+        validator: ColumnValidator<String, S> = { _, _ -> null },
         op: TextField.() -> Unit = {}
 ) = validatedColumnItemGetter(
         itemProp, // this is substituted as KProperty1<S, Property<T>> !!!!
@@ -140,13 +145,13 @@ fun <S> TableView<S>.validatedLongColumnProp(
         itemProp: KProperty1<S, Property<Long>>,
         columnName: String = itemProp.name,
         nonNegative: Boolean = false,
-        nextValidator: Validator<Long> = { null },
+        nextValidator: ColumnValidator<Long, S> = { _, _ -> null },
         op: TextField.() -> Unit = {}
-) = validatedColumnProp(itemProp, QuiteLongConverter, columnName, true, true, { newString ->
+) = validatedColumnProp(itemProp, QuiteLongConverter, columnName, true, true, { newString, rowItem ->
     when {
         !newString.isLong() -> error("Not a Long.")
         nonNegative && newString.toLong() < 0L -> error("Should not be negative.")
-        else -> nextValidator(newString.toLong())
+        else -> nextValidator(newString.toLong(), rowItem)
     }
 }, op)
 

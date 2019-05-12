@@ -7,10 +7,10 @@ package org.processmining.models.organizational_extension
 class Role(
         var name: String,
         var group: Group,
-        resourcesCreator: (Group, Role) -> List<Resource>
+        resourcesCreator: (Role) -> List<Resource>
 ) : Comparable<Role>        //TODO неправильно рабоатет с одинаковыми именами ролей
 {
-    val resources = resourcesCreator(group, this)
+    val resources = resourcesCreator(this)
     
     override fun toString() = name
     

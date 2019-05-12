@@ -265,7 +265,11 @@ class SettingsUIController : Controller() {
     
     fun loadJsonSettingsFromPath(path: String) {
         profile("Loading json settings:") {
-            settingsModel.itemProperty.value = JsonSettings.fromFilePath(path)
+            settingsModel.itemProperty.value = JsonSettings.fromFilePath(path) { migrationMessage ->
+                information("Successfully migrated settings.", migrationMessage)
+                println("Migration:")
+                println(migrationMessage)
+            }
         }
         
         jsonSettingsPath.value = path

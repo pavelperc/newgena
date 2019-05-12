@@ -102,8 +102,9 @@ fun EventTarget.longSpinner(
         style: String = Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL,
         op: Spinner<Long>.() -> Unit = {}
 ) {
-    spinner(LongSpinnerValueFactory(valueRange, prop.value)) {
-        valueFactory.valueProperty().bindBidirectional(prop)
+    spinner(LongSpinnerValueFactory(valueRange, prop.value), property = prop) {
+//        valueFactory.valueProperty().bindBidirectional(prop)
+        
         styleClass.add(style)
         isEditable = true
         editor.textProperty().onChange { text ->

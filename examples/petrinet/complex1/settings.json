@@ -1,7 +1,7 @@
 {
   "settingsInfo": {
     "type": "petrinet",
-    "version": "0.1"
+    "version": "0.2"
   },
   "petrinetSetup": {
     "petrinetFile": "examples/petrinet/complex1/complex1.pnml",
@@ -115,13 +115,11 @@
             "resources": [
               {
                 "name": "n1",
-                "willBeFreed": 20,
                 "minDelayBetweenActionsMillis": 25,
                 "maxDelayBetweenActionsMillis": 30
               },
               {
                 "name": "n2",
-                "willBeFreed": 0,
                 "minDelayBetweenActionsMillis": 0,
                 "maxDelayBetweenActionsMillis": 0
               }
@@ -132,7 +130,6 @@
             "resources": [
               {
                 "name": "n3",
-                "willBeFreed": 0,
                 "minDelayBetweenActionsMillis": 3,
                 "maxDelayBetweenActionsMillis": 10
               }
@@ -143,7 +140,6 @@
             "resources": [
               {
                 "name": "n3",
-                "willBeFreed": 0,
                 "minDelayBetweenActionsMillis": 0,
                 "maxDelayBetweenActionsMillis": 0
               }
@@ -159,7 +155,6 @@
             "resources": [
               {
                 "name": "naaaame",
-                "willBeFreed": 0,
                 "minDelayBetweenActionsMillis": 0,
                 "maxDelayBetweenActionsMillis": 0
               }

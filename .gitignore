@@ -10,3 +10,7 @@ console/gv
 examples/petrinet/*.exe
 examples/petrinet/*.dll
 examples/petrinet/*.png
+
+*.dll
+*.exe
+*.png

@@ -20,7 +20,6 @@ class ResourceGroupsEditor(
     /** Resource, role and group. */
     public class ResourceTuple(
             var resourceName: String = "",
-            var willBeFreed: Long = 0L,
             var minDelayBetweenActionsMillis: Long = 0L,
             var maxDelayBetweenActionsMillis: Long = 0L,
             var roleName: String = "",
@@ -36,7 +35,6 @@ class ResourceGroupsEditor(
                     group: JsonResources.Group)
                 : this(
                 resource.name,
-                resource.willBeFreed,
                 resource.minDelayBetweenActionsMillis,
                 resource.maxDelayBetweenActionsMillis,
                 role.name,
@@ -44,20 +42,18 @@ class ResourceGroupsEditor(
         
         fun copy() = ResourceTuple(
                 resourceName,
-                willBeFreed,
                 minDelayBetweenActionsMillis,
                 maxDelayBetweenActionsMillis,
                 roleName,
                 groupName
         )
         
-        fun toResource() = JsonResources.Resource(resourceName, willBeFreed, minDelayBetweenActionsMillis, maxDelayBetweenActionsMillis)
+        fun toResource() = JsonResources.Resource(resourceName, minDelayBetweenActionsMillis, maxDelayBetweenActionsMillis)
     }
     
     
     inner class ResourceTupleModel(initial: ResourceTuple) : ItemViewModel<ResourceTuple>(initial) {
         val resourceNameProp = bind(ResourceTuple::resourceName)
-        val willBeFreedProp = bind(ResourceTuple::willBeFreed)
         val minDelayBetweenActionsMillisProp = bind(ResourceTuple::minDelayBetweenActionsMillis)
         val maxDelayBetweenActionsMillisProp = bind(ResourceTuple::maxDelayBetweenActionsMillis)
         val roleNameProp = bind(ResourceTuple::roleName)
@@ -124,16 +120,23 @@ class ResourceGroupsEditor(
                         }
                     }
                     
-                    longSpinnerField(model.willBeFreedProp, 0..Long.MAX_VALUE) {
-                        editor.action { commit() }
-                    }
                     longSpinnerField(model.minDelayBetweenActionsMillisProp, 0..Long.MAX_VALUE) {
                         editor.action { commit() }
-                    }
-                    longSpinnerField(model.maxDelayBetweenActionsMillisProp, 0..Long.MAX_VALUE) {
-                        editor.action { commit() }
+                        validator { newValue ->
+                            if (newValue ?: 0 > model.maxDelayBetweenActionsMillisProp.value)
+                                error("Min delay should not be greater than max delay.")
+                            else null
+                        }
                     }
                     
+                    longSpinnerField(model.maxDelayBetweenActionsMillisProp, 0..Long.MAX_VALUE) {
+                        editor.action { commit() }
+                        validator { newValue ->
+                            if (newValue ?: 0 < model.minDelayBetweenActionsMillisProp.value)
+                                error("Max delay should not be less than min delay.")
+                            else null
+                        }
+                    }
                 }
                 button("Add") {
                     enableWhen(model.valid)
@@ -179,7 +182,7 @@ class ResourceGroupsEditor(
     
     
     override val root = vbox {
-        prefWidth = 1000.0
+        prefWidth = 600.0
         header()
         
         tableview(objects) {
@@ -200,9 +203,26 @@ class ResourceGroupsEditor(
             }
             
             
-            validatedLongColumn(ResourceTuple::willBeFreed, nonNegative = true)
-            validatedLongColumn(ResourceTuple::minDelayBetweenActionsMillis, nonNegative = true)
-            validatedLongColumn(ResourceTuple::maxDelayBetweenActionsMillis, nonNegative = true)
+            validatedLongColumn(
+                    ResourceTuple::minDelayBetweenActionsMillis,
+                    columnName = "minDelay",
+                    nonNegative = true,
+                    nextValidator = { newValue, rowItem ->
+                        if (newValue > rowItem.maxDelayBetweenActionsMillis)
+                            error("Min delay should not be greater than max delay.")
+                        else null
+                    }
+            )
+            validatedLongColumn(
+                    ResourceTuple::maxDelayBetweenActionsMillis,
+                    columnName = "maxDelay",
+                    nonNegative = true,
+                    nextValidator = { newValue, rowItem ->
+                        if (newValue < rowItem.minDelayBetweenActionsMillis)
+                            error("Max delay should not be less than min delay.")
+                        else null
+                    }
+            )
             
             makeDeleteColumn()
         }

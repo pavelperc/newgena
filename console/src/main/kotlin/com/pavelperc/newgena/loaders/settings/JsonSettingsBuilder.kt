@@ -202,35 +202,23 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
     }
     
     /** Builds resource only by name. */
-    private fun buildSimplified(resourceName: String): Resource {
-        return Resource(
-                name = resourceName,
-                willBeFreed = 0,
-                minDelayBetweenActions = 0,
-                maxDelayBetweenActions = 0,
-                group = null,
-                role = null
-        )
-    }
+    private fun buildSimplified(resourceName: String) = Resource.simplified(resourceName)
     
     private fun JsonResources.Group.build(): Group {
         // we create roles and resources in special lambdas - creators,
-        // because all roles need groups, all resources need roles and groups and vice versa
+        // because all roles need groups, all resources need roles and vice versa
         
         return Group(name) { newGroup ->
             roles.map { jsonRole ->
                 Role(
                         name = jsonRole.name,
                         group = newGroup
-                ) { _, newRole ->
+                ) { newRole ->
                     jsonRole.resources.map { jsonRes ->
-                        //                        println("Creating resource ${jsonRes.name}: ${newRole.name} : ${newGroup.name} ")
                         Resource(
                                 name = jsonRes.name,
-                                willBeFreed = jsonRes.willBeFreed,
                                 minDelayBetweenActions = jsonRes.minDelayBetweenActionsMillis,
                                 maxDelayBetweenActions = jsonRes.maxDelayBetweenActionsMillis,
-                                group = newGroup,
                                 role = newRole
                         )
                         

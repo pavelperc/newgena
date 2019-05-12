@@ -30,11 +30,11 @@ class JsonCommonTest {
         Added field c with default value "EMPTY".
         b is now Integer. (default is 0)
     """.trimIndent()) { oldSettings ->
-        oldSettings.replace { map ->
-            map.setVersion("0.1")
+        oldSettings.updated {
+            setVersion("0.1")
             
-            map["c"] = JsonPrimitive("EMPTY")
-            map["b"] = JsonPrimitive(map["b"]?.contentOrNull?.toIntOrNull() ?: 0)
+            this["c"] = JsonPrimitive("EMPTY")
+            this["b"] = JsonPrimitive(this["b"]?.contentOrNull?.toIntOrNull() ?: 0)
         }
     }
     

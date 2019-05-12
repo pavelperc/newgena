@@ -60,7 +60,7 @@ class JsonSettingsTest {
                                     JsonResources.Role(
                                             name = "role1",
                                             resources = mutableListOf(
-                                                    JsonResources.Resource("resource1", 10L, 100L, 200L)
+                                                    JsonResources.Resource("resource1", 100L, 200L)
                                             ))
                             )
                     )

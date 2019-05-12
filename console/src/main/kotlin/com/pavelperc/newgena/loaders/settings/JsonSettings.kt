@@ -27,6 +27,10 @@ data class SettingsInfo(
  */
 @Serializable
 class JsonSettings {
+    companion object {
+        const val LAST_SETTINGS_VERSION = "0.2"
+    }
+    
     @Required
     val settingsInfo = SettingsInfo("petrinet", LAST_SETTINGS_VERSION)
     
@@ -74,8 +78,6 @@ class JsonSettings {
             "Settings info after all migrations should be $defaultInfo, but it is $settingsInfo."
         }
     }
-    
-    companion object {}
     
     override fun toString() = reflectionToString(this)
 }
@@ -254,14 +256,11 @@ object JsonResources {
     data class Resource(
             var name: String,
             @Required
-            var willBeFreed: Long = 0L,
-            @Required
             var minDelayBetweenActionsMillis: Long = 15 * 60 * 1000L,
             @Required
             var maxDelayBetweenActionsMillis: Long = 20 * 60 * 1000L
     ) {
         init {
-            check(willBeFreed >= 0) { "Field willBeFreed should not be negative." }
             check(minDelayBetweenActionsMillis >= 0) { "Field minDelayBetweenActionsMillis should not be negative." }
             check(maxDelayBetweenActionsMillis >= 0) { "Field maxDelayBetweenActionsMillis should not be negative." }
         }

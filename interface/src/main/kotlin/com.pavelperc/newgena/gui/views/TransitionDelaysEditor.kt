@@ -177,7 +177,7 @@ class TransitionDelaysEditor(
             
             if (showLabel) {
                 validatedColumnProp(TransitionDelayModel::hintProp, DefaultStringConverter(), "Label",
-                        validator = { newString ->
+                        validator = { newString, _ ->
                             if (newString !in predefinedHintsToTransitions)
                                 error("Unknown hint.")
                             else null
@@ -186,14 +186,10 @@ class TransitionDelaysEditor(
                 }
             }
             
-            validatedLongColumnProp(TransitionDelayModel::delay, nextValidator = { newLong ->
-                if (newLong < 0L) error("Should not be negative.") else null
-            })
+            validatedLongColumnProp(TransitionDelayModel::delay, nonNegative = true)
             
-            validatedLongColumnProp(TransitionDelayModel::deviation, nextValidator = { newLong ->
-                if (newLong < 0L) error("Should not be negative.") else null
-            })
-    
+            validatedLongColumnProp(TransitionDelayModel::deviation, nonNegative = true)
+            
             makeDeleteColumn()
         }
     }
