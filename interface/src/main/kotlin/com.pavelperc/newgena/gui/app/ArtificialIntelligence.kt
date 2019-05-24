@@ -46,8 +46,8 @@ object ArtificialIntelligence {
         primaryStage.hide()
         
         runLater(Duration(1900.0)) {
-            Platform.exit();
-            System.exit(0);
+            Platform.exit()
+            System.exit(0)
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.pavelperc.newgena.gui.views
 
+import com.pavelperc.newgena.gui.app.MyApp
 import com.pavelperc.newgena.gui.customfields.notification
+import com.pavelperc.newgena.gui.views.settings.SettingsView
 import com.pavelperc.newgena.launchers.PetrinetGenerators
 import com.pavelperc.newgena.utils.xlogutils.eventNames
 import com.pavelperc.newgena.utils.xlogutils.exportXml
@@ -10,15 +12,20 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
 import javafx.scene.control.ProgressBar
-import javafx.scene.control.TableView
+import javafx.scene.control.SelectionMode
 import javafx.scene.layout.Priority
 import org.deckfour.xes.model.XEvent
-import org.deckfour.xes.model.XLog
 import org.deckfour.xes.model.XTrace
 import org.processmining.log.models.EventLogArray
 import tornadofx.*
 
 class GenerationView() : View("My View") {
+    
+    override fun onBeforeShow() {
+        super.onBeforeShow()
+        root.setPrefSize(MyApp.WINDOW_WIDTH, MyApp.WINDOW_WIDTH)
+    }
+    
     
     val generationKit: PetrinetGenerators.GenerationKit<*> by param()
     val outputFolder: String by param()
@@ -34,9 +41,10 @@ class GenerationView() : View("My View") {
     
     
     override val root = vbox {
-        button("back") {
+        button("close") {
             action {
-                replaceWith<SettingsView>(ViewTransition.Slide(0.2.seconds).reversed())
+//                replaceWith<SettingsView>(ViewTransition.Slide(0.2.seconds).reversed())
+                close()
             }
         }
         
@@ -71,7 +79,7 @@ class GenerationView() : View("My View") {
                     find<OneTraceFragment>(mapOf(
                             "trace" to trace,
                             "name" to name
-                    )).openWindow()
+                    )).openWindow(owner = this@GenerationView.currentStage)
                 }
             }
         }

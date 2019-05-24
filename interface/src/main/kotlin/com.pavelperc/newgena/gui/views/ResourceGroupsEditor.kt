@@ -18,7 +18,7 @@ class ResourceGroupsEditor(
 ) : Fragment("ResourceGroupsEditor") {
     
     /** Resource, role and group. */
-    public class ResourceTuple(
+    class ResourceTuple(
             var resourceName: String = "",
             var minDelayBetweenActionsMillis: Long = 0L,
             var maxDelayBetweenActionsMillis: Long = 0L,

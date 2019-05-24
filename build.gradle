@@ -12,6 +12,10 @@ buildscript {
     }
 }
 
+//group 'com.pavelperc'
+version '1.0-SNAPSHOT'
+
+
 subprojects {
     apply plugin: 'org.jetbrains.kotlin.jvm'
     apply plugin: 'java'
