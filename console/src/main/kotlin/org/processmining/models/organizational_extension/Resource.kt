@@ -45,12 +45,12 @@ class Resource constructor(
     var willBeFreed: Long = 0
         private set
     
-    /** Is vacant. (Can we use this resource.) */
+    /** Is vacant. (We can use this resource.) */
     var isIdle = true
     
     
     /** Set [Resource.willBeFreed] and add a delay, if the [willBeFreed] not equals zero. */
-    fun setTime(willBeFreed: Long)//TODO подумать получше над названием
+    fun setTime(willBeFreed: Long)
     {
         this.willBeFreed = willBeFreed
         if (willBeFreed != 0L) {

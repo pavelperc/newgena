@@ -52,9 +52,9 @@ fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsVie
                 enableWhen(controller.isPetrinetUpdated)
                 action {
                     try {
-                        val petrinetImage = find<PetrinetImageView>()
-                        petrinetImage.draw()
-                        petrinetImage.openWindow(owner = settingsView.currentStage)
+                        val petrinetView = find<PetrinetImageView>()
+                        petrinetView.draw(true)
+                        petrinetView.openWindow(owner = settingsView.currentStage)
                         
                     } catch (e: Exception) {
                         alert(Alert.AlertType.ERROR, "Failed to update arcs and draw.", e.message)

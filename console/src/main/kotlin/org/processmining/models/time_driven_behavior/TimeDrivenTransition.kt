@@ -1,18 +1,15 @@
 package org.processmining.models.time_driven_behavior
 
 import org.deckfour.xes.model.XTrace
-import org.processmining.framework.util.Pair
 import org.processmining.models.MovementResult
-import org.processmining.models.abstract_net_representation.Place
-import org.processmining.models.abstract_net_representation.Token
 import org.processmining.models.abstract_net_representation.Transition
 import org.processmining.models.abstract_net_representation.WeightedPlace
+import org.processmining.models.consumeAllTokens
+import org.processmining.models.consumeTokens
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription
 import org.processmining.models.organizational_extension.Resource
 import org.processmining.utils.TimeDrivenLoggingSingleton
-
-import java.util.ArrayList
-import java.util.LinkedList
+import java.util.*
 import kotlin.random.Random
 
 private typealias WPlace = WeightedPlace<TimeDrivenToken, TimeDrivenPlace>
@@ -195,12 +192,17 @@ class TimeDrivenTransition(
         startTransition(trace, movementResult, timestamp)
     }
     
+    // pavel: what does it actually do? 
     private fun consumeTokens()//TODO а нельзя ли как-то хитро заюзать его в базовом классе?
             : Long {
         var timestamp: Long = 0
+        
+        inputResetArcPlaces.forEach { place -> place.consumeAllTokens() }
         for ((place, weight) in inputPlaces) {
-            val consumedToken = place.consumeToken()
-            timestamp = consumedToken.timestamp
+            repeat(weight) {
+                val consumedToken = place.consumeToken()
+                timestamp = consumedToken.timestamp
+            }
         }
         return timestamp
     }
@@ -215,8 +217,7 @@ class TimeDrivenTransition(
             val usedResource = TimeDrivenLoggingSingleton.timeDrivenInstance.logStartEventWithResource(trace, node, timeStamp)
             val finishTime = timeStamp + (executionTime + timeDeviation) * 1000
             if (generationDescription.isUsingSynchronizationOnResources) {
-                usedResource.setTime(finishTime)
-                setResourceTime(usedResource, finishTime)
+                usedResource?.setTime(finishTime)
             }
             producedToken = TimeDrivenToken(this, finishTime, usedResource)
         } else {
@@ -228,29 +229,20 @@ class TimeDrivenTransition(
         movementResult.addProducedExtraToken(producedToken)
     }
     
-    private fun setResourceTime(resource: Resource, finishTime: Long) {
-        var finishTime = finishTime
-        if (generationDescription.isUsingSynchronizationOnResources) {
-            val minDelay = resource.minDelayBetweenActions
-            val maxDelay = resource.maxDelayBetweenActions
-            val difference = maxDelay - minDelay
-            val actualDelay = Random.nextLong() % (difference + 1)
-            finishTime += minDelay + actualDelay
-        }
-        resource.setTime(finishTime)
-    }
-    
-    private fun registerNoiseTransition(trace: XTrace, timestamp: Long, movementResult: MovementResult<TimeDrivenToken>): Pair<Any, Resource>? {
+    private fun registerNoiseTransition(
+            trace: XTrace,
+            timestamp: Long,
+            movementResult: MovementResult<TimeDrivenToken>
+    ): Pair<Any, Resource?>? {
         val loggingSingleton = TimeDrivenLoggingSingleton.timeDrivenInstance
         val noiseEvents = noiseEventsBasedOnSettings
         val noiseEventList = LinkedList(noiseEvents)
         while (noiseEventList.size > 0) {
-            println("Number of noise events: " + noiseEventList.size)
             val noiseEvent = noiseEventList.removeAt(Random.nextInt(noiseEventList.size))
-            if (generationDescription.isUsingSynchronizationOnResources && !loggingSingleton.areResourcesAvailable(noiseEvent.activity, timestamp)) {
+            if (generationDescription.isUsingSynchronizationOnResources
+                    && !loggingSingleton.areResourcesAvailable(noiseEvent.activity, timestamp)) {
                 continue
             }
-            println("Added " + noiseEvent.activity + " as a noise event") //TODO delete?
             var usedResource: Resource? = null
             if (generationDescription.isUsingResources) {
                 usedResource = loggingSingleton.logStartEventWithResource(trace, noiseEvent.activity, timestamp)
@@ -270,7 +262,7 @@ class TimeDrivenTransition(
             }
             val noiseToken = NoiseToken(noiseEvent, finishTime, usedResource)
             movementResult.addProducedExtraToken(noiseToken)
-            return Pair<Any, Resource>(noiseEvent, usedResource)
+            return noiseEvent to usedResource
         }
         return null
     }

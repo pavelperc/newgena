@@ -23,8 +23,15 @@ interface Tokenable<T : Token> {
 }
 // made as extensions because of @JvmDefault restrictions
 
+
+fun <T : Token> Tokenable<T>.consumeAllTokens() {
+    while (hasTokens()) {
+        consumeToken()
+    }
+}
+
 fun <T : Token> Tokenable<T>.consumeTokens(amount: Int) {
-    (1..amount).forEach { consumeToken() }
+    repeat(amount) { consumeToken() }
 }
 
 fun <T : Token> Tokenable<T>.addTokens(tokens: List<T>) {

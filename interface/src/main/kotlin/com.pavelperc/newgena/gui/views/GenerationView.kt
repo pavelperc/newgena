@@ -11,6 +11,7 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
+import javafx.concurrent.Task
 import javafx.scene.control.ProgressBar
 import javafx.scene.control.SelectionMode
 import javafx.scene.layout.Priority
@@ -40,10 +41,16 @@ class GenerationView() : View("My View") {
     val pb = ProgressBar()
     
     
+    override fun onUndock() {
+        super.onUndock()
+        currTask?.cancel()
+        println("Canceled!!")
+    }
+    
     override val root = vbox {
         button("close") {
             action {
-//                replaceWith<SettingsView>(ViewTransition.Slide(0.2.seconds).reversed())
+                //                replaceWith<SettingsView>(ViewTransition.Slide(0.2.seconds).reversed())
                 close()
             }
         }
@@ -60,7 +67,9 @@ class GenerationView() : View("My View") {
         }
         button("show petrinet") {
             action {
-                find<PetrinetImageView>().also { it.draw() }.openWindow(owner = this@GenerationView.currentStage)
+                val petrinetView = find<PetrinetImageView>()
+                petrinetView.draw(true)
+                petrinetView.openWindow(owner = this@GenerationView.currentStage)
             }
         }
         
@@ -85,11 +94,13 @@ class GenerationView() : View("My View") {
         }
     }
     
+    private var currTask: Task<EventLogArray>? = null
+    
     override fun onDock() {
         super.onDock()
         logArrayObservable.clear()
         eventLogArray = null
-        runAsync {
+        currTask = runAsync(daemon = true) {
             PetrinetGenerators.generateFromKit(generationKit) { progress, maxProgress ->
                 runLater {
                     pb.progress = progress.toDouble() / maxProgress

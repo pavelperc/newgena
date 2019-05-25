@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 
-typealias TimeNoiseDescriptionCreator 
+typealias TimeNoiseDescriptionCreator
         = TimeDrivenGenerationDescription.() -> TimeDrivenGenerationDescription.TimeNoiseDescription
 
 /**
@@ -32,8 +32,8 @@ class TimeDrivenGenerationDescription(
         isUsingComplexResourceSettings: Boolean = true,
         isUsingSynchronizationOnResources: Boolean = true,
         
-        minimumIntervalBetweenActions: Int = 10,
-        maximumIntervalBetweenActions: Int = 20,
+        val minimumIntervalBetweenActions: Int = 10,
+        val maximumIntervalBetweenActions: Int = 20,
         
         var isSeparatingStartAndFinish: Boolean = true,
         
@@ -52,29 +52,14 @@ class TimeDrivenGenerationDescription(
     
     override val noiseDescription: TimeNoiseDescription = noiseDescriptionCreator.invoke(this)
     
-    var isUsingComplexResourceSettings = isUsingComplexResourceSettings
-        get() = isUsingResources && field //resources with groups and roles
+    val isUsingComplexResourceSettings = isUsingResources && isUsingComplexResourceSettings
     
-    var isUsingSynchronizationOnResources = isUsingSynchronizationOnResources
-        get() = isUsingResources && field
+    val isUsingSynchronizationOnResources = isUsingResources && isUsingSynchronizationOnResources
     
-    //TODO стоит ли проверять разницу во времени?
-    var minimumIntervalBetweenActions = minimumIntervalBetweenActions
-        set(value) {
-            if (value < 0) {
-                throw IllegalArgumentException("Time cannot be negative")
-            }
-            field = value
-        }
-    
-    //TODO стоит ли проверять разницу во времени?
-    var maximumIntervalBetweenActions = maximumIntervalBetweenActions
-        set(value) {
-            if (value < 0) {
-                throw IllegalArgumentException("Time cannot be negative")
-            }
-            field = value
-        }
+    init {
+        require(minimumIntervalBetweenActions >= 0) { "minimumIntervalBetweenActions should not be negative." }
+        require(maximumIntervalBetweenActions >= 0) { "maximumIntervalBetweenActions should not be negative." }
+    }
     
     inner class TimeNoiseDescription(
             isUsingTimestampNoise: Boolean = true,
@@ -82,8 +67,8 @@ class TimeDrivenGenerationDescription(
             isUsingTimeGranularity: Boolean = true,
             var maxTimestampDeviation: Int = 0,
             var granularityType: GranularityTypes = GranularityTypes.MINUTES_5,
-        
-        
+            
+            
             noisedLevel: Int = 5,
             isUsingExternalTransitions: Boolean = true,
             isUsingInternalTransitions: Boolean = true,

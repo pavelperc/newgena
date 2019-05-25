@@ -2,9 +2,6 @@ package com.pavelperc.newgena.gui.examplewithviewmodel
 
 import com.pavelperc.newgena.gui.customfields.*
 import tornadofx.*
-import ui.model.Body
-import ui.model.Person
-import ui.model.PersonModel
 
 class MainView : View("Main View") {
     override val root = Form()

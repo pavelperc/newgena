@@ -1,14 +1,10 @@
-package ui.model
+package com.pavelperc.newgena.gui.examplewithviewmodel
 
 import com.pavelperc.newgena.gui.model.bindList
 import com.pavelperc.newgena.gui.model.bindMap
 import com.pavelperc.newgena.loaders.settings.reflectionToString
-import javafx.beans.property.Property
-import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
-import javafx.collections.FXCollections
 import tornadofx.ItemViewModel
-import tornadofx.observable
 import kotlin.reflect.KMutableProperty
 
 class Body {

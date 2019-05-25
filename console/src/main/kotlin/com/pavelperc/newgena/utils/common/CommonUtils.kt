@@ -25,3 +25,6 @@ fun getCwd() = System.getProperty("user.dir")
 fun findCollisions(set1: Set<String>, set2: Set<String>) {
     set2 - set1
 }
+
+fun <T> Collection<T>.randomOrNull() = if (isEmpty()) null else random()
+

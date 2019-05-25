@@ -1,6 +1,7 @@
 package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.graphviz.PetrinetDrawer
+import com.pavelperc.newgena.gui.app.MyApp
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.ImageViewer
 import com.pavelperc.newgena.gui.customfields.notification
@@ -36,7 +37,13 @@ class PetrinetImageView : View("Petrinet Viewer.") {
     val drawVerticalProp = SimpleBooleanProperty(false)
     
     
-    fun draw() {
+    override fun onBeforeShow() {
+        super.onBeforeShow()
+        root.setPrefSize(1000.0, 600.0)
+    }
+    
+    /** [isFirstDraw] is true when we do not update an already drawn image. */
+    fun draw(isFirstDraw: Boolean = false) {
         controller.updateInhResetArcsFromModel()
         
         // update window title.

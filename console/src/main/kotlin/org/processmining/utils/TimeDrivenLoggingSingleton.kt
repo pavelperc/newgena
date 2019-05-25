@@ -1,5 +1,6 @@
 package org.processmining.utils
 
+import com.pavelperc.newgena.utils.common.randomOrNull
 import org.deckfour.xes.extension.std.XLifecycleExtension
 import org.deckfour.xes.extension.std.XOrganizationalExtension
 import org.deckfour.xes.extension.std.XTimeExtension
@@ -37,7 +38,7 @@ class TimeDrivenLoggingSingleton protected constructor(
     private val organizationalExtension = XOrganizationalExtension.instance()
     private val lifecycleExtension = XLifecycleExtension.instance()
     
-    fun logStartEventWithResource(trace: XTrace, modelActivity: Any, timeStamp: Long): Resource {
+    fun logStartEventWithResource(trace: XTrace, modelActivity: Any, timeStamp: Long): Resource? {
         val logEvent = LoggingSingleton.createEvent(modelActivity)
         putLifeCycleAttribute(logEvent, addNoiseToLifecycleProperty(false))
         val usedResource = setResource(modelActivity, logEvent, timeStamp)
@@ -89,34 +90,25 @@ class TimeDrivenLoggingSingleton protected constructor(
         return original
     }
     
-    private fun setResource(modelActivity: Any, event: XEvent, timestamp: Long): Resource {
+    private fun setResource(modelActivity: Any, event: XEvent, timestamp: Long): Resource? {
         val availableResources = getAllResourcesMappedToActivity(modelActivity)
         val chosenResource = chooseAvailableResource(availableResources, timestamp)
         if (chosenResource != null) {
             setResource(event, chosenResource)
-        } else {
-            throw IllegalStateException("Resource is null")
         }
         return chosenResource
     }
     
-    private fun chooseAvailableResource(availableResources: MutableList<Resource>, timestamp: Long): Resource? {
-        var chosenResource: Resource? = null
-        if (description.isUsingSynchronizationOnResources) {
-            while (!availableResources.isEmpty() && chosenResource == null) {
-                val index = Random.nextInt(availableResources.size)
-                val pickedResource = availableResources.removeAt(index)
-                if (pickedResource.isIdle && pickedResource.willBeFreed <= timestamp) {
-                    chosenResource = pickedResource
-                    chosenResource.isIdle = false
-                }
+    // also makes the selected not idle
+    private fun chooseAvailableResource(availableResources: List<Resource>, timestamp: Long) =
+            if (description.isUsingSynchronizationOnResources) {
+                availableResources
+                        .filter { it.isIdle && it.willBeFreed <= timestamp }
+                        .randomOrNull()
+                        ?.apply { isIdle = false } // pavel: earlier for some reason all available were made not idle!
+            } else {
+                availableResources.randomOrNull()
             }
-        } else {
-            val index = Random.nextInt(availableResources.size)
-            chosenResource = availableResources[index]
-        }
-        return chosenResource
-    }
     
     fun areResourcesAvailable(modelActivity: Any, timestamp: Long): Boolean {
         if (timestamp < 0) {
@@ -131,17 +123,16 @@ class TimeDrivenLoggingSingleton protected constructor(
         return false
     }
     
-    private fun getAllResourcesMappedToActivity(modelActivity: Any): MutableList<Resource> {
-        val generalMapping = description.resourceMapping
-        val mapping = generalMapping[modelActivity]
-                ?: throw IllegalStateException("Can not find resource mapping for activity $modelActivity.")
-        
-        val availableResources = ArrayList(mapping.selectedResources)
-        if (!description.isUsingComplexResourceSettings) {
-            availableResources.addAll(mapping.selectedSimplifiedResources)
-        }
-        return availableResources
-    }
+    private fun getAllResourcesMappedToActivity(modelActivity: Any) =
+            description.resourceMapping[modelActivity]
+                    ?.let { mapping ->
+                        if (!description.isUsingComplexResourceSettings) {
+                            mapping.selectedResources
+                        } else {
+                            mapping.selectedResources + mapping.selectedSimplifiedResources
+                        }
+                    }
+                    ?: emptyList()
     
     private fun shouldDistortTimestamp(): Boolean {
         val noiseDescription = description.noiseDescription
@@ -210,20 +201,13 @@ class TimeDrivenLoggingSingleton protected constructor(
         return timestamp
     }
     
-    fun getNearestResourceTime(modelActivity: Any): Long {
-        val resources = getAllResourcesMappedToActivity(modelActivity)
-        if (resources.isEmpty()) {
-            throw IllegalStateException("Can not find resources for activity $modelActivity.")
-        }
-        
-        var leastResourceTime = resources[0].willBeFreed
-        for (resource in resources) {
-            if (resource.willBeFreed < leastResourceTime) {
-                leastResourceTime = resource.willBeFreed
-            }
-        }
-        return leastResourceTime
-    }
+    /** returns 0, if there no resource. */
+    fun getNearestResourceTime(modelActivity: Any) =
+            getAllResourcesMappedToActivity(modelActivity)
+                    .map { resource -> resource.willBeFreed }
+                    .min()?.toLong()
+                    ?: 0
+    
     
     fun logCompleteEventWithResource(trace: XTrace, modelActivity: Any, resource: Resource, timeStamp: Long) {
         resource.isIdle = true
