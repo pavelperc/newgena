@@ -21,3 +21,7 @@ fun profile(message:String, op: () -> Unit) {
 }
 
 fun getCwd() = System.getProperty("user.dir")
+
+fun findCollisions(set1: Set<String>, set2: Set<String>) {
+    set2 - set1
+}

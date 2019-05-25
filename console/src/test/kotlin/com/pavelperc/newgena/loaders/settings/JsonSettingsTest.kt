@@ -66,21 +66,14 @@ class JsonSettingsTest {
                     )
             )
             transitionIdsToResources = mutableMapOf(
-                    "transition1" to JsonResources.ResourceMapping(
-                            fullResourceNames = mutableListOf(JsonResources.ResourceMapping.FullResourceName(
-                                    "group1", "role1", "resource1"
-                            )),
-                            simplifiedResourceNames = mutableListOf()
+                    "transition1" to JsonResources.JsonResourceMapping(
+                            complexResourceNames = mutableListOf("resource1")
                     ),
-                    "transition2" to JsonResources.ResourceMapping(
-                            fullResourceNames = mutableListOf(JsonResources.ResourceMapping.FullResourceName(
-                                    "group1", "role1", "resource1"
-                            )),
-                            simplifiedResourceNames = mutableListOf()
+                    "transition2" to JsonResources.JsonResourceMapping(
+                            resourceGroups = mutableListOf("group1")
                     ),
-                    "transition3" to JsonResources.ResourceMapping(
-                            fullResourceNames = mutableListOf(),
-                            simplifiedResourceNames = mutableListOf("simpleResource1", "simpleResource2")
+                    "transition3" to JsonResources.JsonResourceMapping(
+                            resourceRoles = mutableListOf("role1")
                     )
             
             )

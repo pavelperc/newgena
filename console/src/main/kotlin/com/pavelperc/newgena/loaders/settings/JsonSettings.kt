@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import org.processmining.models.GenerationDescription
 import org.processmining.models.time_driven_behavior.GranularityTypes
 import org.processmining.models.time_driven_behavior.NoiseEvent
+import org.processmining.models.time_driven_behavior.ResourceMapping
 import java.time.Instant
 import java.time.LocalDateTime
 import kotlin.reflect.KClass
@@ -28,7 +29,7 @@ data class SettingsInfo(
 @Serializable
 class JsonSettings {
     companion object {
-        const val LAST_SETTINGS_VERSION = "0.2"
+        const val LAST_SETTINGS_VERSION = "0.3"
     }
     
     @Required
@@ -209,6 +210,7 @@ class JsonTimeDescription {
     @Required
     var isUsingResources = false
     
+    // if enabled, we ignore simplified resources.
     @Required
     var isUsingComplexResourceSettings = true
     @Required
@@ -220,8 +222,10 @@ class JsonTimeDescription {
     var resourceGroups = mutableListOf<JsonResources.Group>()
     
     // will be converted to resourceMapping
+    // not only transitions, but also noise events.
+    // resources may be the whole groups, roles or just names.
     @Required
-    var transitionIdsToResources = mutableMapOf<String, JsonResources.ResourceMapping>()
+    var transitionIdsToResources = mutableMapOf<String, JsonResources.JsonResourceMapping>()
     
     @Required
     var timeDrivenNoise = JsonTimeDrivenNoise()
@@ -269,17 +273,12 @@ object JsonResources {
     }
     
     @Serializable
-    class ResourceMapping(
-            var fullResourceNames: MutableList<FullResourceName>,
-            var simplifiedResourceNames: MutableList<String>
+    class JsonResourceMapping(
+            var simplifiedResourceNames: MutableList<String> = mutableListOf(),
+            var complexResourceNames: MutableList<String> = mutableListOf(),
+            var resourceGroups: MutableList<String> = mutableListOf(),
+            var resourceRoles: MutableList<String> = mutableListOf()
     ) {
-        @Serializable
-        data class FullResourceName(
-                var groupName: String,
-                var roleName: String,
-                var resourceName: String
-        )
-        
         override fun toString() = reflectionToString(this)
     }
 }

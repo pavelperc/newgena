@@ -1,8 +1,8 @@
 {
   "settingsInfo": {
     "type": "petrinet",
-    "version": "0.2"
-  }, 
+    "version": "0.3"
+  },
   "petrinetSetup": {
     "petrinetFile": "examples/petrinet/complex1/complex1.pnml",
     "marking": {
@@ -165,79 +165,28 @@
     ],
     "transitionIdsToResources": {
       "transition1": {
-        "fullResourceNames": [
-          {
-            "groupName": "g1",
-            "roleName": "r1",
-            "resourceName": "n1"
-          },
-          {
-            "groupName": "g1",
-            "roleName": "r3",
-            "resourceName": "n3"
-          },
-          {
-            "groupName": "g1",
-            "roleName": "r1",
-            "resourceName": "n2"
-          },
-          {
-            "groupName": "g3",
-            "roleName": "rooole",
-            "resourceName": "naaaame"
-          }
-        ],
-        "simplifiedResourceNames": [
-          "simple1",
-          "simple2"
-        ]
-      },
-      "transition2": {
-        "fullResourceNames": [
-          {
-            "groupName": "g1",
-            "roleName": "r2",
-            "resourceName": "n3"
-          }
-        ],
-        "simplifiedResourceNames": [
-        ]
-      },
-      "transition4": {
-        "fullResourceNames": [
-          {
-            "groupName": "g1",
-            "roleName": "r1",
-            "resourceName": "n1"
-          }
-        ],
-        "simplifiedResourceNames": [
-          "simple3",
-          "simple4"
-        ]
-      },
-      "transition5": {
-        "fullResourceNames": [
-          {
-            "groupName": "g1",
-            "roleName": "r1",
-            "resourceName": "n1"
-          }
-        ],
         "simplifiedResourceNames": [
           "simple1"
+        ],
+        "complexResourceNames": [
+          "naaaame"
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+          "r3"
         ]
       },
       "transition6": {
-        "fullResourceNames": [
-          {
-            "groupName": "g3",
-            "roleName": "rooole",
-            "resourceName": "naaaame"
-          }
-        ],
         "simplifiedResourceNames": [
           "simple2"
+        ],
+        "complexResourceNames": [
+          "naaaame"
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
         ]
       }
     },

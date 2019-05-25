@@ -9,13 +9,15 @@ import org.processmining.models.organizational_extension.Group
 import org.processmining.models.organizational_extension.Resource
 import org.processmining.models.organizational_extension.Role
 import org.processmining.models.semantics.petrinet.Marking
+import org.processmining.models.time_driven_behavior.NoiseEvent
 import org.processmining.models.time_driven_behavior.ResourceMapping
 
 class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSettings) {
     
     private val idsToTransitions = petrinet.transitions.map { it.pnmlId to it!! }.toMap()
     
-    private fun String.toTrans() = idsToTransitions.getValue(this)
+    private fun String.toTrans() = idsToTransitions[this]
+            ?: throw IllegalStateException("Not found transition id $this.")
     
     
     fun buildDescription() = jsonSettings.build()
@@ -60,17 +62,17 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
             } // ?: throw IllegalStateException("staticPriorities is null, but isUsingStaticPriorities is true.")
         } else {
             
-            val noiseDescriptionCreator: NoiseDescriptionCreator
-            if (isUsingNoise) {
-                noiseDescriptionCreator = noiseDescription.build()
-                        // ?: throw IllegalStateException("noiseDescription is null, but isUsingNoise is true.")
-            } else
-                noiseDescriptionCreator = { NoiseDescription() }
+            val noiseDescriptionCreator = if (isUsingNoise) {
+                noiseDescription.build()
+                // ?: throw IllegalStateException("noiseDescription is null, but isUsingNoise is true.")
+            } else {
+                { NoiseDescription() }
+            }
             
             if (isUsingTime) {
                 
                 description = timeDescription.build(this)
-                        // ?: throw IllegalStateException("timeDescription is null, but isUsingTime is true.")
+                // ?: throw IllegalStateException("timeDescription is null, but isUsingTime is true.")
                 
             } else {
                 description = SimpleGenerationDescription(
@@ -95,43 +97,28 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
             var resMapping = emptyMap<Any, ResourceMapping>()
             if (isUsingResources) {
                 
+                // building resources
                 simpleRes = simplifiedResources.map { buildSimplified(it) }
                 resGroups = resourceGroups.map { it.build() }
-                val complexRes = resGroups.flatMap { it.resources }
                 
-                val simpleResFromNames = simpleRes.map { it.name to it }.toMap()
-                val complexResFromFullNames = complexRes.map {
-                    JsonResources.ResourceMapping.FullResourceName(
-                            it.group?.name ?: "null",
-                            it.role?.name?: "null",
-                            it.name) to it
-                }.toMap()
                 
-                resMapping = transitionIdsToResources
-                        .mapValues { (transId, mapping) ->
-                            if (mapping.fullResourceNames.size + mapping.simplifiedResourceNames.size < 1) {
-                                throw IllegalStateException("Error in transitionIdsToResources: Transition $transId should have at least one resource.")
-                            }
-                            ResourceMapping(
-                                    selectedSimplifiedResources = mapping.simplifiedResourceNames.map { simpleResFromNames.getValue(it) },
-                                    selectedResources = mapping.fullResourceNames.map { complexResFromFullNames.getValue(it) }
-                            )
-                        }
-                        .mapKeys { (transId, _) -> transId.toTrans() as Any }
-                
-                if (resMapping.size != petrinet.transitions.size) {
-                    throw IllegalStateException("transitionIdsToResources mapping should be specified for each transition.")
+                val artificialNoiseEvents = if (jsonSettings.isUsingNoise
+                        && jsonSettings.noiseDescription.isUsingExternalTransitions) {
+                    jsonSettings.noiseDescription.artificialNoiseEvents
+                } else {
+                    mutableListOf()
                 }
                 
+                resMapping = buildResourceMapping(simpleRes, resGroups, transitionIdsToResources, artificialNoiseEvents)
             }
             
             
             val timeNoiseDescriptionCreator: TimeNoiseDescriptionCreator
             if (isUsingNoise) {
                 val commonNoise = noiseDescription
-                        //?: throw IllegalStateException("noiseDescription is null, but isUsingNoise is true.")
+                //?: throw IllegalStateException("noiseDescription is null, but isUsingNoise is true.")
                 val timeNoise = timeDrivenNoise
-                        //?: throw IllegalStateException("timeDrivenNoise is null, but isUsingNoise is true.")
+                //?: throw IllegalStateException("timeDrivenNoise is null, but isUsingNoise is true.")
                 
                 timeNoiseDescriptionCreator = timeNoise.build(commonNoise)
             } else {
@@ -160,11 +147,84 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
                     time = transitionIdsToDelays.map { (id, delay) -> id.toTrans() to delay.toPair() }.toMap(),
                     isUsingLifecycle = isUsingLifecycle,
                     generationStart = generationStart,
-                    resourceMapping = resMapping,
+                    resourceMapping = resMapping, // transitions and noise events to resources.
                     resourceGroups = resGroups,
                     noiseDescriptionCreator = timeNoiseDescriptionCreator
             )
         }
+    }
+    
+    private fun buildResourceMapping(
+            simpleRes: List<Resource>, // already built.
+            resGroups: List<Group>,
+            transitionIdsToResources: MutableMap<String, JsonResources.JsonResourceMapping>,
+            artificialNoiseEvents: List<NoiseEvent>
+    ): Map<Any, ResourceMapping> {
+        
+        val complexRes = resGroups.flatMap { it.resources }
+        val resRoles = resGroups.flatMap { it.roles }
+        
+        // mappings from names to resources:
+        val simpleResFromNames = simpleRes.map { it.name to it }.toMap()
+        
+        val complexResFromNames = complexRes.map { it.name to it }.toMap()
+        val complexResFromRoleNames = resRoles.map { it.name to it.resources }.toMap()
+        val complexResFromGroupNames = resGroups.map { it.name to it.resources }.toMap()
+        
+        // mapping for artificial noise event
+        val noiseEventsFromNames = artificialNoiseEvents
+                .map { it.activity.toString() to it }.toMap()
+        
+        // transition id and artificial noise name collisions
+        val transNoiseCollisions = noiseEventsFromNames.keys.intersect(idsToTransitions.keys)
+        if (transNoiseCollisions.isNotEmpty()) {
+            throw IllegalStateException("Building resource mapping: " +
+                    "Found collisions among transitionIds and ArtificialNoiseEvent names: $transNoiseCollisions.")
+        }
+        
+        
+        return transitionIdsToResources
+                .mapValues { (transId, jsonMapping) ->
+                    // split all names into simple and complex resources
+                    
+                    fun unknownRes(type: String, name: String) = IllegalStateException("Building resource mapping: " +
+                            "Unknown $type name for transitionId/artificialEvent $transId: $name.")
+                    
+                    val mappedSimpleRes = jsonMapping.simplifiedResourceNames.map { name ->
+                        simpleResFromNames[name] ?: throw unknownRes("simplified resource", name)
+                    }
+                    
+                    // map from complex groups, roles, complex names and collect together 
+                    val mappedComplexRes = listOf(
+                            jsonMapping.resourceGroups.flatMap { name ->
+                                // list of res for one group
+                                complexResFromGroupNames[name] ?: throw unknownRes("resource group", name)
+                            },
+                            jsonMapping.resourceRoles.flatMap { name ->
+                                // list of res for one role
+                                complexResFromRoleNames[name] ?: throw unknownRes("resource role", name)
+                            },
+                            jsonMapping.complexResourceNames.map { name ->
+                                // a res
+                                complexResFromNames[name] ?: throw unknownRes("complex resource", name)
+                            }
+                    )
+                            .flatten()
+                            .distinct()
+                    
+                    ResourceMapping(
+                            selectedSimplifiedResources = mappedSimpleRes,
+                            selectedResources = mappedComplexRes
+                    )
+                }
+                .mapKeys { (transId, _) ->
+                    noiseEventsFromNames[transId]
+                            ?: idsToTransitions[transId]
+                            ?: throw IllegalStateException("Building Resource mapping: " +
+                                    "id $transId not found among transition ids and artificial noise events.")
+                    
+                    transId.toTrans() as Any
+                }
     }
     
     private fun JsonNoise.build():

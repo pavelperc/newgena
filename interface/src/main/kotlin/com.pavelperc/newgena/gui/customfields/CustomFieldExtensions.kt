@@ -41,6 +41,15 @@ fun <T> TextField.actionedAutoCompletion(suggestions: List<T>) {
 }
 
 
+/** Fires onAction after completion. */
+fun <T> TextField.actionedAutoCompletion(suggestionsProvider: () -> List<T>) {
+    TextFields.bindAutoCompletion(this) { suggestionsProvider() }.apply {
+        onAutoCompleted = EventHandler {
+            this@actionedAutoCompletion.fireEvent(ActionEvent())
+        }
+    }
+}
+
 fun UIComponent.notification(
         title: String = "",
         text: String = "",

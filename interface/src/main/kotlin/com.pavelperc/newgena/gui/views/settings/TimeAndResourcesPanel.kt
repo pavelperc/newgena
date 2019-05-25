@@ -187,9 +187,14 @@ fun EventTarget.timeAndResourcesPanel(controller: SettingsUIController) {
                 
                 button("Edit") {
                     action {
+                        val transitionsWithHintsAndArtificialEvents = controller.transitionIdsWithHints + 
+                                        controller.noiseModel.artificialNoiseEvents.value
+                                                .map { it.activity.toString() to "" }
+                                                .toMap()
+                        
                         ResourceMappingEditor(
                                 time.transitionIdsToResources.value,
-                                controller.transitionIdsWithHints,
+                                transitionsWithHintsAndArtificialEvents,
                                 time.simplifiedResources.value,
                                 time.resourceGroups.value
                         ) { newMapping ->

@@ -17,8 +17,8 @@ class ResourceMapping(
         val selectedSimplifiedResources : List<Resource> = emptyList()
 ) {
     init {
-        if (selectedResources.size + selectedSimplifiedResources.size < 1)
-            throw IllegalArgumentException("Transition should have at list one resource in ResourceMapping.")
+//        if (selectedResources.size + selectedSimplifiedResources.size < 1)
+//            throw IllegalArgumentException("Transition should have at list one resource in ResourceMapping.")
     }
     
 //    private val _selectedGroups = mutableListOf<Group>()

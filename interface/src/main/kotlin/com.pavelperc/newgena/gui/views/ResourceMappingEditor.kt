@@ -3,7 +3,6 @@ package com.pavelperc.newgena.gui.views
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.customfields.actionedAutoCompletion
 import com.pavelperc.newgena.gui.customfields.notEmpty
-import com.pavelperc.newgena.loaders.settings.JsonResources
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -14,55 +13,76 @@ import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
 import tornadofx.*
-
+import com.pavelperc.newgena.gui.views.ResourceMappingEditor.ResourceType.*
+import com.pavelperc.newgena.loaders.settings.JsonResources
+import com.pavelperc.newgena.loaders.settings.JsonResources.JsonResourceMapping
 
 class ResourceMappingEditor(
-        initialObjects: Map<String, JsonResources.ResourceMapping>,
+        initialObjects: Map<String, JsonResourceMapping>,
+        // also contains artificial noise events!!!
         private val predefinedTransitionsToHints: Map<String, String> = emptyMap(),
-        predefinedSimpleResources: List<String>,
+        private val predefinedSimpleResources: List<String>,
         predefinedResourceGroups: List<JsonResources.Group>,
-        val onSuccess: (Map<String, JsonResources.ResourceMapping>) -> Unit = {}
+        val onSuccess: (Map<String, JsonResourceMapping>) -> Unit = {}
 ) : Fragment("ResourceMappingEditor") {
+    
+    
+    private val predefinedComplexResNames = predefinedResourceGroups
+            .flatMap { it.roles.flatMap { it.resources } }.map { it.name }
+    
+    private val predefinedGroupNames = predefinedResourceGroups.map { it.name }
+    private val predefinedRoleNames = predefinedResourceGroups.flatMap { it.roles }.map { it.name }
+    
     
     private val predefinedHintsToTransitions = predefinedTransitionsToHints
             .filter { (_, v) -> v.isNotEmpty() }
             .map { (k, v) -> v to k } // inverse
             .toMap()
+
+//    private val predefinedResources = predefinedSimpleResources +
+//            predefinedResourceGroups.flatMap { group ->
+//                group.roles.flatMap { role ->
+//                    role.resources.map { resource ->
+//                        "${resource.name}:${role.name}:${group.name}"
+//                    }
+//                }
+//            }
     
-    private val predefinedResources = predefinedSimpleResources +
-            predefinedResourceGroups.flatMap { group ->
-                group.roles.flatMap { role ->
-                    role.resources.map { resource ->
-                        "${resource.name}:${role.name}:${group.name}"
-                    }
-                }
-            }
-    
-    
-    public data class TransitionResourcesTuple(
-            var transitionId: String = "",
-            val resources: ObservableList<String> = observableList()
-    ) {
+    enum class ResourceType {
+        SIMPLE, COMPL, ROLE, GROUP;
         
-        fun toResourceMapping(): Pair<String, JsonResources.ResourceMapping> {
-            val simplified = mutableListOf<String>()
-            val full = mutableListOf<JsonResources.ResourceMapping.FullResourceName>()
+        fun makeRes(name: String) = UIResource(name, this)
+    }
+    
+    data class UIResource(val name: String, val type: ResourceType)
+    
+    data class TransitionResourcesTuple(
+            var transitionId: String = "",
+            val resources: ObservableList<UIResource> = observableList()
+    ) {
+        fun toResourceMapping(): Pair<String, JsonResourceMapping> {
+            fun resOfType(type: ResourceType) = resources
+                    .filter { it.type == type }
+                    .map { it.name }.toMutableList()
             
-            val regex = Regex("""(.+):(.*):(.*)""")
-            resources.forEach { resourceName ->
-                val matchResult = regex.matchEntire(resourceName)
-                if (matchResult != null) {
-                    val (_, name, role, group) = matchResult.groups.map { it!!.value }
-                    full += JsonResources.ResourceMapping.FullResourceName(group, role, name)
-                } else {
-                    simplified += resourceName
-                }
-            }
-            
-            return transitionId to JsonResources.ResourceMapping(full, simplified)
+            return transitionId to JsonResourceMapping(
+                    simplifiedResourceNames = resOfType(SIMPLE),
+                    complexResourceNames = resOfType(COMPL),
+                    resourceRoles = resOfType(ROLE),
+                    resourceGroups = resOfType(GROUP)
+            )
         }
         
-        constructor(transitionId: String, resources: List<String>) : this(transitionId, resources.observable())
+        companion object {
+            private fun JsonResourceMapping.toUIRes() =
+                    this.simplifiedResourceNames.map { SIMPLE.makeRes(it) } +
+                            this.complexResourceNames.map { COMPL.makeRes(it) } +
+                            this.resourceRoles.map { ROLE.makeRes(it) } +
+                            this.resourceGroups.map { GROUP.makeRes(it) }
+            
+            fun fromResourceMapping(transitionId: String, resources: JsonResourceMapping) =
+                    TransitionResourcesTuple(transitionId, resources.toUIRes().observable())
+        }
     }
     
     public inner class TransitionResourcesModel(initial: TransitionResourcesTuple) : ItemViewModel<TransitionResourcesTuple>(initial) {
@@ -79,7 +99,7 @@ class ResourceMappingEditor(
                 hint.value = predefinedTransitionsToHints[newString] ?: ""
             }
             hint.onChange { hint ->
-                // always update the value
+                // always update the value 
                 if (!hint.isNullOrEmpty()) {
                     transitionId.value = predefinedHintsToTransitions[hint] ?: ""
                 }
@@ -89,10 +109,7 @@ class ResourceMappingEditor(
     
     private val objects = initialObjects
             .map { (transitionId, mapping) ->
-                TransitionResourcesTuple(transitionId,
-                        mapping.simplifiedResourceNames +
-                                mapping.fullResourceNames.map { (group, role, name) -> "$name:$role:$group" }
-                )
+                TransitionResourcesTuple.fromResourceMapping(transitionId, mapping)
             }
             .observable()
     
@@ -118,7 +135,7 @@ class ResourceMappingEditor(
             }
             
             fieldset {
-                field("transitionId") {
+                field("transitionId/artificialEvent") {
                     textfield(model.transitionId) {
                         notEmpty { newString ->
                             if (objects.any { it.transitionId == newString })
@@ -185,36 +202,67 @@ class ResourceMappingEditor(
     
     val selectedTransition = SimpleObjectProperty<TransitionResourcesTuple>(null)
     
+    // right side header
     fun EventTarget.headerResources() {
         hbox {
             //            prefWidth = 550.0
 //            addClass(Styles.addItemRoot)
             
             form {
-                val resourceName = SimpleStringProperty("")
+                // props to fill UIResource
+                val resName = SimpleStringProperty("")
+                val resType = SimpleObjectProperty(SIMPLE)
                 
                 fun commit(): Boolean {
-                    if (resourceName.value != "" && selectedTransition.value != null) {
+                    if (resName.value != "" && selectedTransition.value != null) {
                         // create a copy
-                        selectedTransition.value!!.resources.add(resourceName.value)
+                        selectedTransition.value!!.resources.add(UIResource(resName.value, resType.value))
                         return true
                     }
                     return false
                 }
                 
                 fieldset {
-                    field("resource full name:") {
-                        textfield(resourceName) {
+                    field("type") {
+                        combobox(resType, ResourceType.values().toList())
+                    }
+                    val shouldGuessType = SimpleBooleanProperty(true)
+                    checkbox("guess type", shouldGuessType)
+                    field("name:") {
+                        textfield(resName) {
                             enableWhen { selectedTransition.isNotNull }
                             
                             promptText = "Click enter to add."
                             action {
+                                if (shouldGuessType.value) {
+                                    
+                                    // try to guess type!!!
+                                    when (resName.value) {
+                                        in predefinedSimpleResources -> resType.value = SIMPLE
+                                        in predefinedComplexResNames -> resType.value = COMPL
+                                        in predefinedRoleNames -> resType.value = ROLE
+                                        in predefinedGroupNames -> resType.value = GROUP
+                                    }
+                                }
+                                
                                 if (commit()) {
                                     selectAll()
                                 }
                             }
                             
-                            actionedAutoCompletion(predefinedResources)
+                            actionedAutoCompletion {
+                                if (shouldGuessType.value) {
+                                    predefinedComplexResNames + predefinedGroupNames +
+                                            predefinedRoleNames + predefinedSimpleResources
+                                } else {
+                                    when (resType.value ?: SIMPLE) {
+                                        SIMPLE -> predefinedSimpleResources
+                                        COMPL -> predefinedComplexResNames
+                                        ROLE -> predefinedRoleNames
+                                        GROUP -> predefinedGroupNames
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -335,7 +383,7 @@ class ResourceMappingEditor(
     // -------- RESOURCES LIST --------
     private fun EventTarget.resourcesList() {
         
-        listview<String>() {
+        listview<UIResource>() {
             
             selectedTransition.onChange { newTransition ->
                 if (newTransition == null) {
@@ -363,7 +411,10 @@ class ResourceMappingEditor(
                     }
                 }
                 
-                val valueProp = SimpleStringProperty(item)
+                // res name
+                val valueProp = SimpleStringProperty(item.name)
+                // res type
+                val typeProp = SimpleObjectProperty(item.type)
                 
                 graphic = hbox {
                     alignment = Pos.CENTER_LEFT
@@ -373,35 +424,57 @@ class ResourceMappingEditor(
                     }
                     
                     setOnEditCancel {
-                        valueProp.value = item
+                        valueProp.value = item.name
+                        typeProp.value = item.type
                     }
                     
                     // look:
-                    label(itemProperty()) {
+                    hbox {
                         alignment = Pos.CENTER
                         hgrow = Priority.ALWAYS
-                        removeWhen { editingProperty() }
-                        style {
-                            padding = box(0.px, 10.px, 0.px, 5.px)
-                        }
-                        
-                        hgrow = Priority.ALWAYS
                         useMaxSize = true
+                        removeWhen { editingProperty() }
+                        
+                        label(valueProp) {
+                            alignment = Pos.CENTER
+                            hgrow = Priority.ALWAYS
+                            useMaxSize = true
+                            style {
+                                padding = box(0.px, 10.px, 0.px, 5.px)
+                            }
+                        }
+                        label(typeProp)
                     }
                     
                     
                     // edit
-                    textfield(valueProp) {
+                    hbox {
                         removeWhen { editingProperty().not() }
                         hgrow = Priority.ALWAYS
                         alignment = Pos.CENTER
                         useMaxWidth = true
                         
-                        action { commitEdit(valueProp.value) }
-                        promptText = "Edit value."
-                        
-                        actionedAutoCompletion(predefinedResources)
-                        whenVisible { requestFocus() }
+                        textfield(valueProp) {
+                            hgrow = Priority.ALWAYS
+                            alignment = Pos.CENTER
+                            useMaxWidth = true
+                            
+                            action { commitEdit(UIResource(valueProp.value, typeProp.value)) }
+                            promptText = "Edit value."
+                            
+                            // TODO edit resource mapping autocompl.
+//                            actionedAutoCompletion(predefinedResources)
+                            actionedAutoCompletion {
+                                when (typeProp.value ?: SIMPLE) {
+                                    SIMPLE -> predefinedSimpleResources
+                                    COMPL -> predefinedComplexResNames
+                                    ROLE -> predefinedRoleNames
+                                    GROUP -> predefinedGroupNames
+                                }
+                            }
+                            
+                            whenVisible { requestFocus() }
+                        }
                     }
                     
                     // delete

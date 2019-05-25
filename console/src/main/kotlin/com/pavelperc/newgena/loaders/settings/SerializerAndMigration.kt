@@ -71,6 +71,17 @@ fun MutableMap<String, JsonElement>.updateObjectArray(arrayName: String, require
     }
 }
 
+/** Update all jsonObject values equally. (Like mapValues.) */
+fun MutableMap<String, JsonElement>.updateObjectValues(mapName: String, required: Boolean = true, elementReplacer: MutableMap<String, JsonElement>.() -> Unit) {
+    updateObject(mapName, required) {
+        forEach { (k, _) ->
+            updateObject(k) {
+                elementReplacer()
+            }
+        }
+    }
+}
+
 
 /** Updates version in json settings. Should be used from the root attribute map. */
 fun MutableMap<String, JsonElement>.setVersion(version: String) {
@@ -100,11 +111,39 @@ val migrator_0_1__0_2 = Migrator("""
     }
 }
 
+fun noField(fieldName: String) = IllegalStateException("no field $fieldName.")
+
+fun <V> Map<String, V>.getSafe(fieldName: String) = get(fieldName) ?: throw noField(fieldName)
+
+val migrator_0_2__0_3 = Migrator("""
+    0.2 -> 0.3
+    Resource mapping now has 4 lists:
+    simplifiedResourceNames, complexResourceNames, resourceGroups, resourceRoles 
+""".trimIndent()) { jo ->
+    jo.updated {
+        setVersion("0.3")
+        updateObject("timeDescription", required = false) {
+            // like mapValues
+            updateObjectValues("transitionIdsToResources") {
+                val oldComplexNames = getSafe("fullResourceNames").jsonArray
+                        .map { it.jsonObject.getSafe("resourceName") }
+                remove("fullResourceNames")
+                
+                this["complexResourceNames"] = JsonArray(oldComplexNames)
+                this["resourceGroups"] = JsonArray(listOf())
+                this["resourceRoles"] = JsonArray(listOf())
+            }
+        }
+        
+    }
+}
+
 
 fun selectPetrinetMigrators(version: String): List<Migrator> {
     
     val versionsToMigrators = listOf(
             "0.1" to migrator_0_1__0_2,
+            "0.2" to migrator_0_2__0_3,
             JsonSettings.LAST_SETTINGS_VERSION to Migrator.empty
     )
     val versions = versionsToMigrators.map { it.first }
