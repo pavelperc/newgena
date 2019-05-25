@@ -278,6 +278,8 @@ class ResourceMappingEditor(
             
             useMaxSize = true
             vgrow = Priority.ALWAYS
+            hgrow = Priority.ALWAYS
+            
             
             addEventFilter(KeyEvent.KEY_PRESSED) {
                 if (it.code == KeyCode.DELETE && selectedItem != null) {
@@ -384,7 +386,10 @@ class ResourceMappingEditor(
     private fun EventTarget.resourcesList() {
         
         listview<UIResource>() {
-            
+            useMaxSize = true
+            vgrow = Priority.ALWAYS
+            hgrow = Priority.ALWAYS
+    
             selectedTransition.onChange { newTransition ->
                 if (newTransition == null) {
                     items = observableList()
@@ -392,9 +397,6 @@ class ResourceMappingEditor(
                     items = newTransition.resources
                 }
             }
-            
-            useMaxSize = true
-            vgrow = Priority.ALWAYS
             
             addEventFilter(KeyEvent.KEY_PRESSED) {
                 if (it.code == KeyCode.DELETE && selectedItem != null) {
@@ -424,8 +426,13 @@ class ResourceMappingEditor(
                     }
                     
                     setOnEditCancel {
+                        
+                        // TODO FIX EDIT CANCEL!!!!!!
+//                        println("Cancelled: valueProp=${valueProp.value}, item=$item")
+                        
                         valueProp.value = item.name
                         typeProp.value = item.type
+                        
                     }
                     
                     // look:
@@ -433,15 +440,16 @@ class ResourceMappingEditor(
                         alignment = Pos.CENTER
                         hgrow = Priority.ALWAYS
                         useMaxSize = true
+                        style {
+                            padding = box(0.px, 10.px, 0.px, 5.px)
+                            spacing = 5.px
+                        }
                         removeWhen { editingProperty() }
                         
                         label(valueProp) {
                             alignment = Pos.CENTER
                             hgrow = Priority.ALWAYS
                             useMaxSize = true
-                            style {
-                                padding = box(0.px, 10.px, 0.px, 5.px)
-                            }
                         }
                         label(typeProp)
                     }
@@ -456,7 +464,7 @@ class ResourceMappingEditor(
                         
                         textfield(valueProp) {
                             hgrow = Priority.ALWAYS
-                            alignment = Pos.CENTER
+//                            alignment = Pos.CENTER
                             useMaxWidth = true
                             
                             action { commitEdit(UIResource(valueProp.value, typeProp.value)) }
@@ -475,6 +483,7 @@ class ResourceMappingEditor(
                             
                             whenVisible { requestFocus() }
                         }
+                        combobox(typeProp, ResourceType.values().toList())
                     }
                     
                     // delete
@@ -491,12 +500,21 @@ class ResourceMappingEditor(
     
     
     override val root = hbox {
+        useMaxSize = true
+        hgrow = Priority.ALWAYS
+        
         vbox {
+            useMaxSize = true
+            hgrow = Priority.ALWAYS
+            
             headerTransition()
             transitionsList()
         }
         
         vbox {
+            useMaxSize = true
+            hgrow = Priority.ALWAYS
+            
             headerResources()
             resourcesList()
         }
