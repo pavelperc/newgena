@@ -11,6 +11,8 @@ import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.control.Alert
 import javafx.scene.layout.VBox
+import javafx.scene.paint.Color
+import javafx.scene.text.TextAlignment
 import javafx.util.Duration
 import tornadofx.*
 
@@ -42,7 +44,13 @@ class SettingsView : View("Settings") {
     init {
         with(root) {
             scrollableFieldset {
-                label("Using settings version: ${JsonSettings.LAST_SETTINGS_VERSION}")
+                label("Using settings version: ${JsonSettings.LAST_SETTINGS_VERSION}") {
+                    useMaxSize = true
+                    style {
+                        textAlignment = TextAlignment.LEFT
+                        textFill = Color.GRAY
+                    }
+                }
                 
                 // Common settings:
                 

@@ -31,7 +31,7 @@
   "maxNumberOfSteps": 10,
   "isRemovingEmptyTraces": true,
   "isRemovingUnfinishedTraces": false,
-  "isUsingNoise": false,
+  "isUsingNoise": true,
   "noiseDescription": {
     "noiseLevel": 1,
     "isSkippingTransitions": true,
@@ -185,6 +185,18 @@
           "naaaame"
         ],
         "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "XXXXX": {
+        "simplifiedResourceNames": [
+          "simple1"
+        ],
+        "complexResourceNames": [
+        ],
+        "resourceGroups": [
+          "g3"
         ],
         "resourceRoles": [
         ]

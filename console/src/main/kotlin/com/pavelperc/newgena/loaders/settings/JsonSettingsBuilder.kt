@@ -221,9 +221,7 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
                     noiseEventsFromNames[transId]
                             ?: idsToTransitions[transId]
                             ?: throw IllegalStateException("Building Resource mapping: " +
-                                    "id $transId not found among transition ids and artificial noise events.")
-                    
-                    transId.toTrans() as Any
+                                    "id $transId not found among transition ids and artificial noise events (if enabled).")
                 }
     }
     
