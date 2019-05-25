@@ -19,3 +19,5 @@ fun profile(message:String, op: () -> Unit) {
     val time = measureNanoTime(op)
     println(">>>> ${String.format("%.2f", time / 1000_000.0)}ms")
 }
+
+fun getCwd() = System.getProperty("user.dir")
