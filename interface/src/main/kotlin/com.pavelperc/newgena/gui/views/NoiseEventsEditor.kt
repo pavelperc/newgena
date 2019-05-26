@@ -97,6 +97,9 @@ class NoiseEventsEditor(
             }
             
             button("save") {
+                shortcut("Ctrl+S")
+                tooltip("Ctrl+S")
+    
                 addEventFilter(KeyEvent.KEY_PRESSED) {
                     if (it.code == KeyCode.ENTER) {
 //                        if (it.target is Button && !it.isControlDown)

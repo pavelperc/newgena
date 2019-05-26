@@ -102,14 +102,17 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
                 resGroups = resourceGroups.map { it.build() }
                 
                 
-                val artificialNoiseEvents = if (jsonSettings.isUsingNoise
-                        && jsonSettings.noiseDescription.isUsingExternalTransitions) {
-                    jsonSettings.noiseDescription.artificialNoiseEvents
-                } else {
-                    mutableListOf()
-                }
                 
-                resMapping = buildResourceMapping(simpleRes, resGroups, transitionIdsToResources, artificialNoiseEvents)
+                
+                
+                resMapping = buildResourceMapping(
+                        simpleRes,
+                        resGroups,
+                        transitionIdsToResources,
+                        jsonSettings.noiseDescription.artificialNoiseEvents,
+                        allowArtificial = jsonSettings.isUsingNoise
+                                && jsonSettings.noiseDescription.isUsingExternalTransitions
+                )
             }
             
             
@@ -131,7 +134,7 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
             
             TimeDrivenGenerationDescription(
                     numberOfLogs = numberOfLogs,
-                    numberOfTraces = numberOfLogs,
+                    numberOfTraces = numberOfTraces,
                     maxNumberOfSteps = maxNumberOfSteps,
                     isUsingNoise = isUsingNoise,
                     isUsingResources = isUsingResources,
@@ -158,7 +161,8 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
             simpleRes: List<Resource>, // already built.
             resGroups: List<Group>,
             transitionIdsToResources: MutableMap<String, JsonResources.JsonResourceMapping>,
-            artificialNoiseEvents: List<NoiseEvent>
+            artificialNoiseEvents: List<NoiseEvent>,
+            allowArtificial: Boolean
     ): Map<Any, ResourceMapping> {
         
         val complexRes = resGroups.flatMap { it.resources }
@@ -177,13 +181,14 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
         
         // transition id and artificial noise name collisions
         val transNoiseCollisions = noiseEventsFromNames.keys.intersect(idsToTransitions.keys)
-        if (transNoiseCollisions.isNotEmpty()) {
+        if (transNoiseCollisions.isNotEmpty() && allowArtificial) {
             throw IllegalStateException("Building resource mapping: " +
                     "Found collisions among transitionIds and ArtificialNoiseEvent names: $transNoiseCollisions.")
         }
         
         
         return transitionIdsToResources
+                .filterKeys { allowArtificial || it !in noiseEventsFromNames }
                 .mapValues { (transId, jsonMapping) ->
                     // split all names into simple and complex resources
                     
@@ -218,8 +223,8 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
                     )
                 }
                 .mapKeys { (transId, _) ->
-                    noiseEventsFromNames[transId]
-                            ?: idsToTransitions[transId]
+                    idsToTransitions[transId]
+                            ?: noiseEventsFromNames[transId]
                             ?: throw IllegalStateException("Building Resource mapping: " +
                                     "id $transId not found among transition ids and artificial noise events (if enabled).")
                 }

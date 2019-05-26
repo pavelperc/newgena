@@ -26,12 +26,12 @@
     ]
   },
   "outputFolder": "xes-out",
-  "numberOfLogs": 5,
-  "numberOfTraces": 10,
+  "numberOfLogs": 1,
+  "numberOfTraces": 5,
   "maxNumberOfSteps": 10,
   "isRemovingEmptyTraces": true,
-  "isRemovingUnfinishedTraces": false,
-  "isUsingNoise": true,
+  "isRemovingUnfinishedTraces": true,
+  "isUsingNoise": false,
   "noiseDescription": {
     "noiseLevel": 1,
     "isSkippingTransitions": true,
@@ -92,11 +92,11 @@
         "deviation": 0
       }
     },
-    "generationStart": "2019-05-05T03:09:50.656Z",
+    "generationStart": "2019-05-05T00:00:00Z",
     "isUsingLifecycle": false,
     "isSeparatingStartAndFinish": false,
-    "minimumIntervalBetweenActions": 10,
-    "maximumIntervalBetweenActions": 20,
+    "minimumIntervalBetweenActions": 0,
+    "maximumIntervalBetweenActions": 0,
     "isUsingResources": true,
     "isUsingComplexResourceSettings": true,
     "isUsingSynchronizationOnResources": true,

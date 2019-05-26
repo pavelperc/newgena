@@ -29,8 +29,8 @@ abstract class PetriNetGenerationHelper<P : Place<TK>, TR : Transition<TK, P>, T
     
     private val groupedFinalMarking = finalMarking.groupBy { it }.mapValues { it.value.size }
     
-    fun dumpPetrinet() {
-        println("Dump petrinet:")
+    fun dumpPetrinet(moreText: String = "") {
+        println("Dump petrinet: $moreText")
         allTokenables.forEach { place ->
             println(place.node.label + ": " + place.numberOfTokens)
         }

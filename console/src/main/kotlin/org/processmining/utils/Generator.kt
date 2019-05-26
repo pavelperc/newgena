@@ -36,8 +36,11 @@ class Generator(private val callback: ProgressBarCallback) {
         val logArray = EventLogArrayFactory.createEventLogArray()
         val generationDescription = generationHelper.generationDescription
         
+        with(generationDescription) {
+            println("Number of logs=$numberOfLogs, numberOfTraces=$numberOfTraces")
+        }
+        
         for (logNumber in 0 until generationDescription.numberOfLogs) {
-            //            System.out.println("Log number " + (logNumber + 1));
             val generatedLog = generateLog(generationHelper)
             logArray.addLog(generatedLog)
         }
@@ -57,7 +60,8 @@ class Generator(private val callback: ProgressBarCallback) {
             TimeDrivenLoggingSingleton.init(generationDescription as TimeDrivenGenerationDescription)
             log.extensions.add(XTimeExtension.instance())
         }
-        
+    
+        println("lifeycle: " + generationDescription.isUsingLifecycle)
         if (generationDescription.isUsingLifecycle) {
             val lifecycleExtension = XLifecycleExtension.instance()
             log.extensions.add(lifecycleExtension)
@@ -81,7 +85,6 @@ class Generator(private val callback: ProgressBarCallback) {
         var i = 0
         while (i < generationDescription.numberOfTraces) {
             val traceName = "Trace ${i + 1}"
-//            println(traceName)
             
             val generatedTrace = generateTrace(generationHelper, traceName)
             val successful = addTraceToLog(log, generatedTrace, generationDescription)
@@ -131,13 +134,18 @@ class Generator(private val callback: ProgressBarCallback) {
         
         var maxIterations = 10
 //        println("New trace")
+        
+        fun dumpPetrinet(moreText: String = "") {
+            (generationHelper as? PetriNetGenerationHelper<*,*,*>)?.dumpPetrinet(moreText)
+        }
+        
         do {
 //            println("New iteration.")
             generationHelper.moveToInitialState()
             trace = createTrace(traceName)
             var stepNumber = 0
     
-//            (generationHelper as? PetriNetGenerationHelper<*,*,*>)?.dumpPetrinet()
+//            dumpPetrinet("before trace")
             while (stepNumber < generationDescription.maxNumberOfSteps && !replayedCompletely) {
                 
                 val movable = generationHelper.chooseNextMovable()
@@ -154,6 +162,8 @@ class Generator(private val callback: ProgressBarCallback) {
                 if (!movementResult.isActualStep) {
                     stepNumber--
                 }
+//                dumpPetrinet("event=${trace.lastOrNull()?.name}, step = $stepNumber, isActual=${movementResult.isActualStep}")
+                
                 // check if we reached final marking, produce or consume extra tokens??
                 val assessedMovementResult = generationHelper.handleMovementResult(movementResult)
                 replayedCompletely = assessedMovementResult.isReplayCompleted

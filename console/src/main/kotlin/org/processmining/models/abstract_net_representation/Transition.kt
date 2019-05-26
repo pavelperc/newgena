@@ -4,12 +4,10 @@ import org.processmining.models.GenerationDescription
 import org.processmining.models.Movable
 import java.lang.IllegalArgumentException
 
-import java.util.Random
-
 /** Something like weighted arc. [weight] should be positive. */
 data class WeightedPlace<T : Token, P : Place<T>>(val place: P, val weight: Int = 1) {
     init {
-        if (weight < 0) throw IllegalArgumentException("Weight should not be negative in $this")
+        require(weight >= 0) { "Weight should not be negative in $this" }
     }
 }
 
@@ -22,7 +20,7 @@ abstract class Transition<T : Token, P : Place<T>>(
         /** Wrapped ProM transition. (loggable.) */
         override val node: org.processmining.models.graphbased.directed.petrinet.elements.Transition,
         generationDescription: GenerationDescription,
-        val inputPlaces: List<WeightedPlace<T, P>>,
+        val weightedInputPlaces: List<WeightedPlace<T, P>>,
         val outputPlaces: List<WeightedPlace<T, P>>,
         val inputInhibitorArcPlaces: List<P>,
         val inputResetArcPlaces: List<P>
@@ -30,6 +28,7 @@ abstract class Transition<T : Token, P : Place<T>>(
     
     /* Check if we can move this [Movable].*/
     override fun checkAvailability() =
-            inputPlaces.all { (place, weight) -> place.hasTokens(weight) } // reset arcs doesn't affect transition availability
+            weightedInputPlaces.all { (place, weight) -> place.hasTokens(weight) } // reset arcs doesn't affect transition availability
                     && inputInhibitorArcPlaces.all { place -> !place.hasTokens() }
+    
 }

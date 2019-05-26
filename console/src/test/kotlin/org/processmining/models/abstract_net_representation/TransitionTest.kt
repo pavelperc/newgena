@@ -4,7 +4,6 @@ import com.pavelperc.newgena.utils.common.emptyMarking
 import com.pavelperc.newgena.utils.common.markingOf
 import org.junit.Test
 
-import org.junit.Assert.*
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.graphbased.directed.petrinet.impl.ResetInhibitorNetImpl
@@ -44,9 +43,9 @@ class TransitionTest {
         
         val trans = simpleGenerationHelper.allModelMovables[0]
         
-        val in1 = trans.inputPlaces[0]
+        val in1 = trans.weightedInputPlaces[0]
         
-        
+        // TODO transition test
         
         
         

@@ -16,6 +16,7 @@ class TimeDrivenPlace(
     /** In TimeDrivenPlace this queue is priority queue. */
     override val tokens: Queue<TimeDrivenToken> = PriorityQueue()
     
+    /** The oldest token. */
     val lowestTimestamp: Long
         get() = tokens.peek().timestamp
     

@@ -37,7 +37,7 @@ open class BaseTransition(
     }
     
     protected fun consumeTokens() {
-        inputPlaces.forEach { (place, weight) -> place.consumeTokens(weight) }
+        weightedInputPlaces.forEach { (place, weight) -> place.consumeTokens(weight) }
         // inputInhibitorArcPlaces have no tokens
         inputResetArcPlaces.forEach { place -> place.removeAllTokens() }
     }

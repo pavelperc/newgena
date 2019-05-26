@@ -21,11 +21,8 @@ fun main(args: Array<String>) {
     
     val generationKit = settingsController.getGenerationKit()
     
-    
     println("Settings were built successfully!")
     
-    
-    // TODO: pavel: make GenerationController instead of PetrinetGenerators and hide this awful code there.
     val logArray = PetrinetGenerators.generateFromKit(generationKit) { progress, maxProgress ->
         println("progress: $progress from $maxProgress")
     }

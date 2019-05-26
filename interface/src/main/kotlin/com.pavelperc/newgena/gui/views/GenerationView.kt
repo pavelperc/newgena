@@ -44,11 +44,12 @@ class GenerationView() : View("My View") {
     override fun onUndock() {
         super.onUndock()
         currTask?.cancel()
-        println("Canceled!!")
     }
     
     override val root = vbox {
         button("close") {
+            shortcut("Ctrl+Z")
+            tooltip("Ctrl+Z")
             action {
                 //                replaceWith<SettingsView>(ViewTransition.Slide(0.2.seconds).reversed())
                 close()
@@ -135,12 +136,12 @@ class OneTraceFragment : Fragment() {
         observableTrace.setAll(params["trace"] as? XTrace ?: mutableListOf<XEvent>())
     }
     
-    val showSimpleTime = SimpleBooleanProperty(false)
+    val showSimpleTime = SimpleBooleanProperty(true)
     
     
     override val root = vbox {
         
-        checkbox("Show simple time.", showSimpleTime)
+        checkbox("Show simple time", showSimpleTime)
         
         tableview(observableTrace) {
             showSimpleTime.onChange {

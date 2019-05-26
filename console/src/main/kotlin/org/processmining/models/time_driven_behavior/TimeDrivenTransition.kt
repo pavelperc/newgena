@@ -2,14 +2,15 @@ package org.processmining.models.time_driven_behavior
 
 import org.deckfour.xes.model.XTrace
 import org.processmining.models.MovementResult
+import org.processmining.models.abstract_net_representation.Place
 import org.processmining.models.abstract_net_representation.Transition
 import org.processmining.models.abstract_net_representation.WeightedPlace
 import org.processmining.models.consumeAllTokens
-import org.processmining.models.consumeTokens
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription
 import org.processmining.models.organizational_extension.Resource
 import org.processmining.utils.TimeDrivenLoggingSingleton
 import java.util.*
+import kotlin.math.max
 import kotlin.random.Random
 
 private typealias WPlace = WeightedPlace<TimeDrivenToken, TimeDrivenPlace>
@@ -35,28 +36,42 @@ class TimeDrivenTransition(
     
     private val noiseEventsBasedOnSettings: List<NoiseEvent>
         get() {
-            val noiseEvents = ArrayList<NoiseEvent>()
+            val noiseEvents = mutableListOf<NoiseEvent>()
+            
             val noiseDescription = generationDescription.noiseDescription
             if (noiseDescription.isUsingInternalTransitions) {
-                noiseEvents.addAll(noiseDescription.existingNoiseEvents)
+                noiseEvents += noiseDescription.existingNoiseEvents
             }
             if (noiseDescription.isUsingExternalTransitions) {
-                noiseEvents.addAll(noiseDescription.artificialNoiseEvents)
+                noiseEvents += noiseDescription.artificialNoiseEvents
             }
             return noiseEvents
         }
     
     init {
-        val timePair = generationDescription.time.getValue(node)
+        val timePair = generationDescription.time[node]
+                ?: throw IllegalStateException("No timePair for transition $node.")
         executionTime = timePair.first
         maxTimeDeviation = timePair.second
     }
     
+    val logger: TimeDrivenLoggingSingleton
+        get() = TimeDrivenLoggingSingleton.timeDrivenInstance
+    
+    
     override fun move(trace: XTrace): MovementResult<*>? {
         val movementResult = MovementResult<TimeDrivenToken>()
         movementResult.isActualStep = false
+        
+        // The time of the first token among all input places. or Long.MAX_VALUE. 
         val time = findMinimalTokenTime() //TODO такой способ нахождения времени не оптимален
-        if (generationDescription.isUsingSynchronizationOnResources && !TimeDrivenLoggingSingleton.timeDrivenInstance.areResourcesAvailable(node, time)) {
+        
+        if (generationDescription.isUsingSynchronizationOnResources
+                // have resources, but they are not available
+                && logger.getAllResourcesMappedToActivity(node).isNotEmpty()
+                && !logger.areResourcesAvailable(node, time)) {
+            
+            // make sync steps while we don't get free resources!!!!
             takeSynchronizationStep(movementResult)
             return movementResult
         }
@@ -71,7 +86,7 @@ class TimeDrivenTransition(
                         println("Noise before actual event: $node")//TODO delete?
                         registerNoiseTransition(trace, time, movementResult)
                         if (generationDescription.isUsingSynchronizationOnResources) {
-                            if (TimeDrivenLoggingSingleton.timeDrivenInstance.areResourcesAvailable(node, time)) {
+                            if (logger.areResourcesAvailable(node, time)) {
                                 actuallyMove(trace, movementResult)
                             } else {
                                 takeSynchronizationStep(movementResult)
@@ -92,7 +107,7 @@ class TimeDrivenTransition(
                         val registeredPair = registerNoiseTransition(trace, time, extraResult)
                         if (registeredPair == null) {
                             if (generationDescription.isUsingSynchronizationOnResources) {
-                                if (TimeDrivenLoggingSingleton.timeDrivenInstance.areResourcesAvailable(node, time)) {
+                                if (logger.areResourcesAvailable(node, time)) {
                                     actuallyMove(trace, movementResult)
                                 } else {
                                     takeSynchronizationStep(movementResult)
@@ -113,7 +128,7 @@ class TimeDrivenTransition(
                 }
             } else {
                 if (generationDescription.isUsingSynchronizationOnResources) {
-                    if (TimeDrivenLoggingSingleton.timeDrivenInstance.areResourcesAvailable(node, time)) {
+                    if (logger.areResourcesAvailable(node, time)) {
                         actuallyMove(trace, movementResult)
                     } else {
                         takeSynchronizationStep(movementResult)
@@ -128,17 +143,21 @@ class TimeDrivenTransition(
         return movementResult
     }
     
-    private fun takeSynchronizationStep(movementResult: MovementResult<*>) {
+    /** All tokens with the minimal time get the time of the next token after the minimal.*/
+    fun takeSynchronizationStep(movementResult: MovementResult<*>) {
         movementResult.isActualStep = false
+        
         val smallestTimestamp = findMinimalTokenTime()
         var secondSmallestTimestamp = findNextMinimalTimestamp(smallestTimestamp)
+        
         if (generationDescription.isUsingSynchronizationOnResources) {
-            val minimalResourceTime = TimeDrivenLoggingSingleton.timeDrivenInstance.getNearestResourceTime(node)
-            if (secondSmallestTimestamp < minimalResourceTime) {
-                secondSmallestTimestamp = minimalResourceTime
-            }
+            val minimalResourceTime = logger.getNearestResourceTime(node)
+            secondSmallestTimestamp = max(secondSmallestTimestamp, minimalResourceTime)
         }
-        for ((place, weight) in inputPlaces) {
+        
+        // increase timestamp from smallest to secondSmallest.
+        
+        for ((place, weight) in weightedInputPlaces) {
             if (place.lowestTimestamp == smallestTimestamp) {
                 val token = place.consumeToken()
                 val copy = token.copyTokenWithNewTimestamp(secondSmallestTimestamp)
@@ -148,9 +167,10 @@ class TimeDrivenTransition(
     }
     
     
+    /** Check if all input places have the same minimal time. */
     private fun checkTimeOfTokens(): Boolean {
         var time: Long = -1
-        for ((place, weight) in inputPlaces) {
+        for ((place, weight) in weightedInputPlaces) {
             if (time == -1L) {
                 time = place.lowestTimestamp
             } else {
@@ -163,15 +183,12 @@ class TimeDrivenTransition(
     }
     
     
+    /** Looks minimal token time only among weighted input arcs. */
     fun findMinimalTokenTime(): Long {
-        var minimalTimestamp = java.lang.Long.MAX_VALUE
-        for ((place, weight) in inputPlaces) {
-            if (minimalTimestamp > place.lowestTimestamp) {
-                minimalTimestamp = place.lowestTimestamp
-            }
-        }
-        return minimalTimestamp
+        // pavel: reset arcs work in any time. We do not consider them.
+        return weightedInputPlaces.map { it.place.lowestTimestamp }.min() ?: Long.MAX_VALUE
     }
+    
     
     override fun compareTo(other: TimeDrivenTransition): Int {
         val instanceMinimalTimestamp = findMinimalTokenTime()
@@ -192,13 +209,14 @@ class TimeDrivenTransition(
         startTransition(trace, movementResult, timestamp)
     }
     
-    // pavel: what does it actually do? 
-    private fun consumeTokens()//TODO а нельзя ли как-то хитро заюзать его в базовом классе?
-            : Long {
+    //TODO а нельзя ли как-то хитро заюзать его в базовом классе?
+    private fun consumeTokens(): Long {
         var timestamp: Long = 0
         
-        inputResetArcPlaces.forEach { place -> place.consumeAllTokens() }
-        for ((place, weight) in inputPlaces) {
+        inputResetArcPlaces.forEach { place ->
+            place.consumeAllTokens()
+        }
+        for ((place, weight) in weightedInputPlaces) {
             repeat(weight) {
                 val consumedToken = place.consumeToken()
                 timestamp = consumedToken.timestamp
@@ -214,7 +232,7 @@ class TimeDrivenTransition(
         }
         val producedToken: TimeDrivenToken
         if (generationDescription.isUsingResources) {
-            val usedResource = TimeDrivenLoggingSingleton.timeDrivenInstance.logStartEventWithResource(trace, node, timeStamp)
+            val usedResource = logger.logStartEventWithResource(trace, node, timeStamp)
             val finishTime = timeStamp + (executionTime + timeDeviation) * 1000
             if (generationDescription.isUsingSynchronizationOnResources) {
                 usedResource?.setTime(finishTime)
@@ -222,7 +240,7 @@ class TimeDrivenTransition(
             producedToken = TimeDrivenToken(this, finishTime, usedResource)
         } else {
             if (generationDescription.isSeparatingStartAndFinish) {
-                TimeDrivenLoggingSingleton.timeDrivenInstance.log(trace, node, timeStamp, false)
+                logger.log(trace, node, timeStamp, false)
             }
             producedToken = TimeDrivenToken(this, timeStamp + (executionTime + timeDeviation) * 1000)
         }
@@ -234,21 +252,20 @@ class TimeDrivenTransition(
             timestamp: Long,
             movementResult: MovementResult<TimeDrivenToken>
     ): Pair<Any, Resource?>? {
-        val loggingSingleton = TimeDrivenLoggingSingleton.timeDrivenInstance
         val noiseEvents = noiseEventsBasedOnSettings
         val noiseEventList = LinkedList(noiseEvents)
         while (noiseEventList.size > 0) {
             val noiseEvent = noiseEventList.removeAt(Random.nextInt(noiseEventList.size))
             if (generationDescription.isUsingSynchronizationOnResources
-                    && !loggingSingleton.areResourcesAvailable(noiseEvent.activity, timestamp)) {
+                    && !logger.areResourcesAvailable(noiseEvent.activity, timestamp)) {
                 continue
             }
             var usedResource: Resource? = null
             if (generationDescription.isUsingResources) {
-                usedResource = loggingSingleton.logStartEventWithResource(trace, noiseEvent.activity, timestamp)
+                usedResource = logger.logStartEventWithResource(trace, noiseEvent.activity, timestamp)
             } else {
                 if (generationDescription.isSeparatingStartAndFinish) {
-                    loggingSingleton.log(trace, noiseEvent, timestamp, false)
+                    logger.log(trace, noiseEvent, timestamp, false)
                 }
             }
             var timeDeviation = (Random.nextDouble() * (noiseEvent.maxTimeDeviationSeconds + 1)).toLong()
@@ -281,20 +298,17 @@ class TimeDrivenTransition(
         return false
     }
     
+    
+    /** The next minimal time in input tokens after timestamp */
     private fun findNextMinimalTimestamp(timestamp: Long): Long {
-        var nextMinimalTimestamp = java.lang.Long.MAX_VALUE
-        for ((place, weight) in inputPlaces) {
-            val currentTimestamp = place.lowestTimestamp
-            if (currentTimestamp < nextMinimalTimestamp && currentTimestamp > timestamp) {
-                nextMinimalTimestamp = currentTimestamp
-            }
-        }
-        if (nextMinimalTimestamp == java.lang.Long.MAX_VALUE) {
-            nextMinimalTimestamp = timestamp
-        }
-        return nextMinimalTimestamp
+        return weightedInputPlaces
+                .map { it.place.lowestTimestamp }
+                .filter { it > timestamp }
+                .min()
+                ?: timestamp
     }
     
+    // pavel: what is it? how does it work?
     fun moveInternalToken(trace: XTrace, token: TimeDrivenToken): MovementResult<*> {
         val movementResult = MovementResult<TimeDrivenToken>()
         movementResult.addConsumedExtraToken(token)
@@ -308,22 +322,26 @@ class TimeDrivenTransition(
     }
     
     private fun completeTransition(trace: XTrace, maxTimeStamp: Long) {
-        TimeDrivenLoggingSingleton.timeDrivenInstance.log(trace, node, maxTimeStamp, true)
+        logger.log(trace, node, maxTimeStamp, true)
         addTokensToOutputPlaces(maxTimeStamp)
     }
     
     private fun completeTransition(trace: XTrace, resource: Resource, maxTimeStamp: Long) {
-        TimeDrivenLoggingSingleton.timeDrivenInstance.logCompleteEventWithResource(trace, node, resource, maxTimeStamp)
+        logger.logCompleteEventWithResource(trace, node, resource, maxTimeStamp)
         addTokensToOutputPlaces(maxTimeStamp)
     }
     
     private fun addTokensToOutputPlaces(maxTimeStamp: Long) {
         val description = generationDescription
         val possibleTimeVariation = description.maximumIntervalBetweenActions - description.minimumIntervalBetweenActions
+        
         for ((place, weight) in outputPlaces) {
             val timeBetweenActions = description.minimumIntervalBetweenActions + Random.nextInt(possibleTimeVariation + 1)
-            val token = TimeDrivenToken(place, maxTimeStamp + timeBetweenActions * 1000)
-            place.addToken(token)
+            
+            repeat(weight) {
+                val token = TimeDrivenToken(place, maxTimeStamp + timeBetweenActions * 1000)
+                place.addToken(token)
+            }
         }
     }
     

@@ -51,7 +51,7 @@ class InhibitorResetPetrinetTest : GraphvizDrawer(false) {
         
         val t1 = transitions.first()
         
-        t1.inputPlaces.size shouldEqual 1
+        t1.weightedInputPlaces.size shouldEqual 1
         t1.inputInhibitorArcPlaces.size shouldEqual 1
         t1.inputResetArcPlaces.size shouldEqual 1
         

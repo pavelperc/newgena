@@ -111,28 +111,23 @@ class TimeDrivenLoggingSingleton protected constructor(
             }
     
     fun areResourcesAvailable(modelActivity: Any, timestamp: Long): Boolean {
-        if (timestamp < 0) {
-            throw IllegalArgumentException("Time cannot be negative")
-        }
+        require(timestamp >= 0) { "Time cannot be negative" }
         val allResourcesMappedToActivity = getAllResourcesMappedToActivity(modelActivity)
-        for (resource in allResourcesMappedToActivity) {
-            if (resource.isIdle && resource.willBeFreed <= timestamp) {
-                return true
-            }
-        }
-        return false
+        
+        return allResourcesMappedToActivity.any { it.isIdle && it.willBeFreed <= timestamp }
     }
     
-    private fun getAllResourcesMappedToActivity(modelActivity: Any) =
-            description.resourceMapping[modelActivity]
-                    ?.let { mapping ->
-                        if (!description.isUsingComplexResourceSettings) {
-                            mapping.selectedResources
-                        } else {
-                            mapping.selectedResources + mapping.selectedSimplifiedResources
-                        }
-                    }
-                    ?: emptyList()
+    fun getAllResourcesMappedToActivity(modelActivity: Any): List<Resource> {
+        val mapping = description.resourceMapping[modelActivity]
+                ?: return emptyList()
+        
+        return if (description.isUsingComplexResourceSettings) {
+            mapping.selectedResources
+        } else {
+            mapping.selectedResources + mapping.selectedSimplifiedResources
+        }
+        
+    }
     
     private fun shouldDistortTimestamp(): Boolean {
         val noiseDescription = description.noiseDescription

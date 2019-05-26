@@ -134,6 +134,9 @@ class TransitionDelaysEditor(
             
             vbox {
                 button("save") {
+                    shortcut("Ctrl+S")
+                    tooltip("Ctrl+S")
+                    
                     addEventFilter(KeyEvent.KEY_PRESSED) {
                         if (it.code == KeyCode.ENTER) {
                             fire()
