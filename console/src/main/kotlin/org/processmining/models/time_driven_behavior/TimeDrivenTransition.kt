@@ -67,8 +67,6 @@ class TimeDrivenTransition(
         val time = findMinimalTokenTime() //TODO такой способ нахождения времени не оптимален
         
         if (generationDescription.isUsingSynchronizationOnResources
-                // have resources, but they are not available
-                && logger.getAllResourcesMappedToActivity(node).isNotEmpty()
                 && !logger.areResourcesAvailable(node, time)) {
             
             // make sync steps while we don't get free resources!!!!
@@ -201,6 +199,7 @@ class TimeDrivenTransition(
     }
     
     private fun actuallyMove(trace: XTrace, movementResult: MovementResult<TimeDrivenToken>) {
+        // pavel: why we do not make movementResult.isActualStep true???? Where do we do this???
         moveTokensFromPrecedingPlaces(trace, movementResult)
     }
     

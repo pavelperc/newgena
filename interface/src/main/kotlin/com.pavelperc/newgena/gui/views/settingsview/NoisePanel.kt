@@ -1,13 +1,10 @@
-package com.pavelperc.newgena.gui.views.settings
+package com.pavelperc.newgena.gui.views.settingsview
 
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
-import com.pavelperc.newgena.gui.model.NoiseModel
-import com.pavelperc.newgena.gui.model.SettingsModel
 import com.pavelperc.newgena.gui.views.NoiseEventsEditor
 import javafx.beans.property.IntegerProperty
 import javafx.event.EventTarget
-import org.processmining.mapper.ui.UIController
 import org.processmining.models.time_driven_behavior.GranularityTypes
 import tornadofx.*
 

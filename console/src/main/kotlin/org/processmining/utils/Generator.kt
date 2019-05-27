@@ -60,8 +60,7 @@ class Generator(private val callback: ProgressBarCallback) {
             TimeDrivenLoggingSingleton.init(generationDescription as TimeDrivenGenerationDescription)
             log.extensions.add(XTimeExtension.instance())
         }
-    
-        println("lifeycle: " + generationDescription.isUsingLifecycle)
+        
         if (generationDescription.isUsingLifecycle) {
             val lifecycleExtension = XLifecycleExtension.instance()
             log.extensions.add(lifecycleExtension)

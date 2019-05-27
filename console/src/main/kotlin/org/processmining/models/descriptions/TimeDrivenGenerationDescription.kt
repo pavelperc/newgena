@@ -68,7 +68,6 @@ class TimeDrivenGenerationDescription(
             var maxTimestampDeviation: Int = 0,
             var granularityType: GranularityTypes = GranularityTypes.MINUTES_5,
             
-            
             noisedLevel: Int = 5,
             isUsingExternalTransitions: Boolean = true,
             isUsingInternalTransitions: Boolean = true,

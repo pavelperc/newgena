@@ -30,7 +30,9 @@ fun main(args: Array<String>) {
 //    logArray.toList().map { it.eventNames() }.joinToString("\n").also { println(it) }
     
     with(settingsController) {
-        logArray.exportXml("${jsonSettings.outputFolder}/${generationKit.petrinet.label}.xes")
+        val xesFileStr = "${jsonSettings.outputFolder}/${generationKit.petrinet.label}.xes"
+        println("Export xes at: $xesFileStr")
+        logArray.exportXml(xesFileStr)
     }
     
     println("Done!")

@@ -1,4 +1,4 @@
-package com.pavelperc.newgena.gui.views.settings
+package com.pavelperc.newgena.gui.views.settingsview
 
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.controller.SettingsUIController

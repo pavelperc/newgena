@@ -2,7 +2,6 @@ package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.gui.app.MyApp
 import com.pavelperc.newgena.gui.customfields.notification
-import com.pavelperc.newgena.gui.views.settings.SettingsView
 import com.pavelperc.newgena.launchers.PetrinetGenerators
 import com.pavelperc.newgena.utils.xlogutils.eventNames
 import com.pavelperc.newgena.utils.xlogutils.exportXml
@@ -13,7 +12,6 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
 import javafx.concurrent.Task
 import javafx.scene.control.ProgressBar
-import javafx.scene.control.SelectionMode
 import javafx.scene.layout.Priority
 import org.deckfour.xes.model.XEvent
 import org.deckfour.xes.model.XTrace

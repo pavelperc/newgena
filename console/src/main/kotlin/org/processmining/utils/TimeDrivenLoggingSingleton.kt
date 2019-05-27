@@ -110,10 +110,14 @@ class TimeDrivenLoggingSingleton protected constructor(
                 availableResources.randomOrNull()
             }
     
+    /** Returns true if there are no resources!! */
     fun areResourcesAvailable(modelActivity: Any, timestamp: Long): Boolean {
         require(timestamp >= 0) { "Time cannot be negative" }
         val allResourcesMappedToActivity = getAllResourcesMappedToActivity(modelActivity)
         
+        if (allResourcesMappedToActivity.isEmpty()) {
+            return true
+        }
         return allResourcesMappedToActivity.any { it.isIdle && it.willBeFreed <= timestamp }
     }
     
@@ -224,8 +228,10 @@ class TimeDrivenLoggingSingleton protected constructor(
     }
     
     private fun putLifeCycleAttribute(logEvent: XEvent, transition: String) {
-        val attribute = LoggingSingleton.factory.createAttributeLiteral("lifecycle:transition", transition, lifecycleExtension)
-        logEvent.attributes["lifecycle:transition"] = attribute
+        if (description.isUsingLifecycle) {
+            val attribute = LoggingSingleton.factory.createAttributeLiteral("lifecycle:transition", transition, lifecycleExtension)
+            logEvent.attributes["lifecycle:transition"] = attribute
+        }
     }
     
     private fun shouldSkipEvent(): Boolean {

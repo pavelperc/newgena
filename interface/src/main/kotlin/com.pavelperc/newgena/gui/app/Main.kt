@@ -1,6 +1,6 @@
 package com.pavelperc.newgena.gui.app
 
-import com.pavelperc.newgena.gui.views.settings.SettingsView
+import com.pavelperc.newgena.gui.views.settingsview.SettingsView
 import javafx.scene.Scene
 import tornadofx.*
 
