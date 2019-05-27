@@ -2,6 +2,7 @@ package com.pavelperc.newgena.utils.common
 
 import org.processmining.models.graphbased.directed.petrinet.elements.Place
 import org.processmining.models.semantics.petrinet.Marking
+import java.io.File
 import kotlin.system.measureNanoTime
 import kotlin.system.measureTimeMillis
 
@@ -21,6 +22,7 @@ fun profile(message:String, op: () -> Unit) {
 }
 
 fun getCwd() = System.getProperty("user.dir")
+fun getCwdFile() = File(getCwd())
 
 fun findCollisions(set1: Set<String>, set2: Set<String>) {
     set2 - set1

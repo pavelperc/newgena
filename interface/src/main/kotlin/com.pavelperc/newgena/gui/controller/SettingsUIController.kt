@@ -13,6 +13,7 @@ import com.pavelperc.newgena.models.deleteAllInhibitorResetArcs
 import com.pavelperc.newgena.models.markInhResetArcsByIds
 import com.pavelperc.newgena.models.pnmlId
 import com.pavelperc.newgena.utils.common.emptyMarking
+import com.pavelperc.newgena.utils.common.getCwd
 import com.pavelperc.newgena.utils.common.profile
 import guru.nidi.graphviz.engine.Graphviz
 import javafx.beans.binding.Bindings
@@ -250,7 +251,7 @@ class SettingsUIController : Controller() {
     
     /** @return true if the fileChooser dialog was not canceled and everything is ok. */
     fun loadJsonSettings(): Boolean {
-        val cwd = File(System.getProperty("user.dir"))
+        val cwd = File(getCwd())
         val prev = File(jsonSettingsPath.value ?: "").parentFile
         
         val fileChooser = FileChooser()

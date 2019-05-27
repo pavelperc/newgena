@@ -195,7 +195,7 @@ class SettingsView : View("Settings") {
                             text("Wow, Nothing crashed!")
                         }
                     } catch (e: Exception) {
-                        error("Failed to load petrinet:", e.message)
+                        error("Settings are loaded, but failed to load petrinet:", e.message)
                     }
                 }
             }

@@ -138,22 +138,35 @@
     } ],
     
     // сопостовление переходов ресурсам
+    // Ресурсов для отдельных переходов может не быть. Тогда они не указываются.
+    // Также можно присваивать ресурсы для ArtificialNoiseEvents.
+    // Если они не включены, то эти ресурсы не учитываются.
     "transitionIdsToResources" : {
       "transition1" : {
-        "fullResourceNames" : [ {
-          "groupName" : "group1",
-          "roleName" : "role1",
-          "resourceName" : "resource1"
-        } ],
-        "simplifiedResourceNames" : [ ]
+        "simplifiedResourceNames" : [
+          "simpleResource1",
+          "simpleResource2"
+        ],
+        "complexResourceNames": [
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
       },
-      "transition2" : {
-        "fullResourceNames" : [ ],
-        "simplifiedResourceNames" : [ "simpleResource1", "simpleResource2" ]
+      "NoiseEvent": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+        ],
+        "resourceGroups": [
+          "group3"
+        ],
+        "resourceRoles": [
+        ]
       }
     },
-
-
+    
     // шум, связанный с временными метками.
     "timeDrivenNoise" : {
       "isUsingTimestampNoise" : true,
@@ -163,5 +176,4 @@
       "granularityType" : "MINUTES_5"
     }
   }
-
 }
