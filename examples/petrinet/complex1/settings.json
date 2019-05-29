@@ -33,11 +33,13 @@
   "isRemovingUnfinishedTraces": true,
   "isUsingNoise": false,
   "noiseDescription": {
-    "noiseLevel": 1,
-    "isSkippingTransitions": true,
+    "noiseLevel": 8,
+    "isSkippingTransitions": false,
     "isUsingExternalTransitions": true,
-    "isUsingInternalTransitions": true,
+    "isUsingInternalTransitions": false,
     "internalTransitionIds": [
+      "transition1",
+      "transition2"
     ],
     "artificialNoiseEvents": [
       {
@@ -46,12 +48,12 @@
         "maxTimeDeviationSeconds": 0
       },
       {
-        "activity": "XXXXX",
+        "activity": "SomeNoise",
         "executionTimeSeconds": 5,
         "maxTimeDeviationSeconds": 11
       },
       {
-        "activity": "YYYYYY",
+        "activity": "MoreNoise",
         "executionTimeSeconds": 600,
         "maxTimeDeviationSeconds": 120
       }
@@ -93,13 +95,13 @@
       }
     },
     "generationStart": "2019-05-05T00:00:00Z",
-    "isUsingLifecycle": false,
-    "isSeparatingStartAndFinish": false,
+    "isUsingLifecycle": true,
+    "isSeparatingStartAndFinish": true,
     "minimumIntervalBetweenActions": 0,
     "maximumIntervalBetweenActions": 0,
     "isUsingResources": true,
     "isUsingComplexResourceSettings": true,
-    "isUsingSynchronizationOnResources": true,
+    "isUsingSynchronizationOnResources": false,
     "simplifiedResources": [
       "simple1",
       "simple2",
@@ -134,7 +136,12 @@
                 "maxDelayBetweenActionsMillis": 10
               }
             ]
-          },
+          }
+        ]
+      },
+      {
+        "name": "g2",
+        "roles": [
           {
             "name": "r3",
             "resources": [
@@ -166,7 +173,39 @@
     "transitionIdsToResources": {
       "transition1": {
         "simplifiedResourceNames": [
-          "simple1"
+        ],
+        "complexResourceNames": [
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+          "r2"
+        ]
+      },
+      "transition2": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+        ],
+        "resourceGroups": [
+          "g1"
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "transition4": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+        ],
+        "resourceGroups": [
+          "g2"
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "transition5": {
+        "simplifiedResourceNames": [
         ],
         "complexResourceNames": [
           "naaaame"
@@ -174,38 +213,55 @@
         "resourceGroups": [
         ],
         "resourceRoles": [
-          "r3"
         ]
       },
       "transition6": {
         "simplifiedResourceNames": [
-          "simple2"
         ],
         "complexResourceNames": [
-          "naaaame"
+          "n2",
+          "n3"
         ],
         "resourceGroups": [
         ],
         "resourceRoles": [
         ]
       },
-      "XXXXX": {
+      "NoiseEvent": {
         "simplifiedResourceNames": [
-          "simple1"
         ],
         "complexResourceNames": [
         ],
         "resourceGroups": [
-          "g3"
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "SomeNoise": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "MoreNoise": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+        ],
+        "resourceGroups": [
         ],
         "resourceRoles": [
         ]
       }
     },
     "timeDrivenNoise": {
-      "isUsingTimestampNoise": true,
-      "isUsingLifecycleNoise": true,
-      "isUsingTimeGranularity": true,
+      "isUsingTimestampNoise": false,
+      "isUsingLifecycleNoise": false,
+      "isUsingTimeGranularity": false,
       "maxTimestampDeviationSeconds": 0,
       "granularityType": "MINUTES_5"
     }

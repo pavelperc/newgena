@@ -175,7 +175,7 @@ class ResourceMappingEditor(
                 button("save") {
                     shortcut("Ctrl+S")
                     tooltip("Ctrl+S")
-    
+                    
                     addEventFilter(KeyEvent.KEY_PRESSED) {
                         if (it.code == KeyCode.ENTER) {
                             fire()
@@ -351,7 +351,10 @@ class ResourceMappingEditor(
                             useMaxWidth = true
                             prefWidth = 100.0
                             
-                            action { commitEdit(item) }
+                            action {
+                                model.commit()
+                                commitEdit(model.item)
+                            }
                             promptText = "Edit value."
                             
                             actionedAutoCompletion(predefinedTransitionsToHints.keys.toList())
@@ -392,7 +395,7 @@ class ResourceMappingEditor(
             useMaxSize = true
             vgrow = Priority.ALWAYS
             hgrow = Priority.ALWAYS
-    
+            
             selectedTransition.onChange { newTransition ->
                 if (newTransition == null) {
                     items = observableList()

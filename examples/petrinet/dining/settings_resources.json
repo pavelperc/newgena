@@ -1,0 +1,203 @@
+{
+  "settingsInfo": {
+    "type": "petrinet",
+    "version": "0.3"
+  },
+  "petrinetSetup": {
+    "petrinetFile": "examples\\petrinet\\dining\\dining_resources.pnml",
+    "marking": {
+      "initialPlaceIds": {
+        "wait1": 1,
+        "wait2": 1,
+        "wait3": 1,
+        "wait4": 1
+      },
+      "finalPlaceIds": {
+      },
+      "isUsingInitialMarkingFromPnml": false
+    },
+    "inhibitorArcIds": [
+    ],
+    "resetArcIds": [
+      "r6",
+      "r3",
+      "r9",
+      "r7",
+      "r4",
+      "r1",
+      "r10"
+    ]
+  },
+  "outputFolder": "xes-out",
+  "numberOfLogs": 5,
+  "numberOfTraces": 10,
+  "maxNumberOfSteps": 10,
+  "isRemovingEmptyTraces": true,
+  "isRemovingUnfinishedTraces": false,
+  "isUsingNoise": false,
+  "noiseDescription": {
+    "noiseLevel": 5,
+    "isSkippingTransitions": true,
+    "isUsingExternalTransitions": true,
+    "isUsingInternalTransitions": true,
+    "internalTransitionIds": [
+    ],
+    "artificialNoiseEvents": [
+    ]
+  },
+  "isUsingStaticPriorities": false,
+  "staticPriorities": {
+    "maxPriority": 100,
+    "transitionIdsToPriorities": {
+      "p1done": 2,
+      "p2done": 2,
+      "p3done": 2,
+      "p4done": 2,
+      "p1take": 2,
+      "p2take": 2,
+      "p3take": 2,
+      "p4take": 2,
+      "granny": 3
+    }
+  },
+  "isUsingTime": true,
+  "timeDescription": {
+    "transitionIdsToDelays": {
+      "p1done": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "p1take": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "p2take": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "p2done": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "p3take": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "p3done": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "p4take": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "p4done": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "granny": {
+        "delay": 5,
+        "deviation": 1
+      }
+    },
+    "generationStart": "2019-01-01T00:00:00Z",
+    "isUsingLifecycle": false,
+    "isSeparatingStartAndFinish": false,
+    "minimumIntervalBetweenActions": 0,
+    "maximumIntervalBetweenActions": 0,
+    "isUsingResources": false,
+    "isUsingComplexResourceSettings": true,
+    "isUsingSynchronizationOnResources": true,
+    "simplifiedResources": [
+    ],
+    "resourceGroups": [
+      {
+        "name": "forks",
+        "roles": [
+          {
+            "name": "onion",
+            "resources": [
+              {
+                "name": "fork1",
+                "minDelayBetweenActionsMillis": 0,
+                "maxDelayBetweenActionsMillis": 0
+              },
+              {
+                "name": "fork2",
+                "minDelayBetweenActionsMillis": 0,
+                "maxDelayBetweenActionsMillis": 0
+              },
+              {
+                "name": "fork3",
+                "minDelayBetweenActionsMillis": 0,
+                "maxDelayBetweenActionsMillis": 0
+              },
+              {
+                "name": "fork4",
+                "minDelayBetweenActionsMillis": 0,
+                "maxDelayBetweenActionsMillis": 0
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "transitionIdsToResources": {
+      "p1take": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+          "fork1",
+          "fork4"
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "p2take": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+          "fork1",
+          "fork2"
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "p3take": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+          "fork2",
+          "fork3"
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "p4take": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+          "fork3",
+          "fork4"
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
+      }
+    },
+    "timeDrivenNoise": {
+      "isUsingTimestampNoise": true,
+      "isUsingLifecycleNoise": true,
+      "isUsingTimeGranularity": true,
+      "maxTimestampDeviationSeconds": 0,
+      "granularityType": "MINUTES_5"
+    }
+  }
+}

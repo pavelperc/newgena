@@ -16,6 +16,7 @@ jar {
     }
     baseName = 'newgena'
     from {
+        exclude('*.html')
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }

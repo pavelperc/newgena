@@ -79,7 +79,7 @@
       </place>
       <transition id="p1done">
         <name>
-          <text>Ф1: Я поел!</text>
+          <text>P1: I ate!</text>
         </name>
         <graphics>
           <position x="250" y="10" />
@@ -88,7 +88,7 @@
       </transition>
       <transition id="p1take">
         <name>
-          <text>Ф1: Вилки мои!</text>
+          <text>P1: My forks!</text>
         </name>
         <graphics>
           <position x="250" y="150" />
@@ -97,7 +97,7 @@
       </transition>
       <transition id="p2take">
         <name>
-          <text>Ф2: Вилки мои!</text>
+          <text>P2: My forks!</text>
         </name>
         <graphics>
           <position x="370" y="290" />
@@ -106,7 +106,7 @@
       </transition>
       <transition id="p2done">
         <name>
-          <text>Ф2: Я поел!</text>
+          <text>P2: I ate!</text>
         </name>
         <graphics>
           <position x="490" y="290" />
@@ -115,7 +115,7 @@
       </transition>
       <transition id="p3take">
         <name>
-          <text>Ф3: А я ем без вилок!</text>
+          <text>P3: I eat without forks!</text>
         </name>
         <graphics>
           <position x="250" y="430" />
@@ -124,7 +124,7 @@
       </transition>
       <transition id="p3done">
         <name>
-          <text>Ф3: Держите вилки!</text>
+          <text>P3: Hold the forks!</text>
         </name>
         <graphics>
           <position x="250" y="570" />
@@ -133,7 +133,7 @@
       </transition>
       <transition id="p4take">
         <name>
-          <text>Ф4: Вилки мои!</text>
+          <text>P4: My forks!</text>
         </name>
         <graphics>
           <position x="130" y="290" />
@@ -142,7 +142,7 @@
       </transition>
       <transition id="p4done">
         <name>
-          <text>Ф4: Я поел!</text>
+          <text>P4: I ate!</text>
         </name>
         <graphics>
           <position x="10" y="290" />
@@ -151,7 +151,7 @@
       </transition>
       <transition id="granny">
         <name>
-          <text>Б: А ну хватит есть!</text>
+          <text>G: Well, enough to eat!</text>
         </name>
         <graphics>
           <position x="625.6" y="411.2" />

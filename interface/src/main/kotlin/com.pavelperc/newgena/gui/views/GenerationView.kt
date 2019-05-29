@@ -18,7 +18,7 @@ import org.deckfour.xes.model.XTrace
 import org.processmining.log.models.EventLogArray
 import tornadofx.*
 
-class GenerationView() : View("My View") {
+class GenerationView : View("Generation View") {
     
     override fun onBeforeShow() {
         super.onBeforeShow()
