@@ -20,4 +20,4 @@ Examples can be found in the folder [examples](examples).
 The path to Petri Net and output folder inside the settings is relative to the execution working directory.
 So, to run the examples correctly, you should launch the tool near the `examples` folder.  
 
-Full settings description can be found in the file [settings full description.json](examples/petrinet/settings full description.json)
+Full settings description can be found in the file [settings_full_description.json](examples/petrinet/settings_full_description.json)
