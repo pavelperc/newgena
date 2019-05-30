@@ -1,86 +1,85 @@
 {
   "settingsInfo": {
     "type": "petrinet",
-    "version": "0.1"
+    "version": "0.3"
   },
-  // раздел настроек сети Петри
+  // Petrinet setup section
   "petrinetSetup" : {
-    // путь к файлу pnml, указывается относительно запущенной программы.
+    // the path to the Petri Net file. It is relative to the tool working directory. (Or it is a full path).
     "petrinetFile" : "examples\\petrinet\\complex1\\complex1.pnml",
-    // id дуг, которые необходимо заменить на ингибиторные в загруженной сети Петри.
+    // the ids of arcs, which will be replaced with inhibitor arcs in the loaded petri net.
     "inhibitorArcIds" : [ "arc17" ],
-    // id дуг, которые необходимо заменить на дуги сброса в загруженной сети Петри.
+    // the ids of arcs, which will be replaced with reset arcs in the loaded petri net.
     "resetArcIds" : [ "arc12", "arc13" ],
-    // раздел разметки.
+    // marking section
     "marking" : {
-      // id исходных позиций из pnml.
+      // ids of initial places in marking and amounts of tokens
       "initialPlaceIds" : {
         "place1" : 2,
         "place2" : 1,
         "place5" : 1
       },
-      // id конечных позиций из pnml.
+      // ids of initial places in marking and amounts of tokens
       "finalPlaceIds" : {
         "place7" : 2,
         "place6" : 1
       },
-      // использовать исходную разметку из pnml.
+      // do we use initial marking from pnml file.
       "isUsingInitialMarkingFromPnml" : false
     }
   },
-  // папка для вывода файлов с логами.
+  // the folder for log files output. Relative path will be computed from the tool working directory.
   "outputFolder" : "xes-out",
   
-  // количество логов.
   "numberOfLogs" : 5,
   "numberOfTraces" : 10,
-  // максимальное количество событий в трассе.
+  // maximum number of steps in a trace.
   "maxNumberOfSteps" : 50,
-
-  // удаляем ли мы пустые трассы.
   "isRemovingEmptyTraces" : true,
-  // удаляем ли мы трассы, не дошедшие до финальной разметки.
+  // do we remove traces, who didn't reach the final marking
   "isRemovingUnfinishedTraces" : true,
 
-  // используем ли мы генерацию шума
+  // do we use noise generation
   "isUsingNoise" : true,
-  // секция описания шума: не null, если isUsingNoise=true
+  // section of noise description
   "noiseDescription" : {
-    // уровень шума: от 1 до 100.
+    // noise level: from 1 to 100.
     "noiseLevel" : 50,
     // пропускаем ли мы переходы при записи в лог
+    // do we allow skipping transitions during writing to the log
     "isSkippingTransitions" : true,
-    // добавляем ли мы искусственные события в лог.
+    // do we add artifitial events to the log
     "isUsingExternalTransitions" : true,
-    // добавляем ли мы существующие переоды в лог в качестве шума.
+    // do we add existing transitions to the log as a noise.
     "isUsingInternalTransitions" : true,
-    // существующие переходы для шума.
+    // exising transitions for the noise.
     "internalTransitionIds" : [ "transition1", "transition2" ],
-    // искусственные события для шума
+    // artificial noise events
     "artificialNoiseEvents" : [ {
-      // имя события
+      // name of the event
       "activity" : "NoiseEvent",
-      // время выполнения (используется только при генерации со временем)
+      // execution time (is used only in time driven generation)
       "executionTimeSeconds" : 0,
-      // отклонение от времени выполнения
+      // deviation from the execution time
       "maxTimeDeviationSeconds" : 0
     }, {
-      // другой пример события
+      // another event example
       "activity" : "XXXXX",
       "executionTimeSeconds" : 5,
       "maxTimeDeviationSeconds" : 11
     } ]
   },
   
-  // используем ли мы генерацию с приоритетами. Взаимоисключаемо с isUsingNoise и isUsingTime!!
+  // do we use generation with transition priorities
+  // (Mutually exclusive with isUsingNoise and isUsingTime!!)
   "isUsingStaticPriorities" : false,
 
-  // секция описания приоритетов: не null, если isUsingStaticPriorities=true
+  // transition priorities description
   "staticPriorities" : {
-    // максимальный приоритет
+    // max priority
     "maxPriority" : 100,
-    // словарь приоритетов. Переходы с более высоким приоритетом срабатывают раньше.
-    // словарь обязательно должен содержать все переходы.
+    // priority dictionary. Transitions with higher priority fire earlier.
+    // the dictionary should always contain all the transitions for now.
     "transitionIdsToPriorities" : {
       "transition1" : 5,
       "transition2" : 4,
@@ -90,57 +89,55 @@
     }
   },
 
-  // используем ли мы генерацию c временными метками.
+  // do we use generation with timestamps
   "isUsingTime" : false,
-  // секция описания времени: не null, если isUsingTime=true
   "timeDescription" : {
-    // задержки срабатываний переходов в секундах. Должны быть заполнены для всех переходов.
+    // delays of transitions in seconds. Should be specified for all transitions.
     "transitionIdsToDelays" : {
       "transition1" : {
         "delay" : 2,
         "deviation" : 1
       }
     },
-    // начало генерации
+    // generation start in UTC format.
     "generationStart" : "2019-04-22T01:17:48.509Z",
     
+    // do we use lifecycle extension
     "isUsingLifecycle" : false,
     "isSeparatingStartAndFinish" : true,
     
-    // вроде секунды....
+    // the interval between transition firings, in seconds.
     "minimumIntervalBetweenActions" : 10,
     "maximumIntervalBetweenActions" : 20,
     
-    // используем ли мы ресурсы
+    // do we use resources
     "isUsingResources" : true,
     
-    // используем ли мы ресурсы с группами и ролями.
-    // пока true отключает simplifiedResources.
+    // do we use resources with groups and roles
+    // for now, true just disables simplifiedResources.
     "isUsingComplexResourceSettings" : true,
-    // синхронизация ресурсов
+    // resource synchronization: only one transition uses the resource at the same time
     "isUsingSynchronizationOnResources" : true,
     
-    // все упрощённые ресурсы (содержат только название)
+    // all simplified resources. Contain only name.
     "simplifiedResources" : [ "simpleResource1", "simpleResource2"],
-    // ресурсы по группам и ролям
+    // Complex resources with groups and roles.
     "resourceGroups" : [ {
       "name" : "group1",
       "roles" : [ {
         "name" : "role1",
         "resources" : [ {
           "name" : "resource1",
-          // через сколько миллисекунд данный ресурс считается свободным
-          "willBeFreed" : 10,
           "minDelayBetweenActionsMillis" : 100,
           "maxDelayBetweenActionsMillis" : 200
         } ]
       } ]
     } ],
     
-    // сопостовление переходов ресурсам
-    // Ресурсов для отдельных переходов может не быть. Тогда они не указываются.
-    // Также можно присваивать ресурсы для ArtificialNoiseEvents.
-    // Если они не включены, то эти ресурсы не учитываются.
+    // matching transition ids to resources
+    // Some transitions may not have any resources, in that case they can be skipped.
+    // Also you can assign resources for noise events.
+    // If the noise setting is disabled, they are not used.
     "transitionIdsToResources" : {
       "transition1" : {
         "simplifiedResourceNames" : [
@@ -149,11 +146,14 @@
         ],
         "complexResourceNames": [
         ],
+        // you can define the whole groups of resources
         "resourceGroups": [
         ],
+        // or some roles
         "resourceRoles": [
         ]
       },
+      // example for a noise event
       "NoiseEvent": {
         "simplifiedResourceNames": [
         ],
@@ -167,7 +167,7 @@
       }
     },
     
-    // шум, связанный с временными метками.
+    // timestamp noise
     "timeDrivenNoise" : {
       "isUsingTimestampNoise" : true,
       "isUsingLifecycleNoise" : true,
