@@ -1,6 +1,7 @@
 package com.pavelperc.newgena.graphviz
 
 import com.pavelperc.newgena.models.pnmlId
+import com.pavelperc.newgena.utils.common.plusAssign
 import guru.nidi.graphviz.*
 import guru.nidi.graphviz.attribute.*
 import guru.nidi.graphviz.engine.Format
@@ -24,7 +25,8 @@ class PetrinetDrawer(
         val drawArcIds: Boolean = true,
         val drawTransitionIds: Boolean = false,
         val drawTransitionNames: Boolean = true,
-        val drawVertical: Boolean = false
+        val drawVertical: Boolean = false,
+        val drawFinalMarking: Boolean = true
 ) {
     // circles
     private val circle = "●"
@@ -49,19 +51,22 @@ class PetrinetDrawer(
             graph[RankDir.LEFT_TO_RIGHT]
         }
 //        graph["label" eq graphLabelStr]
-        var labelHtml = graphLabelStr
+        val labelHtml = StringBuilder(graphLabelStr)
         if (drawLegend) {
-            if (labelHtml.trim('\n') != "") {
+            if (labelHtml.isNotBlank()) {
                 labelHtml += "<br/>"
             }
-            labelHtml += "$circle - initial marking, <font color=\"lightseagreen\">$circle</font>  - final marking"
+            labelHtml += "$circle - initial marking"
+            if (drawFinalMarking) {
+                labelHtml += ", <font color=\"lightseagreen\">$circle</font>  - final marking"
+            }
         }
     
     
         // this condition fixes a strange error when labelHtml is empty
         // and than the graphviz crashes because of the transition label!!
-        if (labelHtml.trim('\n') != "") {
-            graph[Label.html(labelHtml)]
+        if (labelHtml.isNotBlank()) {
+            graph[Label.html(labelHtml.toString())]
         }
         
         
@@ -100,13 +105,12 @@ class PetrinetDrawer(
         // reset default labels.
         places.forEach { it[Label.raw("   ")] }
         drawTokens(initialMarking.toList())
-        drawTokens(finalMarking.toList(), true)
+        if (drawFinalMarking) {
+            drawTokens(finalMarking.toList(), true)
+        }
     }
     
     private fun drawTokens(marking: List<Place>, isFinalMarking: Boolean = false) {
-        // No token
-//    allPlaceNodes.forEach { it[Label.of("   ")] }
-        
         // grouping places by labels
         val counts = marking.groupBy { it.pnmlId }.mapValues { it.value.size }
         counts.forEach { pnmlId, count ->
@@ -132,4 +136,4 @@ class PetrinetDrawer(
             node[Label.html(label)]
         }
     }
-}
+} 

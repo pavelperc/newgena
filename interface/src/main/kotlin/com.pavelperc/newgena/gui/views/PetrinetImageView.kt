@@ -1,24 +1,17 @@
 package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.graphviz.PetrinetDrawer
-import com.pavelperc.newgena.gui.app.MyApp
+import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.ImageViewer
 import com.pavelperc.newgena.gui.customfields.notification
 import guru.nidi.graphviz.engine.Format
-import guru.nidi.graphviz.engine.Renderer
 import guru.nidi.graphviz.toGraphviz
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
-import javafx.embed.swing.SwingFXUtils
 import javafx.geometry.Pos
-import javafx.scene.Parent
-import javafx.scene.image.Image
-import javafx.scene.layout.BorderPane
-import javafx.scene.layout.Priority
 import tornadofx.*
 import java.io.File
-import java.nio.file.Files
 
 class PetrinetImageView : View("Petrinet Viewer.") {
     //class PetrinetImageView : Fragment("Petrinet Viewer.") {
@@ -29,12 +22,13 @@ class PetrinetImageView : View("Petrinet Viewer.") {
     var tmpImageFile by tmpImageFileProp
     
     
-    val drawArcIdsProp = SimpleBooleanProperty(true)
+    val drawArcIdsProp = SimpleBooleanProperty(false)
     val drawTransitionIdsProp = SimpleBooleanProperty(false)
     val drawTransitionNamesProp = SimpleBooleanProperty(true)
     val drawLegendProp = SimpleBooleanProperty(true)
     val drawLabelProp = SimpleBooleanProperty(false)
     val drawVerticalProp = SimpleBooleanProperty(false)
+    val drawFinalMarkingProp = SimpleBooleanProperty(true)
     
     
     override fun onBeforeShow() {
@@ -61,7 +55,8 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                     drawLegend = drawLegendProp.value,
                     drawTransitionIds = drawTransitionIdsProp.value,
                     drawTransitionNames = drawTransitionNamesProp.value,
-                    drawVertical = drawVerticalProp.value
+                    drawVertical = drawVerticalProp.value,
+                    drawFinalMarking = drawFinalMarkingProp.value
             ).makeGraph()
         }
         
@@ -84,7 +79,8 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                         confirm("Save image to $fileStr?") {
                             
                             if (tmpImageFile != null) {
-                                tmpImageFile!!.copyTo(File(fileStr))
+                                val newImageFile = File(fileStr)
+                                tmpImageFile!!.copyTo(newImageFile, overwrite = true)
                                 notification("Saved to $fileStr")
                             } else {
                                 error("No Rendered image found.")
@@ -105,6 +101,9 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                 }
                 
             }
+
+//                addClass(Styles.graphvizButtonsPanel)
+            spacing = 3.0
             checkbox("Draw vertical", drawVerticalProp) {
                 action { draw() }
             }
@@ -119,6 +118,9 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                 action { draw() }
             }
             checkbox("Legend", drawLegendProp) {
+                action { draw() }
+            }
+            checkbox("FinalMarking", drawFinalMarkingProp) {
                 action { draw() }
             }
             checkbox("Label", drawLabelProp) {

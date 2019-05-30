@@ -41,7 +41,7 @@
   "outputFolder": "xes-out",
   "numberOfLogs": 5,
   "numberOfTraces": 10,
-  "maxNumberOfSteps": 10,
+  "maxNumberOfSteps": 20,
   "isRemovingEmptyTraces": true,
   "isRemovingUnfinishedTraces": true,
   "isUsingNoise": false,
@@ -53,11 +53,6 @@
     "internalTransitionIds": [
     ],
     "artificialNoiseEvents": [
-      {
-        "activity": "NoiseEvent",
-        "executionTimeSeconds": 600,
-        "maxTimeDeviationSeconds": 120
-      }
     ]
   },
   "isUsingStaticPriorities": false,
@@ -75,23 +70,171 @@
       "granny": 3
     }
   },
-  "isUsingTime": false,
+  "isUsingTime": true,
   "timeDescription": {
     "transitionIdsToDelays": {
+      "p1done": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "p1take": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "p2take": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "p2done": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "p3take": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "p3done": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "p4take": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "p4done": {
+        "delay": 5,
+        "deviation": 1
+      },
+      "granny": {
+        "delay": 5,
+        "deviation": 1
+      }
     },
-    "generationStart": "2019-04-22T18:19:52.219Z",
-    "isUsingLifecycle": false,
+    "generationStart": "2019-01-01T00:00:00Z",
+    "isUsingLifecycle": true,
     "isSeparatingStartAndFinish": true,
-    "minimumIntervalBetweenActions": 10,
-    "maximumIntervalBetweenActions": 20,
-    "isUsingResources": false,
+    "minimumIntervalBetweenActions": 60,
+    "maximumIntervalBetweenActions": 60,
+    "isUsingResources": true,
     "isUsingComplexResourceSettings": true,
     "isUsingSynchronizationOnResources": true,
     "simplifiedResources": [
     ],
     "resourceGroups": [
+      {
+        "name": "table",
+        "roles": [
+          {
+            "name": "food",
+            "resources": [
+              {
+                "name": "onion",
+                "minDelayBetweenActionsMillis": 70,
+                "maxDelayBetweenActionsMillis": 70
+              }
+            ]
+          },
+          {
+            "name": "not food",
+            "resources": [
+              {
+                "name": "napkin",
+                "minDelayBetweenActionsMillis": 70,
+                "maxDelayBetweenActionsMillis": 70
+              }
+            ]
+          }
+        ]
+      }
     ],
     "transitionIdsToResources": {
+      "p1take": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+          "onion"
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "p2take": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+          "onion"
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "p3take": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+          "onion"
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "p4take": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+          "onion"
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "p1done": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+          "napkin"
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "p2done": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+          "napkin"
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "p3done": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
+      },
+      "p4done": {
+        "simplifiedResourceNames": [
+        ],
+        "complexResourceNames": [
+          "napkin"
+        ],
+        "resourceGroups": [
+        ],
+        "resourceRoles": [
+        ]
+      }
     },
     "timeDrivenNoise": {
       "isUsingTimestampNoise": true,

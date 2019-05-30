@@ -3,6 +3,7 @@ package com.pavelperc.newgena.utils.common
 import org.processmining.models.graphbased.directed.petrinet.elements.Place
 import org.processmining.models.semantics.petrinet.Marking
 import java.io.File
+import java.lang.StringBuilder
 import kotlin.system.measureNanoTime
 import kotlin.system.measureTimeMillis
 
@@ -27,6 +28,12 @@ fun getCwdFile() = File(getCwd())
 fun findCollisions(set1: Set<String>, set2: Set<String>) {
     set2 - set1
 }
+
+operator fun StringBuilder.plusAssign(str: String) {
+    append(str)
+}
+
+
 
 fun <T> Collection<T>.randomOrNull() = if (isEmpty()) null else random()
 

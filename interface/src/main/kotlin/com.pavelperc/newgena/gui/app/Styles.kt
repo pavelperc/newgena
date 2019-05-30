@@ -3,6 +3,7 @@ package com.pavelperc.newgena.gui.app
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.geometry.Pos
+import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
 import tornadofx.*
 
@@ -22,7 +23,8 @@ class Styles : Stylesheet() {
 //        val intMapEditorItem by cssclass()
         val sortingPanel by cssclass()
         val upDownPanel by cssclass()
-        
+        val graphvizButtonsPanel by cssclass()
+    
         fun closeIcon() = FontAwesomeIconView(FontAwesomeIcon.CLOSE).apply {
             glyphSize = 22
 //            addClass(closeIcon)
@@ -40,6 +42,11 @@ class Styles : Stylesheet() {
     
     init {
         val lightGrey = c("#E3E3E3")
+        
+        
+        graphvizButtonsPanel {
+            
+        }
         
 //        itemRoot {
 ////            padding = box(8.px)

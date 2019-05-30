@@ -101,7 +101,7 @@
     "maximumIntervalBetweenActions": 0,
     "isUsingResources": true,
     "isUsingComplexResourceSettings": true,
-    "isUsingSynchronizationOnResources": false,
+    "isUsingSynchronizationOnResources": true,
     "simplifiedResources": [
       "simple1",
       "simple2",
@@ -117,13 +117,13 @@
             "resources": [
               {
                 "name": "n1",
-                "minDelayBetweenActionsMillis": 25,
-                "maxDelayBetweenActionsMillis": 30
+                "minDelayBetweenActionsMillis": 1000,
+                "maxDelayBetweenActionsMillis": 1000
               },
               {
                 "name": "n2",
-                "minDelayBetweenActionsMillis": 0,
-                "maxDelayBetweenActionsMillis": 0
+                "minDelayBetweenActionsMillis": 1000,
+                "maxDelayBetweenActionsMillis": 1000
               }
             ]
           },
@@ -132,8 +132,8 @@
             "resources": [
               {
                 "name": "n3",
-                "minDelayBetweenActionsMillis": 3,
-                "maxDelayBetweenActionsMillis": 10
+                "minDelayBetweenActionsMillis": 1000,
+                "maxDelayBetweenActionsMillis": 1000
               }
             ]
           }
@@ -146,9 +146,9 @@
             "name": "r3",
             "resources": [
               {
-                "name": "n3",
-                "minDelayBetweenActionsMillis": 0,
-                "maxDelayBetweenActionsMillis": 0
+                "name": "n4",
+                "minDelayBetweenActionsMillis": 1000,
+                "maxDelayBetweenActionsMillis": 1000
               }
             ]
           }
@@ -162,8 +162,8 @@
             "resources": [
               {
                 "name": "naaaame",
-                "minDelayBetweenActionsMillis": 0,
-                "maxDelayBetweenActionsMillis": 0
+                "minDelayBetweenActionsMillis": 1000,
+                "maxDelayBetweenActionsMillis": 1000
               }
             ]
           }
