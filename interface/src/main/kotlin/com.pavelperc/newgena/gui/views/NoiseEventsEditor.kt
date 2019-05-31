@@ -2,20 +2,13 @@ package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.customfields.*
-import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventTarget
-import javafx.scene.control.TableColumn
-import javafx.scene.control.TableView
-import javafx.scene.control.TextField
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
-import javafx.scene.paint.Color
-import javafx.util.Callback
 import javafx.util.StringConverter
 import org.processmining.models.time_driven_behavior.NoiseEvent
 import tornadofx.*
-import kotlin.reflect.KMutableProperty1
 
 
 /**  */
@@ -127,12 +120,12 @@ class NoiseEventsEditor(
             regainFocusAfterEdit()
             selectionModel.isCellSelectionEnabled = true
             columnResizePolicy = SmartResize.POLICY
-            
-            
+    
+    
             validatedColumn(NoiseEvent::activity, activityConverter, required = true)
-            
+    
             validatedLongColumn(NoiseEvent::executionTimeSeconds, nonNegative = true)
-            
+    
             validatedLongColumn(NoiseEvent::maxTimeDeviationSeconds, nonNegative = true)
             
             makeDeleteColumn()

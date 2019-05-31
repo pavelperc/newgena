@@ -109,21 +109,7 @@ fun <S, T> TableView<S>.validatedColumn(
         { row -> itemProp.call(row) } // just an optimization for itemGetter
 )
 
-fun <S> TableView<S>.validatedLongColumn(
-        itemProp: KMutableProperty1<S, Long>,
-        columnName: String = itemProp.name,
-        nonNegative: Boolean = false,
-        nextValidator: ColumnValidator<Long, S> = { _, _ -> null },
-        op: TextField.() -> Unit = {}
-) = validatedColumn(itemProp, QuiteLongConverter, columnName, true, true, { newString, rowItem ->
-    when {
-        !newString.isLong() -> error("Not a Long.")
-        nonNegative && newString.toLong() < 0L -> error("Should not be negative.")
-        else -> nextValidator(newString.toLong(), rowItem)
-    }
-}, op)
-
-fun <S, T> TableView<S>.validatedColumnProp(
+fun <S, T> TableView<S>.validatedColumn(
         itemProp: KProperty1<S, Property<T>>,
         converter: StringConverter<T>,
         columnName: String = itemProp.name,
@@ -141,13 +127,27 @@ fun <S, T> TableView<S>.validatedColumnProp(
         op
 )
 
-fun <S> TableView<S>.validatedLongColumnProp(
+fun <S> TableView<S>.validatedLongColumn(
+        itemProp: KMutableProperty1<S, Long>,
+        columnName: String = itemProp.name,
+        nonNegative: Boolean = false,
+        nextValidator: ColumnValidator<Long, S> = { _, _ -> null },
+        op: TextField.() -> Unit = {}
+) = validatedColumn(itemProp, QuiteLongConverter, columnName, true, true, { newString, rowItem ->
+    when {
+        !newString.isLong() -> error("Not a Long.")
+        nonNegative && newString.toLong() < 0L -> error("Should not be negative.")
+        else -> nextValidator(newString.toLong(), rowItem)
+    }
+}, op)
+
+fun <S> TableView<S>.validatedLongColumn(
         itemProp: KProperty1<S, Property<Long>>,
         columnName: String = itemProp.name,
         nonNegative: Boolean = false,
         nextValidator: ColumnValidator<Long, S> = { _, _ -> null },
         op: TextField.() -> Unit = {}
-) = validatedColumnProp(itemProp, QuiteLongConverter, columnName, true, true, { newString, rowItem ->
+) = validatedColumn(itemProp, QuiteLongConverter, columnName, true, true, { newString, rowItem ->
     when {
         !newString.isLong() -> error("Not a Long.")
         nonNegative && newString.toLong() < 0L -> error("Should not be negative.")

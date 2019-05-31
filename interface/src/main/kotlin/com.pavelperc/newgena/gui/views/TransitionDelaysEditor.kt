@@ -8,7 +8,6 @@ import javafx.event.EventTarget
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
-import javafx.scene.paint.Color
 import javafx.util.converter.DefaultStringConverter
 import tornadofx.*
 
@@ -173,13 +172,13 @@ class TransitionDelaysEditor(
             regainFocusAfterEdit()
             selectionModel.isCellSelectionEnabled = true
             columnResizePolicy = SmartResize.POLICY
-            
-            validatedColumnProp(TransitionDelayModel::transitionId, DefaultStringConverter(), allowDuplicates = false) {
+    
+            validatedColumn(TransitionDelayModel::transitionId, DefaultStringConverter(), allowDuplicates = false) {
                 actionedAutoCompletion(predefinedTransitionsToHints.keys.toList())
             }
             
             if (showLabel) {
-                validatedColumnProp(TransitionDelayModel::hintProp, DefaultStringConverter(), "Label",
+                validatedColumn(TransitionDelayModel::hintProp, DefaultStringConverter(), "Label",
                         validator = { newString, _ ->
                             if (newString !in predefinedHintsToTransitions)
                                 error("Unknown hint.")
@@ -188,10 +187,10 @@ class TransitionDelaysEditor(
                     actionedAutoCompletion(predefinedHintsToTransitions.keys.toList())
                 }
             }
-            
-            validatedLongColumnProp(TransitionDelayModel::delay, nonNegative = true)
-            
-            validatedLongColumnProp(TransitionDelayModel::deviation, nonNegative = true)
+    
+            validatedLongColumn(TransitionDelayModel::delay, nonNegative = true)
+    
+            validatedLongColumn(TransitionDelayModel::deviation, nonNegative = true)
             
             makeDeleteColumn()
         }

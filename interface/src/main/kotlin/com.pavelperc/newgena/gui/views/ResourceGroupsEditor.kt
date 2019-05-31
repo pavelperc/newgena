@@ -3,11 +3,14 @@ package com.pavelperc.newgena.gui.views
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.customfields.*
 import com.pavelperc.newgena.loaders.settings.JsonResources
+import impl.org.controlsfx.autocompletion.SuggestionProvider
+import javafx.event.EventHandler
 import javafx.event.EventTarget
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
 import javafx.util.converter.DefaultStringConverter
+import org.controlsfx.control.textfield.TextFields
 import tornadofx.*
 import tornadofx.controlsfx.bindAutoCompletion
 
@@ -26,10 +29,6 @@ class ResourceGroupsEditor(
             var groupName: String = ""
     
     ) {
-        val fullName: String
-            get() = "$groupName:$roleName:$resourceName"
-        
-        
         constructor(resource: JsonResources.Resource,
                     role: JsonResources.Role,
                     group: JsonResources.Group)
@@ -51,27 +50,72 @@ class ResourceGroupsEditor(
         fun toResource() = JsonResources.Resource(resourceName, minDelayBetweenActionsMillis, maxDelayBetweenActionsMillis)
     }
     
-    
-    inner class ResourceTupleModel(initial: ResourceTuple) : ItemViewModel<ResourceTuple>(initial) {
-        val resourceNameProp = bind(ResourceTuple::resourceName)
-        val minDelayBetweenActionsMillisProp = bind(ResourceTuple::minDelayBetweenActionsMillis)
-        val maxDelayBetweenActionsMillisProp = bind(ResourceTuple::maxDelayBetweenActionsMillis)
-        val roleNameProp = bind(ResourceTuple::roleName)
-        val groupNameProp = bind(ResourceTuple::groupName)
+    /** [inTable] means, that this model is used in table. */
+    inner class ResourceTupleModel(initial: ResourceTuple, inTable: Boolean = true) : ItemViewModel<ResourceTuple>(initial) {
+        val resourceName = bind(ResourceTuple::resourceName)
+        val minDelayBetweenActionsMillis = bind(ResourceTuple::minDelayBetweenActionsMillis)
+        val maxDelayBetweenActionsMillis = bind(ResourceTuple::maxDelayBetweenActionsMillis)
+        val roleName = bind(ResourceTuple::roleName)
+        val groupName = bind(ResourceTuple::groupName)
+        
+        init {
+            if (inTable) {
+                roleName.onChange { 
+                    updateRoleSuggestions()
+                }
+                groupName.onChange { 
+                    updateGroupSuggestions()
+                }
+                
+            }
+            
+            minDelayBetweenActionsMillis.onChange { minDelay ->
+                if (minDelay!! > maxDelayBetweenActionsMillis.value) {
+                    maxDelayBetweenActionsMillis.value = minDelay
+                }
+            }
+            maxDelayBetweenActionsMillis.onChange { maxDelay ->
+                if (maxDelay!! < minDelayBetweenActionsMillis.value) {
+                    minDelayBetweenActionsMillis.value = maxDelay
+                }
+            }
+        }
     }
     
     private val objects = initialObjects
             .flatMap { group ->
                 group.roles.flatMap { role ->
                     role.resources.map { resource ->
-                        ResourceTuple(resource, role, group)
+                        ResourceTupleModel(ResourceTuple(resource, role, group))
                     }
                 }
             }
             .observable()
     
-    fun getGroups() = objects.map { it.groupName }.toSet()
-    fun getRoles() = objects.map { it.roleName }.toSet()
+    val roleSuggestions = SuggestionProvider.create(mutableListOf<String>())
+    val groupSuggestions = SuggestionProvider.create(mutableListOf<String>())
+    
+    fun updateRoleSuggestions() {
+        roleSuggestions.clearSuggestions()
+        roleSuggestions.addPossibleSuggestions(objects.map { it.roleName.value }.toSet())
+    }
+    
+    fun updateGroupSuggestions() {
+        groupSuggestions.clearSuggestions()
+        groupSuggestions.addPossibleSuggestions(objects.map { it.groupName.value }.toSet())
+    }
+    
+    
+    
+    init {
+        updateRoleSuggestions()
+        updateGroupSuggestions()
+        objects.onChange {
+            updateRoleSuggestions()
+            updateGroupSuggestions()
+            // also update on role, group changes
+        }
+    }
     
     
     // --- HEADER ---
@@ -80,11 +124,11 @@ class ResourceGroupsEditor(
             addClass(Styles.addItemRoot)
             
             form {
-                val model = ResourceTupleModel(ResourceTuple())
+                val model = ResourceTupleModel(ResourceTuple(), inTable = false)
                 fun commit(): Boolean {
                     if (model.commit()) {
                         // create a copy
-                        objects.add(model.item.copy())
+                        objects.add(ResourceTupleModel(model.item.copy()))
                         return true
                     }
                     return false
@@ -92,47 +136,52 @@ class ResourceGroupsEditor(
                 
                 fieldset {
                     field("name") {
-                        textfield(model.resourceNameProp) {
+                        textfield(model.resourceName) {
                             notEmpty()
                             action { if (commit()) selectAll() }
                         }
                     }
                     field("role") {
-                        textfield(model.roleNameProp) {
-                            bindAutoCompletion { getRoles() }
-                            action { if (commit()) selectAll() }
-                            notEmpty()
-                        }
-                    }
-                    // if selected role, then autoselect the group
-                    model.resourceNameProp.onChange { newRole ->
-                        val suggestedGroup = objects.firstOrNull { it.roleName == newRole }?.roleName
-                        if (suggestedGroup != null) {
-                            model.groupNameProp.value = suggestedGroup
-                        }
-                    }
-                    
-                    field("group") {
-                        textfield(model.groupNameProp) {
-                            bindAutoCompletion { getGroups() }
+                        textfield(model.roleName) {
+                            // autocompletion
+                            TextFields.bindAutoCompletion(this, roleSuggestions).apply {
+                                onAutoCompleted = EventHandler {
+                                    // if selected role, then autoselect the group
+                                    val suggestedGroup = objects.asSequence()
+                                            .firstOrNull { it.roleName.value == model.roleName.value }
+                                            ?.groupName?.value
+                                    if (suggestedGroup != null) {
+                                        model.groupName.value = suggestedGroup
+                                    }
+                                }
+                            }
+                            
                             action { if (commit()) selectAll() }
                             notEmpty()
                         }
                     }
                     
-                    longSpinnerField(model.minDelayBetweenActionsMillisProp, 0..Long.MAX_VALUE) {
+                    field("group") {
+                        textfield(model.groupName) {
+                            TextFields.bindAutoCompletion(this, groupSuggestions)
+                            action { if (commit()) selectAll() }
+                            notEmpty()
+                        }
+                    }
+                    
+                    longSpinnerField(model.minDelayBetweenActionsMillis, 0..Long.MAX_VALUE) {
                         editor.action { commit() }
                         validator { newValue ->
-                            if (newValue ?: 0 > model.maxDelayBetweenActionsMillisProp.value)
+                            if (newValue ?: 0 > model.maxDelayBetweenActionsMillis.value)
                                 error("Min delay should not be greater than max delay.")
                             else null
                         }
                     }
                     
-                    longSpinnerField(model.maxDelayBetweenActionsMillisProp, 0..Long.MAX_VALUE) {
+                    longSpinnerField(model.maxDelayBetweenActionsMillis, 0..Long.MAX_VALUE) {
                         editor.action { commit() }
                         validator { newValue ->
-                            if (newValue ?: 0 < model.minDelayBetweenActionsMillisProp.value)
+                            if (newValue ?: 0 < model.minDelayBetweenActionsMillis.value)
                                 error("Max delay should not be less than min delay.")
                             else null
                         }
@@ -159,6 +208,7 @@ class ResourceGroupsEditor(
                     action {
                         // collect all rows in groups
                         objects
+                                .map { it.commit(force = true); it.item }
                                 .groupBy { it.groupName }
                                 .mapValues {
                                     // group roles
@@ -197,35 +247,24 @@ class ResourceGroupsEditor(
             columnResizePolicy = SmartResize.POLICY
             
             
-            validatedColumn(ResourceTuple::resourceName, DefaultStringConverter())
-            validatedColumn(ResourceTuple::roleName, DefaultStringConverter()) {
-                bindAutoCompletion { getRoles() }
+            validatedColumn(ResourceTupleModel::resourceName, DefaultStringConverter())
+            validatedColumn(ResourceTupleModel::roleName, DefaultStringConverter()) {
+                TextFields.bindAutoCompletion(this, roleSuggestions)
             }
-            validatedColumn(ResourceTuple::groupName, DefaultStringConverter()) {
-                bindAutoCompletion { getGroups() }
+            validatedColumn(ResourceTupleModel::groupName, DefaultStringConverter()) {
+                TextFields.bindAutoCompletion(this, groupSuggestions)
             }
             
             
-            validatedLongColumn(
-                    ResourceTuple::minDelayBetweenActionsMillis,
+            this.validatedLongColumn(
+                    ResourceTupleModel::minDelayBetweenActionsMillis,
                     columnName = "minDelay",
-                    nonNegative = true,
-                    nextValidator = { newValue, rowItem ->
-                        if (newValue > rowItem.maxDelayBetweenActionsMillis)
-                            error("Min delay should not be greater than max delay.")
-                        else null
-                    }
-            )
-            validatedLongColumn(
-                    ResourceTuple::maxDelayBetweenActionsMillis,
+                    nonNegative = true)
+            
+            this.validatedLongColumn(
+                    ResourceTupleModel::maxDelayBetweenActionsMillis,
                     columnName = "maxDelay",
-                    nonNegative = true,
-                    nextValidator = { newValue, rowItem ->
-                        if (newValue < rowItem.minDelayBetweenActionsMillis)
-                            error("Max delay should not be less than min delay.")
-                        else null
-                    }
-            )
+                    nonNegative = true)
             
             makeDeleteColumn()
         }
