@@ -1,5 +1,6 @@
 package com.pavelperc.newgena.gui.customfields
 
+import impl.org.controlsfx.autocompletion.SuggestionProvider
 import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.stage.Window
@@ -44,6 +45,15 @@ fun <T> TextField.actionedAutoCompletion(suggestions: List<T>) {
 /** Fires onAction after completion. */
 fun <T> TextField.actionedAutoCompletion(suggestionsProvider: () -> List<T>) {
     TextFields.bindAutoCompletion(this) { suggestionsProvider() }.apply {
+        onAutoCompleted = EventHandler {
+            this@actionedAutoCompletion.fireEvent(ActionEvent())
+        }
+    }
+}
+
+/** Fires onAction after completion. */
+fun <T> TextField.actionedAutoCompletion(suggestionsProvider: SuggestionProvider<T>) {
+    TextFields.bindAutoCompletion(this, suggestionsProvider).apply {
         onAutoCompleted = EventHandler {
             this@actionedAutoCompletion.fireEvent(ActionEvent())
         }

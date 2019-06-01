@@ -16,6 +16,8 @@ import tornadofx.*
 import com.pavelperc.newgena.gui.views.ResourceMappingEditor.ResourceType.*
 import com.pavelperc.newgena.loaders.settings.JsonResources
 import com.pavelperc.newgena.loaders.settings.JsonResources.JsonResourceMapping
+import impl.org.controlsfx.autocompletion.SuggestionProvider
+import org.controlsfx.control.textfield.TextFields
 
 class ResourceMappingEditor(
         initialObjects: Map<String, JsonResourceMapping>,
@@ -38,15 +40,10 @@ class ResourceMappingEditor(
             .filter { (_, v) -> v.isNotEmpty() }
             .map { (k, v) -> v to k } // inverse
             .toMap()
-
-//    private val predefinedResources = predefinedSimpleResources +
-//            predefinedResourceGroups.flatMap { group ->
-//                group.roles.flatMap { role ->
-//                    role.resources.map { resource ->
-//                        "${resource.name}:${role.name}:${group.name}"
-//                    }
-//                }
-//            }
+    
+    
+    private val predefinedAllResNames = predefinedComplexResNames + predefinedGroupNames +
+            predefinedRoleNames + predefinedSimpleResources
     
     enum class ResourceType {
         SIMPLE, COMPL, ROLE, GROUP;
@@ -238,7 +235,6 @@ class ResourceMappingEditor(
                             promptText = "Click enter to add."
                             action {
                                 if (shouldGuessType.value) {
-                                    
                                     // try to guess type!!!
                                     when (resName.value) {
                                         in predefinedSimpleResources -> resType.value = SIMPLE
@@ -253,19 +249,34 @@ class ResourceMappingEditor(
                                 }
                             }
                             
-                            actionedAutoCompletion {
-                                if (shouldGuessType.value) {
-                                    predefinedComplexResNames + predefinedGroupNames +
-                                            predefinedRoleNames + predefinedSimpleResources
-                                } else {
-                                    when (resType.value ?: SIMPLE) {
-                                        SIMPLE -> predefinedSimpleResources
-                                        COMPL -> predefinedComplexResNames
-                                        ROLE -> predefinedRoleNames
-                                        GROUP -> predefinedGroupNames
-                                    }
+                            // providing suggestions
+                            val resSuggestions = SuggestionProvider.create(mutableListOf<String>())
+                            fun updateResSuggestions() {
+                                resSuggestions.clearSuggestions()
+                                resSuggestions.addPossibleSuggestions(
+                                        if (shouldGuessType.value) {
+                                            predefinedAllResNames
+                                        } else {
+                                            when (resType.value ?: SIMPLE) {
+                                                SIMPLE -> predefinedSimpleResources
+                                                COMPL -> predefinedComplexResNames
+                                                ROLE -> predefinedRoleNames
+                                                GROUP -> predefinedGroupNames
+                                            }
+                                        }
+                                )
+                            }
+                            shouldGuessType.onChange {
+                                updateResSuggestions()
+                            }
+                            resType.onChange {
+                                if (!shouldGuessType.value) {
+                                    updateResSuggestions()
                                 }
                             }
+                            // first update
+                            updateResSuggestions()
+                            actionedAutoCompletion(resSuggestions)
                         }
                     }
                 }
@@ -418,28 +429,27 @@ class ResourceMappingEditor(
                         cancelEdit()
                     }
                 }
-                
-                // res name
-                val valueProp = SimpleStringProperty(item.name)
-                // res type
-                val typeProp = SimpleObjectProperty(item.type)
-                
                 graphic = hbox {
                     alignment = Pos.CENTER_LEFT
+                    
+                    // res name
+                    val valueProp = SimpleStringProperty(item.name)
+                    // res type
+                    val typeProp = SimpleObjectProperty(item.type)
+                    
                     
                     upDownPanel(items, item) {
                         removeWhen(editingProperty())
                     }
                     
-                    setOnEditCancel {
-                        
-                        // TODO FIX EDIT CANCEL!!!!!!
-//                        println("Cancelled: valueProp=${valueProp.value}, item=$item")
-                        
-                        valueProp.value = item.name
-                        typeProp.value = item.type
-                        
+                    editingProperty().onChange { isEditing ->
+                        // on cancel or after commit
+                        if (!isEditing) {
+                            valueProp.value = item.name
+                            typeProp.value = item.type
+                        }
                     }
+                    
                     
                     // look:
                     hbox {
@@ -473,20 +483,31 @@ class ResourceMappingEditor(
 //                            alignment = Pos.CENTER
                             useMaxWidth = true
                             
-                            action { commitEdit(UIResource(valueProp.value, typeProp.value)) }
+                            action {
+                                commitEdit(UIResource(valueProp.value, typeProp.value))
+                            }
                             promptText = "Edit value."
                             
-                            // TODO edit resource mapping autocompl.
-//                            actionedAutoCompletion(predefinedResources)
-                            actionedAutoCompletion {
-                                when (typeProp.value ?: SIMPLE) {
-                                    SIMPLE -> predefinedSimpleResources
-                                    COMPL -> predefinedComplexResNames
-                                    ROLE -> predefinedRoleNames
-                                    GROUP -> predefinedGroupNames
-                                }
-                            }
                             
+                            // providing suggestions
+                            val resSuggestions = SuggestionProvider.create(mutableListOf<String>())
+                            fun updateResSuggestions() {
+                                resSuggestions.clearSuggestions()
+                                resSuggestions.addPossibleSuggestions(
+                                        when (typeProp.value ?: SIMPLE) {
+                                            SIMPLE -> predefinedSimpleResources
+                                            COMPL -> predefinedComplexResNames
+                                            ROLE -> predefinedRoleNames
+                                            GROUP -> predefinedGroupNames
+                                        }
+                                )
+                            }
+                            typeProp.onChange {
+                                updateResSuggestions()
+                            }
+                            // first update
+                            updateResSuggestions()
+                            actionedAutoCompletion(resSuggestions)
                             whenVisible { requestFocus() }
                         }
                         combobox(typeProp, ResourceType.values().toList())

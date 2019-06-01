@@ -254,7 +254,7 @@ class ArrayEditor(
         }
     }
     
-    fun EventTarget.valueHintEditor(cell: ListCell<String>, hintProp: StringProperty) {
+    private fun EventTarget.valueHintEditor(cell: ListCell<String>, hintProp: StringProperty) {
         hbox {
             alignment = Pos.CENTER
             hgrow = Priority.ALWAYS
