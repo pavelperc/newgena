@@ -38,7 +38,8 @@ fun EventTarget.noisePanel(controller: SettingsUIController) {
         arrayField(
                 noise.internalTransitionIds,
                 predefinedValuesToHints = { controller.transitionIdsWithHints },
-                hintName = "labels"
+                valuesName = "id",
+                hintName = "label"
         )
         
         

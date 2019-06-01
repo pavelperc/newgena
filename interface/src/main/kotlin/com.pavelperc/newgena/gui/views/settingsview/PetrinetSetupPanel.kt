@@ -75,13 +75,15 @@ fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsVie
                 petrinetSetup.inhibitorArcIds,
                 listValidator = validateEdges,
                 predefinedValuesToHints = { controller.inputEdgeIdsWithHints },
-                hintName = "hint"
+                hintName = "hint",
+                valuesName = "id"
         )
         arrayField(
                 petrinetSetup.resetArcIds,
                 listValidator = validateEdges,
                 predefinedValuesToHints = { controller.inputEdgeIdsWithHints },
-                hintName = "hint"
+                hintName = "hint",
+                valuesName = "id"
         )
         // TODO restore inhibitor arcs!!
     }
@@ -108,13 +110,15 @@ fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsVie
                 marking.initialPlaceIds,
                 mapValidator = validatePlaces,
                 predefinedValuesToHints = { controller.placeIdsWithHints },
-                hintName = "label"
+                hintName = "label",
+                valuesName = "id"
         )
         intMapField(
                 marking.finalPlaceIds,
                 mapValidator = validatePlaces,
                 predefinedValuesToHints = { controller.placeIdsWithHints },
-                hintName = "label"
+                hintName = "label",
+                valuesName = "id"
         )
     }
 }

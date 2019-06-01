@@ -52,7 +52,8 @@ fun EventTarget.prioritiesPanel(controller: SettingsUIController) {
                 staticPriorities.transitionIdsToPriorities,
                 predefinedValuesToHints = { controller.transitionIdsWithHints },
                 hintName = "label",
-                fillDefaultButton = true
+                fillDefaultButton = true,
+                valuesName = "ids"
         ) { map ->
             validatePriorities(map)
         }

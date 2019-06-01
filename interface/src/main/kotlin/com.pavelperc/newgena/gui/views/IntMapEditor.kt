@@ -52,10 +52,13 @@ class IntMapEditor(
         /** Name of the hints for predefined values. */
         private val hintName: String = "hint",
         private val fillDefaultButton: Boolean = false,
+        /** Name of the values. First letter is uppercase. */
+        private val valuesName: String = "alues",
         val onSuccess: (Map<String, Int>) -> Unit = {}
 ) : Fragment(title) {
     
     private val hintNameUpper = hintName.first().toUpperCase() + hintName.substring(1)
+    private val valuesNameUpper = valuesName.first().toUpperCase() + valuesName.substring(1)
     
     private val predefinedHintsToValues = predefinedValuesToHints
             .filter { (_, v) -> v != null && v.isNotEmpty() }
@@ -244,13 +247,13 @@ class IntMapEditor(
                 alignment = Pos.CENTER_LEFT
                 addClass(Styles.sortingPanel)
                 label("Sort: ")
-                button("Values↓") {
+                button("${valuesNameUpper}↓") {
                     alignment = Pos.BOTTOM_CENTER
                     action {
                         objects.sortBy { it.string }
                     }
                 }
-                button("Values↑") {
+                button("${valuesNameUpper}↑") {
                     action {
                         objects.sortByDescending { it.string }
                     }
@@ -267,12 +270,12 @@ class IntMapEditor(
                         objects.sortByDescending { predefinedValuesToHints[it.string] ?: "" }
                     }
                 }
-                button("Numbers↓") {
+                button("Number↓") {
                     action {
                         objects.sortBy { it.int }
                     }
                 }
-                button("Numbers↑") {
+                button("Number↑") {
                     action {
                         objects.sortByDescending { it.int }
                     }

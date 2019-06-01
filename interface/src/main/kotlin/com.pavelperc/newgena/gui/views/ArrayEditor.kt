@@ -24,11 +24,12 @@ class ArrayEditor(
         private val predefinedValuesToHints: Map<String, String?> = mutableMapOf(),
         /** Name of the hints for predefined values. */
         private val hintName: String = "hint",
+        private val valuesName: String = "Values",
         val onSuccess: (List<String>) -> Unit = {}
 ) : Fragment(title) {
     
     private val hintNameUpper = hintName.first().toUpperCase() + hintName.substring(1)
-    
+    private val valuesNameUpper = valuesName.first().toUpperCase() + valuesName.substring(1)
     
     private val predefinedHintsToValues = predefinedValuesToHints
             .filter { (_, v) -> v != null && v.isNotEmpty() }
@@ -135,13 +136,12 @@ class ArrayEditor(
                 alignment = Pos.CENTER_LEFT
                 addClass(com.pavelperc.newgena.gui.app.Styles.sortingPanel)
                 label("Sort: ")
-                button("Values↓") {
-                    //                    alignment = Pos.BOTTOM_CENTER
+                button("$valuesNameUpper↓") {
                     action {
                         objects.sortBy { it }
                     }
                 }
-                button("Values↑") {
+                button("$valuesNameUpper↑") {
                     action {
                         objects.sortByDescending { it }
                     }

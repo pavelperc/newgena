@@ -13,7 +13,8 @@ fun EventTarget.arrayField(
         listProp: Property<MutableList<String>>,
         predefinedValuesToHints: () -> Map<String, String?> = { emptyMap() },
         hintName: String = "hint",
-        listValidator: Validator<List<String>> = { null }
+        listValidator: Validator<List<String>> = { null },
+        valuesName: String = "values"
 ) {
     field(listProp.name) {
         val viewModel = listProp.viewModel
@@ -63,7 +64,8 @@ fun EventTarget.arrayField(
                         listProp.value.toList(),
                         listProp.name + " editor",
                         predefinedValuesToHints(),
-                        hintName
+                        hintName,
+                        valuesName
                 ) { changedObjects ->
                     // set to textProp, textProp sets to list
                     textProp.value = changedObjects.joinToString("; ")
@@ -84,6 +86,7 @@ fun EventTarget.intMapField(
         predefinedValuesToHints: () -> Map<String, String?> = { emptyMap() },
         hintName: String = "hint",
         fillDefaultButton: Boolean = false,
+        valuesName: String = "value",
         mapValidator: ValidationContext.(Map<String, Int>) -> ValidationMessage? = { null }
 ) {
     field(mapProp.name) {
@@ -146,7 +149,8 @@ fun EventTarget.intMapField(
                         intValueRange,
                         predefinedValuesToHints(),
                         hintName,
-                        fillDefaultButton
+                        fillDefaultButton,
+                        valuesName
                 ) { changedObjects ->
                     // set to textProp, textProp sets to mapProp
                     textProp.value = changedObjects.makeString()

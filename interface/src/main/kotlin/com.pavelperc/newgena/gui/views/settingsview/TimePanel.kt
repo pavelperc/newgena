@@ -12,6 +12,9 @@ import javafx.util.StringConverter
 import tornadofx.*
 import java.time.Instant
 import java.time.format.DateTimeParseException
+import java.time.temporal.ChronoUnit
+import java.time.temporal.Temporal
+import java.time.temporal.TemporalUnit
 
 
 fun EventTarget.timePanel(controller: SettingsUIController) {
@@ -55,6 +58,11 @@ fun EventTarget.timePanel(controller: SettingsUIController) {
             button("Now") {
                 action {
                     time.generationStart.value = Instant.now()
+                }
+            }
+            button("Today") {
+                action {
+                    time.generationStart.value = Instant.now().truncatedTo(ChronoUnit.DAYS)
                 }
             }
         }

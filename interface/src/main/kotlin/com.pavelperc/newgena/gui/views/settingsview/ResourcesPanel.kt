@@ -21,7 +21,7 @@ fun EventTarget.resourcesPanel(controller: SettingsUIController) {
         checkboxField(time.isUsingComplexResourceSettings)
         checkboxField(time.isUsingSynchronizationOnResources)
         
-        arrayField(time.simplifiedResources)
+        arrayField(time.simplifiedResources, valuesName = "name")
         
         field("resourceGroups") {
             readOnlyTextField(time.resourceGroups, { newList ->
