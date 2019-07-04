@@ -14,7 +14,6 @@ import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl
 import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.utils.TimeDrivenLoggingSingleton
 import java.time.*
-import java.util.*
 
 class PetrinetPriorityTimeDrivenTest : GraphvizDrawer(false) {
     
@@ -132,7 +131,7 @@ class PetrinetPriorityTimeDrivenTest : GraphvizDrawer(false) {
         
         description.generationStart = ZonedDateTime.of(2000, 12, 1, 0, 0, 0, 0, ZoneOffset.UTC).toInstant()
 //                set(2000, Calendar.DECEMBER, 1, 0, 0)
-        val startDate: Instant = description.generationStart
+        val startInstant: Instant = description.generationStart
         
         
         // launching generator
@@ -153,7 +152,7 @@ class PetrinetPriorityTimeDrivenTest : GraphvizDrawer(false) {
                 val names = trace.map { event -> event.name }
                 val timestamps = trace.map { event -> event.time }
                 // diffs in seconds
-                val diffs = timestamps.map { date -> date.time - startDate.toEpochMilli() }.map { it / 1000 }
+                val diffs = timestamps.map { time -> time - startInstant.toEpochMilli() }.map { it / 1000 }
                 
                 println(names)
 //                println(timestamps)

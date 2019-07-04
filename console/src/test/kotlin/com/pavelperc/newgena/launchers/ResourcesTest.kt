@@ -1,28 +1,15 @@
 package com.pavelperc.newgena.launchers
 
-import com.pavelperc.newgena.loaders.settings.JsonResources
 import com.pavelperc.newgena.loaders.settings.JsonSettings
 import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
-import com.pavelperc.newgena.loaders.settings.JsonTimeDescription
-import com.pavelperc.newgena.models.makeArcPnmlIdsFromEnds
-import com.pavelperc.newgena.models.makePnmlIdsFromLabels
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.complexResourceMapping
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.delayNoDeviation
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.fastGroups
 import com.pavelperc.newgena.testutils.petrinetUtils.simplePetrinetBuilder
-import com.pavelperc.newgena.utils.common.emptyMarking
-import com.pavelperc.newgena.utils.xlogutils.eventNames
-import com.pavelperc.newgena.utils.xlogutils.printEvents
-import com.pavelperc.newgena.utils.xlogutils.toList
+import com.pavelperc.newgena.utils.xlogutils.drawEvents
 import org.junit.Test
 import org.processmining.log.models.EventLogArray
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
-import org.processmining.models.graphbased.directed.petrinet.elements.Place
-import org.processmining.models.graphbased.directed.petrinet.elements.Transition
-import org.processmining.models.graphbased.directed.petrinet.impl.ResetInhibitorNetImpl
-import org.processmining.models.semantics.petrinet.Marking
-import org.processmining.models.time_driven_behavior.ResourceMapping
-import java.lang.IllegalArgumentException
 import java.time.Instant
 
 class ResourcesTest {
@@ -65,10 +52,13 @@ class ResourcesTest {
         // (p1) ---------------> t1   ----  resource
         // (p0)-> delay -> (p2) -> t2    --/
         
+        
+        val startTime = Instant.parse("2000-01-01T00:00:00Z")
+        
         val settings = JsonSettings()
         settings.isUsingTime = true
         settings.timeDescription.apply {
-            generationStart = Instant.parse("2000-01-01T00:00:00Z")
+            generationStart = startTime
             
             transitionIdsToDelays = delayNoDeviation(
                     "t1" to 5L,
@@ -76,13 +66,21 @@ class ResourcesTest {
                     "delay" to 1L
             )
             
-            isUsingLifecycle = false
+            isUsingLifecycle = true
+            isSeparatingStartAndFinish = false
             
-            resourceGroups = fastGroups("group:role:res")
+            isUsingSynchronizationOnResources = true
+            
+            isUsingResources = true
+            resourceGroups = fastGroups("::res")
             
             transitionIdsToResources = mutableMapOf(
-                    "t1" to complexResourceMapping("res")
+                    "t1" to complexResourceMapping("res"),
+                    "t2" to complexResourceMapping("res")
+                    
             )
+            minimumIntervalBetweenActions = 0
+            maximumIntervalBetweenActions = 0
         }
         
         settings.petrinetSetup.marking.apply {
@@ -93,8 +91,10 @@ class ResourcesTest {
         settings.numberOfTraces = 10
         
         val logs = generate(petrinet, settings)
-
-        println(logs.getLog(0).joinToString("\n---\n") { it.printEvents() })
+        
+        println(logs.getLog(0).joinToString("\n---\n") { trace ->
+            trace.drawEvents(startTime.toEpochMilli(), timeGranularity = 1000, drawLifeCycle = true, drawRes = true)
+        })
         
         
     }

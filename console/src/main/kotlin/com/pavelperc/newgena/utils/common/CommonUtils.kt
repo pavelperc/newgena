@@ -3,9 +3,7 @@ package com.pavelperc.newgena.utils.common
 import org.processmining.models.graphbased.directed.petrinet.elements.Place
 import org.processmining.models.semantics.petrinet.Marking
 import java.io.File
-import java.lang.StringBuilder
 import kotlin.system.measureNanoTime
-import kotlin.system.measureTimeMillis
 
 
 fun markingOf(vararg places: Place) = Marking(places.asList())
@@ -37,3 +35,27 @@ operator fun StringBuilder.plusAssign(str: String) {
 
 fun <T> Collection<T>.randomOrNull() = if (isEmpty()) null else random()
 
+
+fun drawTable(
+        heads: List<String>,
+        rows : List<List<String>>,
+        alignRight: Boolean = false,
+        spacing: Int = 2
+): String {
+    val builders = List(rows.size + 1) { StringBuilder() }
+    
+    heads.withIndex().forEach { (i, head) ->
+        val column = listOf(head) + rows.map { row -> row.getOrNull(i) ?: "" }
+        
+        val maxSize = column.map { it.length }.max() ?: 0
+        
+        column.withIndex().forEach { (j, cell) ->
+            if (alignRight) {
+                builders[j].append(cell.padStart(maxSize + spacing))
+            } else {
+                builders[j].append(cell.padEnd(maxSize + spacing))
+            }
+        }
+    }
+    return builders.joinToString("\n") { it.toString() }
+}

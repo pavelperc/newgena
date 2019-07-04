@@ -1,7 +1,7 @@
 package com.pavelperc.newgena.utils.xlogutils
 
+import com.pavelperc.newgena.utils.common.drawTable
 import org.deckfour.xes.extension.std.XConceptExtension
-import org.deckfour.xes.extension.std.XTimeExtension
 import org.deckfour.xes.factory.XFactoryBufferedImpl
 import org.deckfour.xes.model.XEvent
 import org.deckfour.xes.model.XLog
@@ -9,8 +9,7 @@ import org.deckfour.xes.model.XTrace
 import org.deckfour.xes.out.XesXmlSerializer
 import org.processmining.log.models.EventLogArray
 import java.io.File
-import java.lang.IllegalStateException
-import java.util.*
+import java.time.Instant
 
 
 private val factory = XFactoryBufferedImpl()
@@ -22,9 +21,8 @@ var XEvent.name
         attributes["concept:name"] = name
     }
 
-val XEvent.time: Date
-    get() = XTimeExtension.instance().extractTimestamp(this)
-            ?: throw IllegalStateException("No timestamp was found in event $name")
+val XEvent.time: Long
+    get() = Instant.parse(attributes["time:timestamp"].toString()).toEpochMilli()
 
 
 val XEvent.resource
@@ -42,10 +40,48 @@ val XEvent.timestampStr
 val XEvent.lifecycle
     get() = attributes["lifecycle:transition"].toString()
 
-fun XEvent.printInRow() = "$name\t$group:$role:$resource\t$lifecycle\t$timestampStr"
 
-fun XTrace.printEvents() = "name\tgroup:role:resource\tlifecycle\ttimestampStr\n" +
-        joinToString("\n") { event -> event.printInRow() }
+fun XTrace.drawEvents(
+        startTime: Long = 0L,
+        timeGranularity: Long = 1,
+        drawLifeCycle: Boolean = true,
+        drawRes: Boolean = true,
+        drawTimestamp: Boolean = true,
+        drawFullTimestamp: Boolean = false
+        
+): String {
+    val heads = mutableListOf("name")
+    if (drawRes) {
+        heads += "group:role:resource"
+    }
+    if (drawLifeCycle) {
+        heads += "lifecycle"
+    }
+    if (drawTimestamp) {
+        heads += "timestamp/$timeGranularity"
+    }
+    if (drawFullTimestamp) {
+        heads += "fullTimestamp"
+    }
+    val rows = map { event -> event.run { 
+        val cells = mutableListOf(name)
+        if (drawRes) {
+            cells += "$group:$role:$resource"
+        }
+        if (drawLifeCycle) {
+            cells += lifecycle
+        }
+        if (drawTimestamp) {
+            cells += ((time - startTime) / timeGranularity).toString()
+        }
+        if (drawFullTimestamp) {
+            cells += timestampStr
+        }
+        cells
+    } }
+    
+    return drawTable(heads, rows)
+}
 
 var XTrace.name
     get() = attributes["concept:name"].toString()

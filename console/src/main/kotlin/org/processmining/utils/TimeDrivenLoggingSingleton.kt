@@ -73,6 +73,9 @@ class TimeDrivenLoggingSingleton protected constructor(
             timestamp = distortTimestamp(timestamp)
         }
         timestamp = granulateTimestamp(timestamp)
+        
+        // bad zone
+//        val timeAttribute = LoggingSingleton.factory.createAttributeTimestamp("time:timestamp", timestamp, timeExtension)
         val timeAttribute = LoggingSingleton.factory
                 .createAttributeLiteral("time:timestamp", Instant.ofEpochMilli(timestamp).toString(), timeExtension)
         logEvent.attributes["time:timestamp"] = timeAttribute
