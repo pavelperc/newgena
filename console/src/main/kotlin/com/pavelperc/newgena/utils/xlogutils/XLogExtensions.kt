@@ -22,11 +22,30 @@ var XEvent.name
         attributes["concept:name"] = name
     }
 
-
 val XEvent.time: Date
     get() = XTimeExtension.instance().extractTimestamp(this)
             ?: throw IllegalStateException("No timestamp was found in event $name")
 
+
+val XEvent.resource
+    get() = attributes["org:resource"].toString()
+
+val XEvent.role
+    get() = attributes["org:role"].toString()
+
+val XEvent.group
+    get() = attributes["org:group"].toString()
+
+val XEvent.timestampStr
+    get() = attributes["time:timestamp"].toString()
+
+val XEvent.lifecycle
+    get() = attributes["lifecycle:transition"].toString()
+
+fun XEvent.printInRow() = "$name\t$group:$role:$resource\t$lifecycle\t$timestampStr"
+
+fun XTrace.printEvents() = "name\tgroup:role:resource\tlifecycle\ttimestampStr\n" +
+        joinToString("\n") { event -> event.printInRow() }
 
 var XTrace.name
     get() = attributes["concept:name"].toString()
@@ -37,6 +56,7 @@ var XTrace.name
 
 
 fun XTrace.eventNames() = map { event -> event.name }
+
 
 fun XLog.eventNames() = map { trace -> trace.eventNames() }
 

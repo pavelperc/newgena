@@ -2,6 +2,7 @@ package com.pavelperc.newgena.loaders.settings
 
 import com.pavelperc.newgena.launchers.PetrinetGenerators
 import com.pavelperc.newgena.loaders.pnml.PnmlLoader
+import com.pavelperc.newgena.models.deleteAllInhibitorResetArcs
 import com.pavelperc.newgena.models.markInhResetArcsByIds
 import com.pavelperc.newgena.utils.common.emptyMarking
 import org.processmining.models.GenerationDescription
@@ -47,7 +48,10 @@ class JsonSettingsController(var jsonSettings: JsonSettings) {
     /** Changes the [petrinet]. */
     private fun updateInhResetArcsFromSettings() {
         with(jsonSettings.petrinetSetup) {
-            petrinet.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
+            if (inhibitorArcIds.size + resetArcIds.size > 0) {
+                petrinet.deleteAllInhibitorResetArcs()
+                petrinet.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
+            }
         }
     }
     

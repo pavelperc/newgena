@@ -179,6 +179,7 @@ class JsonTimeDrivenNoise {
 @Serializable
 class JsonTimeDescription {
     @Serializable
+    /** Contains [delay] and [deviation] in seconds. */
     data class DelayWithDeviation(
             /** In seconds. */
             var delay: Long,
@@ -243,7 +244,7 @@ object JsonResources {
     @Serializable
     data class Group(
             var name: String,
-            var roles: MutableList<Role>
+            var roles: MutableList<Role> = mutableListOf()
     ) {
         override fun toString() = reflectionToString(this)
     }
@@ -251,7 +252,7 @@ object JsonResources {
     @Serializable
     data class Role(
             var name: String,
-            var resources: MutableList<Resource>
+            var resources: MutableList<Resource> = mutableListOf()
     ) {
         override fun toString() = reflectionToString(this)
     }
