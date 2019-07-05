@@ -1,18 +1,14 @@
 package org.processmining.utils.helpers
 
+import com.pavelperc.newgena.utils.common.firstValue
+import com.pavelperc.newgena.utils.common.randomOrNull
 import org.processmining.models.Movable
-import org.processmining.models.abstract_net_representation.Place
-import org.processmining.models.abstract_net_representation.Token
-import org.processmining.models.abstract_net_representation.Transition
-import org.processmining.models.graphbased.NodeID
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
 import org.processmining.models.semantics.petrinet.Marking
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription
-import org.processmining.models.simple_behavior.SimpleTransition
 import org.processmining.models.time_driven_behavior.TimeDrivenPlace
 import org.processmining.models.time_driven_behavior.TimeDrivenToken
 import org.processmining.models.time_driven_behavior.TimeDrivenTransition
-import java.time.ZoneOffset
 
 import java.util.*
 import kotlin.random.Random
@@ -65,74 +61,74 @@ class TimeDrivenGenerationHelper(
     }
     
     override fun chooseNextMovable(): Movable? {
+        // transitions, grouped and sorted by earliest token
         val enabledTransitions = allModelMovables
                 .filter { transition -> transition.checkAvailability() }
                 .groupByTo(TreeMap()) { transition -> transition.findMinimalTokenTime() }
         
+        // extra tokens, grouped and sorted by earliest time
+        val tokensMap = extraMovables.groupByTo(TreeMap()) { token -> token.timestamp }
         
-        val movable: Movable?
-        if (enabledTransitions.isEmpty() && extraMovables.isEmpty()) {
-            return null
-        } else {
-            if (enabledTransitions.isEmpty()) {
-                val tokensMap = sortExtraMovables()
-                val entryWithSmallestTimestamp = tokensMap.firstEntry()
-                val tokens = entryWithSmallestTimestamp.value
-                movable = pickRandomMovable(tokens)
-            } else {
-                if (extraMovables.isEmpty()) {
-                    val entry = enabledTransitions.firstEntry()
-                    val movables = entry.value
-                    movable = pickRandomMovable(movables)
-                } else {
-                    val extraMovablesMap = sortExtraMovables()
-                    
-                    val (earliestTransitionTime, tokensWithSmallestTimestamp) = enabledTransitions.firstEntry()!!
-                    val (earliestExtraMovableTime, earliestExtraMovables) = extraMovablesMap.firstEntry()!!
-                    
-                    if (earliestTransitionTime < earliestExtraMovableTime) {
-                        val entry = enabledTransitions.firstEntry()
-                        val movables = entry.value
-                        movable = pickRandomMovable(movables)
-                    } else {
-                        if (earliestTransitionTime > earliestExtraMovableTime) {
-                            movable = pickRandomMovable(earliestExtraMovables)
+        
+        return when {
+            enabledTransitions.isEmpty() && tokensMap.isEmpty() ->
+                null
+            // only tokens left
+            enabledTransitions.isEmpty() -> {
+                // random token with the smallest timestamp
+                val earliestTokens = tokensMap.firstValue()!!
+                earliestTokens.randomOrNull()
+            }
+            // only transitions left
+            tokensMap.isEmpty() -> {
+                // random transition with the earliest token
+                val earliestTransitions = enabledTransitions.firstValue()!!
+                earliestTransitions.randomOrNull()
+            }
+            // we have tokens and transitions.
+            else -> {
+                val (earliestTransitionTime, earliestTransitions) = enabledTransitions.firstEntry()!!
+                val (earliestTokenTime, earliestTokens) = tokensMap.firstEntry()!!
+                
+                when {
+                    earliestTransitionTime < earliestTokenTime ->
+                        earliestTransitions.randomOrNull()
+                    earliestTransitionTime > earliestTokenTime ->
+                        earliestTokens.randomOrNull()
+                    // first token or transition are equal
+                    else -> {
+                        // TODO: is a transition enabled, when it waits a resource?
+                        // if so, then why we don't move all tokens firstly to free a resources?
+//                        val useTransition = Random.nextBoolean()
+                        val useTransition = false
+                        if (useTransition) {
+                            earliestTransitions.randomOrNull() as Movable?
                         } else {
-                            val useTransition = Random.nextBoolean()
-                            if (useTransition) {
-                                val entry = enabledTransitions.firstEntry()
-                                val movables = entry.value
-                                movable = pickRandomMovable(movables)
-                            } else {
-                                movable = pickRandomMovable(tokensWithSmallestTimestamp)
-                            }
+                            earliestTokens.randomOrNull() as Movable?
                         }
                     }
-                    
                 }
+                
             }
         }
-        return movable
     }
-    
-    private fun sortExtraMovables() = extraMovables.groupByTo(TreeMap()) { token -> token.timestamp }
     
     companion object {
         
         fun createInstance(petrinet: PetrinetGraph, initialMarking: Marking, finalMarking: Marking, description: TimeDrivenGenerationDescription): TimeDrivenGenerationHelper {
             val idsToLoggablePlaces = petrinet.places.map { it.id to TimeDrivenPlace(it, description) }.toMap()
             val allPlaces = idsToLoggablePlaces.values
-    
+            
             val initialPlaces = initialMarking.mapNotNull { idsToLoggablePlaces[it.id] }
             val finalPlaces = finalMarking.mapNotNull { idsToLoggablePlaces[it.id] }
-    
-    
+            
+            
             val allTransitions = petrinet.transitions.map { transition ->
-        
+                
                 val (outPlaces, inPlaces, inResetArcPlaces, inInhibitorArcPlaces)
                         = arcsToLoggablePlaces(idsToLoggablePlaces, transition, petrinet)
-        
-        
+                
+                
                 TimeDrivenTransition(transition, description, inPlaces, outPlaces, inInhibitorArcPlaces, inResetArcPlaces)
             }
             

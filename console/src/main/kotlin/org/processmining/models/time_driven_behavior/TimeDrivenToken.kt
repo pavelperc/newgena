@@ -16,7 +16,6 @@ open class TimeDrivenToken @JvmOverloads constructor(
 ) : TokenWithTime(timestamp) {
     
     init {
-        
         if (timestamp < 0) {
             throw IllegalArgumentException("Timestamp cannot be negative")
         }
@@ -26,6 +25,8 @@ open class TimeDrivenToken @JvmOverloads constructor(
         // TODO это очень грустно(
         val transition = node as? TimeDrivenTransition
                 ?: throw IllegalStateException() //TODO а так вообще должно быть?
+        // yes, it can be null in extending class - NoiseToken, which works with noise activity.
+        
         return transition.moveInternalToken(trace, this)
     }
     

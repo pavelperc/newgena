@@ -1,6 +1,7 @@
 package org.processmining.utils.helpers
 
 import com.pavelperc.newgena.models.pnmlId
+import com.pavelperc.newgena.utils.common.randomOrNull
 import org.processmining.models.*
 import org.processmining.models.abstract_net_representation.Place
 import org.processmining.models.abstract_net_representation.Token
@@ -38,7 +39,7 @@ abstract class PetriNetGenerationHelper<P : Place<TK>, TR : Transition<TK, P>, T
     
     
     override fun chooseNextMovable() =
-            pickRandomMovable(findEnabledTransitions() + extraMovables)
+            (findEnabledTransitions() + extraMovables).randomOrNull()
     
     protected fun findEnabledTransitions() = allModelMovables.filter { it.checkAvailability() }
     

@@ -9,7 +9,7 @@ fun JsonTimeDescription.delayNoDeviation(vararg delays: Pair<String, Long>) =
         delays.toMap().mapValues { JsonTimeDescription.DelayWithDeviation(it.value, 0L) }.toMutableMap()
 
 
-/** Converts groups, roles, res separated by colon to complex resources: "g1:r1:res1". */
+/** Converts groups, roles, res separated by colon to complex resources. Example: "g1:r1:res1". */
 fun JsonTimeDescription.fastGroups(vararg fullRes: String): MutableList<JsonResources.Group> {
     val groups = mutableListOf<JsonResources.Group>()
     
@@ -25,7 +25,6 @@ fun JsonTimeDescription.fastGroups(vararg fullRes: String): MutableList<JsonReso
         role.resources.add(JsonResources.Resource(resName, 0, 0))
     }
     return groups
-    
 }
 
 fun JsonTimeDescription.complexResourceMapping(vararg res: String) =

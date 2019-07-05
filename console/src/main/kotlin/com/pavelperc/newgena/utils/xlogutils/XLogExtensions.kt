@@ -26,13 +26,13 @@ val XEvent.time: Long
 
 
 val XEvent.resource
-    get() = attributes["org:resource"].toString()
+    get() = attributes["org:resource"]?.toString()
 
 val XEvent.role
-    get() = attributes["org:role"].toString()
+    get() = attributes["org:role"]?.toString()
 
 val XEvent.group
-    get() = attributes["org:group"].toString()
+    get() = attributes["org:group"]?.toString()
 
 val XEvent.timestampStr
     get() = attributes["time:timestamp"].toString()
@@ -95,6 +95,10 @@ fun XTrace.eventNames() = map { event -> event.name }
 
 
 fun XLog.eventNames() = map { trace -> trace.eventNames() }
+
+val EventLogArray.allTraces: List<XTrace>
+    get() = this.toList().flatten()
+
 
 fun EventLogArray.toSeq(): Sequence<XLog> = sequence {
     repeat(size) { i ->

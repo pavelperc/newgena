@@ -6,15 +6,17 @@ import com.pavelperc.newgena.testutils.jsonSettingsHelpers.complexResourceMappin
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.delayNoDeviation
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.fastGroups
 import com.pavelperc.newgena.testutils.petrinetUtils.simplePetrinetBuilder
-import com.pavelperc.newgena.utils.xlogutils.drawEvents
+import com.pavelperc.newgena.utils.xlogutils.*
+import org.amshove.kluent.shouldBeIn
+import org.amshove.kluent.shouldContainSame
+import org.amshove.kluent.shouldEqual
+import org.deckfour.xes.model.XTrace
 import org.junit.Test
 import org.processmining.log.models.EventLogArray
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import java.time.Instant
 
 class ResourcesTest {
-    
-    
     /** Test version of launch from petrinet, settings and marking */
     fun generate(
             petrinet: ResetInhibitorNet,
@@ -62,12 +64,12 @@ class ResourcesTest {
             
             transitionIdsToDelays = delayNoDeviation(
                     "t1" to 5L,
-                    "t2" to 5L,
+                    "t2" to 4L,
                     "delay" to 1L
             )
             
             isUsingLifecycle = true
-            isSeparatingStartAndFinish = false
+            isSeparatingStartAndFinish = true
             
             isUsingSynchronizationOnResources = true
             
@@ -77,7 +79,7 @@ class ResourcesTest {
             transitionIdsToResources = mutableMapOf(
                     "t1" to complexResourceMapping("res"),
                     "t2" to complexResourceMapping("res")
-                    
+            
             )
             minimumIntervalBetweenActions = 0
             maximumIntervalBetweenActions = 0
@@ -92,10 +94,40 @@ class ResourcesTest {
         
         val logs = generate(petrinet, settings)
         
-        println(logs.getLog(0).joinToString("\n---\n") { trace ->
+        println(logs.allTraces.joinToString("\n---\n") { trace ->
             trace.drawEvents(startTime.toEpochMilli(), timeGranularity = 1000, drawLifeCycle = true, drawRes = true)
         })
         
+        fun normedTime(time: Long) = (time - startTime.toEpochMilli()).toInt() / 1000
         
+        
+        val case1 = listOf(
+                listOf("delay", null, "start", 0),
+                listOf("t1", "res", "start", 0),
+                listOf("delay", null, "complete", 1),
+                listOf("t1", "res", "complete", 5),
+                listOf("t2", "res", "start", 5),
+                listOf("t2", "res", "complete", 9)
+        )
+        
+        val case2 = listOf(
+                listOf("t1", "res", "start", 0),
+                listOf("delay", null, "start", 0), // reversed
+                listOf("delay", null, "complete", 1),
+                listOf("t1", "res", "complete", 5),
+                listOf("t2", "res", "start", 5),
+                listOf("t2", "res", "complete", 9)
+        )
+        
+        logs.allTraces.forEach { trace ->
+            trace.map {
+                listOf(
+                        it.name,
+                        it.resource,
+                        it.lifecycle,
+                        normedTime(it.time)
+                )
+            } shouldBeIn arrayOf(case1, case2)
+        }
     }
 }

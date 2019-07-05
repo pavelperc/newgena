@@ -1,6 +1,7 @@
 package org.processmining.utils.helpers
 
 import com.pavelperc.newgena.models.pnmlId
+import com.pavelperc.newgena.utils.common.randomOrNull
 import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
 import org.processmining.models.Movable
 import org.processmining.models.abstract_net_representation.Place
@@ -43,7 +44,7 @@ class StaticPrioritiesGenerationHelper protected constructor(
                         transitions.filter { it.checkAvailability() }
                     }
                     .firstOrNull { it.isNotEmpty() } // first not empty priority group
-                    ?.let { pickRandomMovable(it) }
+                    ?.randomOrNull()
     
     override fun putInitialToken(place: Place<Token>) {
         val token = Token()

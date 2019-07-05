@@ -1,5 +1,6 @@
 package org.processmining.utils.helpers
 
+import com.pavelperc.newgena.utils.common.randomOrNull
 import org.processmining.models.*
 
 import java.util.*
@@ -21,16 +22,17 @@ abstract class BaseGenerationHelper<T : Tokenable<*>, K : Movable, F : Movable>(
         override val generationDescription: GenerationDescription
 ) : GenerationHelper<K, F> {
     
-    // allModelMovables is immutable
+    /** Transition in petrinet. Are immutable. */
     override val allModelMovables = allModelMovables.toList()
     
+    /** Time driven tokens in petri net. */
     override val extraMovables = LinkedList<F>()
+    
+    protected abstract fun putInitialToken(place: T)
     
     init {
         moveToInitialState()
     }
-    
-    protected abstract fun putInitialToken(place: T)
     
     
     override fun moveToInitialState() {
@@ -46,10 +48,6 @@ abstract class BaseGenerationHelper<T : Tokenable<*>, K : Movable, F : Movable>(
             tokenable.removeAllTokens()
         }
     }
-    
-    protected fun <L : Movable> pickRandomMovable(movables: List<L>): L? =
-            if (movables.isEmpty()) null
-            else movables.random()
     
     
     override fun handleMovementResult(movementResult: MovementResult<F>): AssessedMovementResult {

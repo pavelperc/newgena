@@ -2,16 +2,17 @@ package org.processmining.models.time_driven_behavior
 
 import org.deckfour.xes.model.XTrace
 import org.processmining.models.MovementResult
-import org.processmining.models.abstract_net_representation.Place
 import org.processmining.models.abstract_net_representation.Transition
 import org.processmining.models.abstract_net_representation.WeightedPlace
 import org.processmining.models.consumeAllTokens
+import org.processmining.models.descriptions.GenerationDescriptionWithNoise
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription
 import org.processmining.models.organizational_extension.Resource
 import org.processmining.utils.TimeDrivenLoggingSingleton
 import java.util.*
 import kotlin.math.max
 import kotlin.random.Random
+import org.processmining.models.time_driven_behavior.TimeDrivenTransition.DistortionType.*
 
 private typealias WPlace = WeightedPlace<TimeDrivenToken, TimeDrivenPlace>
 
@@ -67,7 +68,7 @@ class TimeDrivenTransition(
         val time = findMinimalTokenTime() //TODO такой способ нахождения времени не оптимален
         
         if (generationDescription.isUsingSynchronizationOnResources
-                && !logger.areResourcesAvailable(node, time)) {
+                && !logger.hasNeededResources(node, time)) {
             
             // make sync steps while we don't get free resources!!!!
             takeSynchronizationStep(movementResult)
@@ -77,14 +78,13 @@ class TimeDrivenTransition(
         
         if (tokensHaveTheSameTimestamp) {
             if (shouldDistortEvent()) {
-                val distortionType = Random.nextInt(3)
-                
+                val distortionType = DistortionType.values().random()
                 when (distortionType) {
                     NOISE_BEFORE_ACTUAL_EVENT -> {
                         println("Noise before actual event: $node")//TODO delete?
                         registerNoiseTransition(trace, time, movementResult)
                         if (generationDescription.isUsingSynchronizationOnResources) {
-                            if (logger.areResourcesAvailable(node, time)) {
+                            if (logger.hasNeededResources(node, time)) {
                                 actuallyMove(trace, movementResult)
                             } else {
                                 takeSynchronizationStep(movementResult)
@@ -105,7 +105,7 @@ class TimeDrivenTransition(
                         val registeredPair = registerNoiseTransition(trace, time, extraResult)
                         if (registeredPair == null) {
                             if (generationDescription.isUsingSynchronizationOnResources) {
-                                if (logger.areResourcesAvailable(node, time)) {
+                                if (logger.hasNeededResources(node, time)) {
                                     actuallyMove(trace, movementResult)
                                 } else {
                                     takeSynchronizationStep(movementResult)
@@ -122,11 +122,10 @@ class TimeDrivenTransition(
                             movementResult.addProducedExtraToken(replacementToken)
                         }
                     }
-                    else -> throw IllegalArgumentException("Incorrect type of noise $distortionType")
                 }
             } else {
                 if (generationDescription.isUsingSynchronizationOnResources) {
-                    if (logger.areResourcesAvailable(node, time)) {
+                    if (logger.hasNeededResources(node, time)) {
                         actuallyMove(trace, movementResult)
                     } else {
                         takeSynchronizationStep(movementResult)
@@ -152,6 +151,11 @@ class TimeDrivenTransition(
             val minimalResourceTime = logger.getNearestResourceTime(node)
             secondSmallestTimestamp = max(secondSmallestTimestamp, minimalResourceTime)
         }
+        
+        if (smallestTimestamp == secondSmallestTimestamp) {
+            println("Warning: useless synchronization step on transition ${node.label}.")
+        }
+        
         
         // increase timestamp from smallest to secondSmallest.
         
@@ -256,7 +260,7 @@ class TimeDrivenTransition(
         while (noiseEventList.size > 0) {
             val noiseEvent = noiseEventList.removeAt(Random.nextInt(noiseEventList.size))
             if (generationDescription.isUsingSynchronizationOnResources
-                    && !logger.areResourcesAvailable(noiseEvent.activity, timestamp)) {
+                    && !logger.hasNeededResources(noiseEvent.activity, timestamp)) {
                 continue
             }
             var usedResource: Resource? = null
@@ -286,9 +290,8 @@ class TimeDrivenTransition(
     private fun shouldDistortEvent(): Boolean {
         if (generationDescription.isUsingNoise) {
             val noiseDescription = generationDescription.noiseDescription
-            if (noiseDescription.noisedLevel >= Random.nextInt(org.processmining.models.descriptions.GenerationDescriptionWithNoise.MAX_NOISE_LEVEL + 1))
             //use noise transitions
-            {
+            if (noiseDescription.noisedLevel >= Random.nextInt(GenerationDescriptionWithNoise.MAX_NOISE_LEVEL + 1)) {
                 if (noiseDescription.isUsingInternalTransitions || noiseDescription.isUsingExternalTransitions) {
                     return true
                 }
@@ -308,8 +311,11 @@ class TimeDrivenTransition(
     }
     
     // pavel: what is it? how does it work?
+    // it is called from token "move" method.
+    // and it logs completing the transition, frees the resources and marks the token to remove from extraTokens.
     fun moveInternalToken(trace: XTrace, token: TimeDrivenToken): MovementResult<*> {
         val movementResult = MovementResult<TimeDrivenToken>()
+        // какой-то костыль, чтобы удалить потом этот токен из extraTokens.
         movementResult.addConsumedExtraToken(token)
         val maxTimeStamp = token.timestamp
         if (generationDescription.isUsingResources && token.resource != null) {
@@ -344,9 +350,10 @@ class TimeDrivenTransition(
         }
     }
     
-    companion object {
-        private val NOISE_INSTEAD_OF_ACTUAL_EVENT = 2
-        private val NOISE_BEFORE_ACTUAL_EVENT = 0
-        private val NOISE_AFTER_ACTUAL_EVENT = 1
+    
+    enum class DistortionType {
+        NOISE_INSTEAD_OF_ACTUAL_EVENT,
+        NOISE_BEFORE_ACTUAL_EVENT,
+        NOISE_AFTER_ACTUAL_EVENT;
     }
 }

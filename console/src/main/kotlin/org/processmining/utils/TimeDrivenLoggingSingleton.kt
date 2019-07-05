@@ -113,8 +113,10 @@ class TimeDrivenLoggingSingleton protected constructor(
                 availableResources.randomOrNull()
             }
     
-    /** Returns true if there are no resources!! */
-    fun areResourcesAvailable(modelActivity: Any, timestamp: Long): Boolean {
+    /** Returns true if there is a free resource, or there are no resources.
+     * (That means, that the transition is available to fire.) 
+     */
+     fun hasNeededResources(modelActivity: Any, timestamp: Long): Boolean {
         require(timestamp >= 0) { "Time cannot be negative" }
         val allResourcesMappedToActivity = getAllResourcesMappedToActivity(modelActivity)
         
