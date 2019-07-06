@@ -18,8 +18,8 @@ fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsVie
     
     fieldset("petrinetSetup") {
         addClass(Styles.fieldSetFrame)
-        
-        field("petrinetFile") {
+    
+        docField("petrinetFile") {
             
             textfield(petrinetSetup.petrinetFile).required()
             var btnLoadPetrinet: Button? = null

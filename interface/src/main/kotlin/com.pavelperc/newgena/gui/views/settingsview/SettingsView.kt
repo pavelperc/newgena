@@ -4,7 +4,7 @@ import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
 import com.pavelperc.newgena.gui.views.*
-import com.pavelperc.newgena.loaders.settings.JsonSettings
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.event.EventTarget
@@ -53,8 +53,8 @@ class SettingsView : View("Settings") {
                 }
                 
                 // Common settings:
-                
-                field("outputFolder") {
+    
+                docField("outputFolder") {
                     textfield(settings.outputFolder).required()
                     
                     button(graphic = FontAwesomeIconView(FontAwesomeIcon.FOLDER)) {

@@ -1,8 +1,7 @@
 package com.pavelperc.newgena.gui.model
 
-import com.pavelperc.newgena.loaders.settings.*
+import com.pavelperc.newgena.loaders.settings.jsonSettings.*
 import javafx.beans.property.BooleanProperty
-import javafx.beans.property.SimpleObjectProperty
 import tornadofx.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1

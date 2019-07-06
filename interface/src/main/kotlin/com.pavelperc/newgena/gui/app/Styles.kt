@@ -9,7 +9,7 @@ import tornadofx.*
 
 class Styles : Stylesheet() {
     companion object {
-//        val itemRoot by cssclass()
+        //        val itemRoot by cssclass()
         val deleteButton by cssclass()
         val intMapDeleteButton by cssclass()
         
@@ -20,11 +20,12 @@ class Styles : Stylesheet() {
         val greenButton by cssclass()
         val redButton by cssclass()
         val fieldSetFrame by cssclass()
-//        val intMapEditorItem by cssclass()
+        //        val intMapEditorItem by cssclass()
         val sortingPanel by cssclass()
         val upDownPanel by cssclass()
+        val documentationButton by cssclass()
         val graphvizButtonsPanel by cssclass()
-    
+        
         fun closeIcon() = FontAwesomeIconView(FontAwesomeIcon.CLOSE).apply {
             glyphSize = 22
 //            addClass(closeIcon)
@@ -47,7 +48,7 @@ class Styles : Stylesheet() {
         graphvizButtonsPanel {
             
         }
-        
+
 //        itemRoot {
 ////            padding = box(8.px)
 //            
@@ -63,7 +64,6 @@ class Styles : Stylesheet() {
 ////                backgroundColor += Color.TRANSPARENT
 ////            }
 //        }
-        
         
         
         deleteButton {
@@ -96,7 +96,7 @@ class Styles : Stylesheet() {
             label {
                 padding = box(0.5.em)
             }
-            
+
 //            padding = box(1.em, 1.em, 0.em, 1.em)
 //            textField {
 //                prefWidth = 200.px
@@ -136,6 +136,15 @@ class Styles : Stylesheet() {
                 and(hover) {
                     backgroundColor += lightGrey
                 }
+            }
+        }
+        
+        documentationButton {
+            fontSize = 1.em
+            padding = box(1.px, 4.px)
+            backgroundColor += Color.TRANSPARENT
+            and(hover) {
+                backgroundColor += lightGrey
             }
         }
         

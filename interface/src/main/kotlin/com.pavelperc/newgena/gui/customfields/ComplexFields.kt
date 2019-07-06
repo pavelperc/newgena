@@ -16,7 +16,7 @@ fun EventTarget.arrayField(
         listValidator: Validator<List<String>> = { null },
         valuesName: String = "values"
 ) {
-    field(listProp.name) {
+    docField(listProp.name) {
         val viewModel = listProp.viewModel
         // textProp is now bound to ViewModel, so we can add a validator.
         val textProp = SimpleStringProperty(viewModel, "${listProp.name}_text", listProp.value.joinToString("; "))
@@ -89,7 +89,7 @@ fun EventTarget.intMapField(
         valuesName: String = "value",
         mapValidator: ValidationContext.(Map<String, Int>) -> ValidationMessage? = { null }
 ) {
-    field(mapProp.name) {
+    docField(mapProp.name) {
         
         fun Map<String, Int>.makeString() = this.entries.joinToString(", ") { "${it.key}: ${it.value}" }
         

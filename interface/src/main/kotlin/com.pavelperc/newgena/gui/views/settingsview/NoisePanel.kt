@@ -41,9 +41,9 @@ fun EventTarget.noisePanel(controller: SettingsUIController) {
                 valuesName = "id",
                 hintName = "label"
         )
-        
-        
-        field("artificialNoiseEvents") {
+    
+    
+        docField("artificialNoiseEvents") {
             
             readOnlyTextField(noise.artificialNoiseEvents, { newList ->
                 newList.let { if (it.isEmpty()) "Empty." else it.joinToString("; ") }
@@ -64,8 +64,8 @@ fun EventTarget.noisePanel(controller: SettingsUIController) {
             checkboxField(timeNoise.isUsingLifecycleNoise)
             checkboxField(timeNoise.isUsingTimeGranularity)
             intField(timeNoise.maxTimestampDeviationSeconds)
-            
-            field("granularityType") {
+    
+            docField("granularityType") {
                 combobox(timeNoise.granularityType, GranularityTypes.values().toList())
             }
         }

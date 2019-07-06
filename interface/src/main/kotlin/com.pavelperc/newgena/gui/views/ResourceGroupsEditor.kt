@@ -2,7 +2,7 @@ package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.customfields.*
-import com.pavelperc.newgena.loaders.settings.JsonResources
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonResources
 import impl.org.controlsfx.autocompletion.SuggestionProvider
 import javafx.event.EventHandler
 import javafx.event.EventTarget
@@ -12,7 +12,6 @@ import javafx.scene.layout.Priority
 import javafx.util.converter.DefaultStringConverter
 import org.controlsfx.control.textfield.TextFields
 import tornadofx.*
-import tornadofx.controlsfx.bindAutoCompletion
 
 
 class ResourceGroupsEditor(

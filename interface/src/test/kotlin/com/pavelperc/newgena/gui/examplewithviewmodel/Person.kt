@@ -2,7 +2,7 @@ package com.pavelperc.newgena.gui.examplewithviewmodel
 
 import com.pavelperc.newgena.gui.model.bindList
 import com.pavelperc.newgena.gui.model.bindMap
-import com.pavelperc.newgena.loaders.settings.reflectionToString
+import com.pavelperc.newgena.loaders.settings.jsonSettings.reflectionToString
 import javafx.beans.property.SimpleStringProperty
 import tornadofx.ItemViewModel
 import kotlin.reflect.KMutableProperty

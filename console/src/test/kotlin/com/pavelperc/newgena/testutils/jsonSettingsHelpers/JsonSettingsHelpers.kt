@@ -1,8 +1,7 @@
 package com.pavelperc.newgena.testutils.jsonSettingsHelpers
 
-import com.pavelperc.newgena.loaders.settings.JsonResources
-import com.pavelperc.newgena.loaders.settings.JsonSettings
-import com.pavelperc.newgena.loaders.settings.JsonTimeDescription
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonResources
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonTimeDescription
 
 
 fun JsonTimeDescription.delayNoDeviation(vararg delays: Pair<String, Long>) =

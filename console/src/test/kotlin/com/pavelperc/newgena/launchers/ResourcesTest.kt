@@ -1,6 +1,6 @@
 package com.pavelperc.newgena.launchers
 
-import com.pavelperc.newgena.loaders.settings.JsonSettings
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
 import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.complexResourceMapping
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.delayNoDeviation
@@ -8,9 +8,6 @@ import com.pavelperc.newgena.testutils.jsonSettingsHelpers.fastGroups
 import com.pavelperc.newgena.testutils.petrinetUtils.simplePetrinetBuilder
 import com.pavelperc.newgena.utils.xlogutils.*
 import org.amshove.kluent.shouldBeIn
-import org.amshove.kluent.shouldContainSame
-import org.amshove.kluent.shouldEqual
-import org.deckfour.xes.model.XTrace
 import org.junit.Test
 import org.processmining.log.models.EventLogArray
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet

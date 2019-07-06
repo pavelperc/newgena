@@ -14,10 +14,9 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
 import tornadofx.*
 import com.pavelperc.newgena.gui.views.ResourceMappingEditor.ResourceType.*
-import com.pavelperc.newgena.loaders.settings.JsonResources
-import com.pavelperc.newgena.loaders.settings.JsonResources.JsonResourceMapping
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonResources
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonResources.JsonResourceMapping
 import impl.org.controlsfx.autocompletion.SuggestionProvider
-import org.controlsfx.control.textfield.TextFields
 
 class ResourceMappingEditor(
         initialObjects: Map<String, JsonResourceMapping>,

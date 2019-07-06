@@ -26,7 +26,7 @@ fun EventTarget.timePanel(controller: SettingsUIController) {
     }
     
     foldingFieldSet("Time and Resources", settings.isUsingTime) {
-        field("generationStart") {
+        docField("generationStart") {
             val timeConverter = object : StringConverter<Instant>() {
                 
                 override fun toString(obj: Instant) = obj.toString()
@@ -68,8 +68,8 @@ fun EventTarget.timePanel(controller: SettingsUIController) {
         
         intField(time.minimumIntervalBetweenActions, nonNegative = true)
         intField(time.maximumIntervalBetweenActions, nonNegative = true)
-        
-        field("transitionIdsToDelays") {
+    
+        docField("transitionIdsToDelays") {
             val Status = object {
                 val incorrect = "Ids doesn't match with model transitions."
                 val correct = "Correct."

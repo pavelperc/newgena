@@ -1,5 +1,6 @@
 package com.pavelperc.newgena.loaders.settings
 
+import com.pavelperc.newgena.loaders.settings.jsonSettings.SettingsInfo
 import com.pavelperc.newgena.loaders.settings.migration.Migrator
 import com.pavelperc.newgena.loaders.settings.migration.setVersion
 import com.pavelperc.newgena.loaders.settings.migration.updated

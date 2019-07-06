@@ -4,13 +4,10 @@ import com.pavelperc.newgena.gui.app.ArtificialIntelligence
 import com.pavelperc.newgena.gui.customfields.confirmIf
 import com.pavelperc.newgena.gui.model.SettingsModel
 import com.pavelperc.newgena.launchers.PetrinetGenerators
-import com.pavelperc.newgena.loaders.pnml.PnmlLoader
-import com.pavelperc.newgena.loaders.settings.JsonSettings
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
 import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
 import com.pavelperc.newgena.loaders.settings.fromFilePath
 import com.pavelperc.newgena.loaders.settings.toJson
-import com.pavelperc.newgena.models.deleteAllInhibitorResetArcs
-import com.pavelperc.newgena.models.markInhResetArcsByIds
 import com.pavelperc.newgena.models.pnmlId
 import com.pavelperc.newgena.utils.common.emptyMarking
 import com.pavelperc.newgena.utils.common.getCwd
@@ -19,7 +16,6 @@ import guru.nidi.graphviz.engine.Graphviz
 import javafx.beans.binding.Bindings
 import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.EventHandler
 import javafx.stage.DirectoryChooser

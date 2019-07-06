@@ -16,10 +16,14 @@ fun markingOf(places: Map<Place, Int>) = Marking(places.flatMap { (place, count)
 fun emptyMarking() = Marking()
 
 
-fun profile(message: String, op: () -> Unit) {
+fun <T> profile(message: String, op: () -> T) : T {
     println("$message <<<<")
-    val time = measureNanoTime(op)
+    val start = System.nanoTime()
+    val res = op()
+    val time =  System.nanoTime() - start
+    
     println(">>>> ${String.format("%.2f", time / 1000_000.0)}ms")
+    return res
 }
 
 fun getCwd() = System.getProperty("user.dir")

@@ -1,8 +1,10 @@
 package com.pavelperc.newgena.loaders.settings
 
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonResources
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonTimeDescription
 import org.junit.Test
 import org.processmining.models.graphbased.directed.petrinet.impl.ResetInhibitorNetImpl
-import java.time.Instant
 
 @kotlin.ExperimentalUnsignedTypes
 class JsonSettingsTest {

@@ -1,22 +1,20 @@
-package com.pavelperc.newgena.loaders.settings
+package com.pavelperc.newgena.loaders.settings.jsonSettings
 
+import com.pavelperc.newgena.loaders.settings.InstantSerializer
+import com.pavelperc.newgena.loaders.settings.documentation.Doc
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import org.processmining.models.GenerationDescription
 import org.processmining.models.time_driven_behavior.GranularityTypes
 import org.processmining.models.time_driven_behavior.NoiseEvent
-import org.processmining.models.time_driven_behavior.ResourceMapping
 import java.time.Instant
-import java.time.LocalDateTime
-import kotlin.reflect.KClass
-import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.full.primaryConstructor
-
 
 @Serializable
 data class SettingsInfo(
-        @Required val type: String,
+        @Required
+        @Doc("For petrinet settings the type is \"petrinet\".")
+        val type: String,
         @Required val version: String
 )
 
@@ -37,41 +35,52 @@ class JsonSettings {
     
     @Required
     var petrinetSetup = JsonPetrinetSetup()
+    @Doc("The folder for log files output. " +
+            "Relative path will be computed from the tool working directory.")
     @Required
     var outputFolder = "xes-out"
     
     @Required
+    @Doc("Number of logs.")
     var numberOfLogs = 5
     @Required
+    @Doc("Number of traces in a log.")
     var numberOfTraces = 10
     @Required
+    @Doc("Maximum number of steps in a trace. " +
+            "After this limit the trace becomes unfinished.")
     var maxNumberOfSteps = 100
     
     @Required
     var isRemovingEmptyTraces = true
     @Required
+    @Doc("Do we remove traces, who didn't reach the final marking.")
     var isRemovingUnfinishedTraces = true
     
     @Required
+    @Doc("Do we use noise generation.")
     var isUsingNoise = false
     @Required
     var noiseDescription: JsonNoise = JsonNoise()
     
     @Required
+    @Doc("Do we use generation with transition priorities. " +
+            "(Mutually exclusive with isUsingNoise and isUsingTime!!)")
     var isUsingStaticPriorities: Boolean = false
     @Required
     var staticPriorities: JsonStaticPriorities = JsonStaticPriorities()
     
     @Required
+    @Doc("Do we use generation with timestamps. Exclusive with static priorities.")
     var isUsingTime = false
     @Required
     var timeDescription: JsonTimeDescription = JsonTimeDescription()
     
     
     init {
-        check(numberOfLogs >= 0) { "Field numberOfLogs should not be negative." }
-        check(numberOfTraces >= 0) { "Field numberOfTraces should not be negative." }
-        check(maxNumberOfSteps >= 0) { "Field maxNumberOfSteps should not be negative." }
+//        check(numberOfLogs >= 0) { "Field numberOfLogs should not be negative." }
+//        check(numberOfTraces >= 0) { "Field numberOfTraces should not be negative." }
+//        check(maxNumberOfSteps >= 0) { "Field maxNumberOfSteps should not be negative." }
         
         val defaultInfo = SettingsInfo("petrinet", LAST_SETTINGS_VERSION)
         
@@ -93,11 +102,14 @@ fun reflectionToString(any: Any) =
 class JsonMarking() {
     
     @Required
+    @Doc("Ids of initial places in marking and amounts of tokens.")
     var initialPlaceIds = mutableMapOf<String, Int>()
     @Required
+    @Doc("Ids of final places in marking and amounts of tokens.")
     var finalPlaceIds = mutableMapOf<String, Int>()
     
     @Required
+    @Doc("Do we use initial marking from pnml file.")
     var isUsingInitialMarkingFromPnml = false
     
     override fun toString() = reflectionToString(this)
@@ -107,14 +119,21 @@ class JsonMarking() {
 class JsonPetrinetSetup {
     
     @Required
+    @Doc("The path to the Petri Net file. " +
+            "It is relative to the tool working directory. " +
+            "(Or it is a full path).")
     var petrinetFile = "petrinet.pnml"
     @Required
     var marking = JsonMarking()
     @Required
+    @Doc("Inhibitor arcs work, when in the input place there are no tokens.")
     var inhibitorArcIds: MutableList<String> = mutableListOf()
     @Required
+    @Doc("Reset arcs remove all tokens from incoming places.")
     var resetArcIds: MutableList<String> = mutableListOf()
     @Required
+    @Doc("Should we take inhibitor and reset arcs " +
+            "from pnml either from settings.")
     var irArcsFromPnml: Boolean = true
     
     override fun toString() = reflectionToString(this)
@@ -123,38 +142,50 @@ class JsonPetrinetSetup {
 @Serializable
 class JsonNoise {
     @Required
+    @Doc("Noise level: from 1 to 100.")
     var noiseLevel = 5
     
     @Required
+    @Doc("Do we allow skipping transitions during writing to the log.")
     var isSkippingTransitions = true
     
     @Required
+    @Doc("Do we add artificial events to the log.")
     var isUsingExternalTransitions = true
     @Required
+    @Doc("Do we add existing transitions to the log as a noise.")
     var isUsingInternalTransitions = true
     
     @Required
+    @Doc("Exising transitions for the noise.")
     var internalTransitionIds = mutableListOf<String>()
     @Required
+    @Doc("Artificial noise events. Params:\n" +
+            "activity: name of the event\n" +
+            "executionTimeSeconds: execution time (is used only in time driven generation)\n" +
+            "maxTimeDeviationSeconds: deviation from the execution time.")
     var artificialNoiseEvents = mutableListOf<NoiseEvent>()
     
     override fun toString() = reflectionToString(this)
     
     init {
-        check(noiseLevel in 1..100) { "Field noiseLevel should be in range 1..100 ." }
+//        check(noiseLevel in 1..100) { "Field noiseLevel should be in range 1..100 ." }
     }
 }
 
 @Serializable
 class JsonStaticPriorities {
     @Required
+    @Doc("Max priority. Should be >= 1.")
     var maxPriority: Int = 100 // >= 1
     /** Ids with larger numbers go first. Default priority is 1.*/
     @Required
+    @Doc("Priority dictionary. Transitions with higher priority fire earlier.\n" +
+            "Default priority is 1.")
     var transitionIdsToPriorities = mutableMapOf<String, Int>()
     
     init {
-        check(maxPriority >= 1) { "Field maxPriority should be >= 1." }
+//        check(maxPriority >= 1) { "Field maxPriority should be >= 1." }
     }
     
     override fun toString() = reflectionToString(this)
@@ -168,10 +199,13 @@ class JsonTimeDrivenNoise {
     @Required
     var isUsingLifecycleNoise = true
     @Required
+    @Doc("Should we round timestamps with the specified `granularityType`.")
     var isUsingTimeGranularity = true
     @Required
     var maxTimestampDeviationSeconds = 0
     @Required
+    @Doc("Setup the precision of timestamps.\n" +
+            "The timestamps will be rounded with the specified granularity.")
     var granularityType: GranularityTypes = GranularityTypes.MINUTES_5
     
     override fun toString() = reflectionToString(this)
@@ -192,21 +226,35 @@ class JsonTimeDescription {
     }
     
     @Required
+    @Doc("Delays of transitions in seconds." +
+            "Should be specified for all transitions.")
     var transitionIdsToDelays = mutableMapOf<String, DelayWithDeviation>()
     
     @Required
     @Serializable(InstantSerializer::class)
+    @Doc("Generation start in ISO-8601 format.\n" +
+            "Time zone in logs will be always UTC+0.\n" +
+            "Example: \"2019-04-22T01:17:48.509Z\"")
     var generationStart: Instant = Instant.now()
     
     @Required
+    @Doc("Do we use lifecycle extension. " +
+            "This settings just adds a parameter in log " +
+            "to mark event as `start` or `complete`.\n" +
+            "To enable transition `complete` event, " +
+            "use isSeparatingStartAndFinish option.")
     var isUsingLifecycle = false
     @Required
+    @Doc("Enables logging transition `complete` event.\n" +
+            "See also isUsingLifecycle option.")
     var isSeparatingStartAndFinish: Boolean = true
     
     
     @Required
+    @Doc("A minimum interval between transition firings, in seconds.")
     var minimumIntervalBetweenActions = 10
     @Required
+    @Doc("A maximum interval between transition firings, in seconds.")
     var maximumIntervalBetweenActions = 20
     
     
@@ -215,27 +263,40 @@ class JsonTimeDescription {
     
     // if enabled, we ignore simplified resources.
     @Required
+    @Doc("Do we use resources with groups and roles.\n" +
+            "For now, `true` just disables simplifiedResources.")
     var isUsingComplexResourceSettings = true
     @Required
+    
+    @Doc("Enables resource synchronization: " +
+            "only one transition uses the resource at the same time.")
     var isUsingSynchronizationOnResources = true
     
     @Required
+    @Doc("All simplified resources. They have only a name.")
     var simplifiedResources = mutableListOf<String>()
     @Required
+    @Doc("Complex resources with groups and roles.")
     var resourceGroups = mutableListOf<JsonResources.Group>()
     
     // will be converted to resourceMapping
     // not only transitions, but also noise events.
     // resources may be the whole groups, roles or just names.
     @Required
+    @Doc("Matching transition ids to resources\n" +
+            "You can assign the whole role or group or just a resource.\n" +
+            "Some transitions may not have any resources, in that case they can be skipped.\n" +
+            "Also you can assign resources for noise events, by their name.\n" +
+            "If the noise setting is disabled, they are just ignored.")
     var transitionIdsToResources = mutableMapOf<String, JsonResources.JsonResourceMapping>()
     
     @Required
+    @Doc("Timestamp noise.")
     var timeDrivenNoise = JsonTimeDrivenNoise()
     
     init {
-        check(minimumIntervalBetweenActions >= 0) { "Field minimumIntervalBetweenActions should not be negative." }
-        check(maximumIntervalBetweenActions >= 0) { "Field maximumIntervalBetweenActions should not be negative." }
+//        check(minimumIntervalBetweenActions >= 0) { "Field minimumIntervalBetweenActions should not be negative." }
+//        check(maximumIntervalBetweenActions >= 0) { "Field maximumIntervalBetweenActions should not be negative." }
     }
     
     override fun toString() = reflectionToString(this)
@@ -268,8 +329,8 @@ object JsonResources {
             var maxDelayBetweenActionsMillis: Long = 20 * 60 * 1000L
     ) {
         init {
-            check(minDelayBetweenActionsMillis >= 0) { "Field minDelayBetweenActionsMillis should not be negative." }
-            check(maxDelayBetweenActionsMillis >= 0) { "Field maxDelayBetweenActionsMillis should not be negative." }
+//            check(minDelayBetweenActionsMillis >= 0) { "Field minDelayBetweenActionsMillis should not be negative." }
+//            check(maxDelayBetweenActionsMillis >= 0) { "Field maxDelayBetweenActionsMillis should not be negative." }
         }
         
         override fun toString() = reflectionToString(this)

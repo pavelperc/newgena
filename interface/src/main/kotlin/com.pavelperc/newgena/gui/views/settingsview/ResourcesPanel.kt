@@ -1,10 +1,7 @@
 package com.pavelperc.newgena.gui.views.settingsview
 
 import com.pavelperc.newgena.gui.controller.SettingsUIController
-import com.pavelperc.newgena.gui.customfields.arrayField
-import com.pavelperc.newgena.gui.customfields.checkboxField
-import com.pavelperc.newgena.gui.customfields.foldingFieldSet
-import com.pavelperc.newgena.gui.customfields.readOnlyTextField
+import com.pavelperc.newgena.gui.customfields.*
 import com.pavelperc.newgena.gui.views.ResourceGroupsEditor
 import com.pavelperc.newgena.gui.views.ResourceMappingEditor
 import javafx.event.EventTarget
@@ -22,8 +19,8 @@ fun EventTarget.resourcesPanel(controller: SettingsUIController) {
         checkboxField(time.isUsingSynchronizationOnResources)
         
         arrayField(time.simplifiedResources, valuesName = "name")
-        
-        field("resourceGroups") {
+    
+        docField("resourceGroups") {
             readOnlyTextField(time.resourceGroups, { newList ->
                 newList.flatMap {
                     it.roles.flatMap {
@@ -40,8 +37,8 @@ fun EventTarget.resourcesPanel(controller: SettingsUIController) {
                 }
             }
         }
-        
-        field("transitionIdsToResources") {
+    
+        docField("transitionIdsToResources") {
             // TODO status text for transitionIdsToResources 
 //                                    val Status = object {
 //                                        val incorrect = "Ids doesn't match with model transitions."

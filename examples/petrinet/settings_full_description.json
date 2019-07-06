@@ -19,7 +19,7 @@
         "place2" : 1,
         "place5" : 1
       },
-      // ids of initial places in marking and amounts of tokens
+      // ids of final places in marking and amounts of tokens
       "finalPlaceIds" : {
         "place7" : 2,
         "place6" : 1
@@ -45,10 +45,9 @@
   "noiseDescription" : {
     // noise level: from 1 to 100.
     "noiseLevel" : 50,
-    // пропускаем ли мы переходы при записи в лог
     // do we allow skipping transitions during writing to the log
     "isSkippingTransitions" : true,
-    // do we add artifitial events to the log
+    // do we add artificial events to the log
     "isUsingExternalTransitions" : true,
     // do we add existing transitions to the log as a noise.
     "isUsingInternalTransitions" : true,
@@ -99,7 +98,7 @@
         "deviation" : 1
       }
     },
-    // generation start in UTC format.
+    // generation start in ISO-8601 format.
     "generationStart" : "2019-04-22T01:17:48.509Z",
     
     // do we use lifecycle extension

@@ -1,11 +1,15 @@
 package com.pavelperc.newgena.gui.customfields
 
+import com.pavelperc.newgena.gui.app.Styles
+import com.pavelperc.newgena.loaders.settings.documentation.documentationByName
 import javafx.beans.property.Property
 import javafx.event.EventTarget
+import javafx.geometry.Insets
 import javafx.geometry.Orientation
 import javafx.scene.control.*
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
+import javafx.scene.text.Font
 import tornadofx.*
 
 fun TextInputControl.validInt(
@@ -103,7 +107,7 @@ fun EventTarget.longSpinner(
         op: Spinner<Long>.() -> Unit = {}
 ) {
     spinner(LongSpinnerValueFactory(valueRange, prop.value), property = prop) {
-//        valueFactory.valueProperty().bindBidirectional(prop)
+        //        valueFactory.valueProperty().bindBidirectional(prop)
         
         styleClass.add(style)
         isEditable = true
@@ -121,7 +125,7 @@ fun EventTarget.intSpinnerField(
         intValueRange: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
         style: String = Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL,
         op: Spinner<Int>.() -> Unit = {}
-) = field(intProp.name) {
+) = docField(intProp.name) {
     intSpinner(intProp, intValueRange, style, op)
 }
 
@@ -130,8 +134,34 @@ fun EventTarget.longSpinnerField(
         valueRange: LongRange = Long.MIN_VALUE..Long.MAX_VALUE,
         style: String = Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL,
         op: Spinner<Long>.() -> Unit = {}
-) = field(prop.name) {
+) = docField(prop.name) {
     longSpinner(prop, valueRange, style, op)
+}
+
+/** Field with generated documentation from [documentationByName] by field [name]. */
+fun EventTarget.docField(
+        name: String,
+        orientation: Orientation = Orientation.HORIZONTAL,
+        op: Field.() -> Unit
+) {
+    field(name, orientation) {
+        labelContainer.apply {
+            val doc = documentationByName[name]
+            if (doc != null) {
+                spacing = 3.0
+                button("?") {
+                    addClass(Styles.documentationButton)
+                    action {
+                        information("Documentation for $name", doc)
+                    }
+                    tooltip(doc) {
+                        font = Font.font("", 15.0)
+                    }
+                }
+            }
+        }
+        op()
+    }
 }
 
 /** A field for fieldset for int property. Field name is taken from property.
@@ -144,7 +174,7 @@ fun EventTarget.intField(
         positive: Boolean = false,
         validRange: IntRange? = null,
         op: TextField.() -> Unit = {}
-) = field(property.name, Orientation.HORIZONTAL) {
+) = docField(property.name) {
     textfield(property, QuiteIntConverter()) {
         validInt { value ->
             when {
@@ -167,7 +197,7 @@ fun EventTarget.longField(
         fieldOp: Field.() -> Unit = {},
         nextValidator: Validator<Long> = { null },
         op: TextField.() -> Unit = {}
-) = field(property.name, Orientation.HORIZONTAL) {
+) = docField(property.name, Orientation.HORIZONTAL) {
     textfield(property, QuiteLongConverter) {
         validator { newString ->
             when {
@@ -183,7 +213,7 @@ fun EventTarget.longField(
 }
 
 fun EventTarget.checkboxField(property: Property<Boolean>, op: CheckBox.() -> Unit = {}) =
-        field(property.name) {
+        docField(property.name) {
             checkbox(property = property, op = op)
         }
 

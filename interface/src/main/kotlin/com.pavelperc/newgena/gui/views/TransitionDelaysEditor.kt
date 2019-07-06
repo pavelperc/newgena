@@ -2,7 +2,7 @@ package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.customfields.*
-import com.pavelperc.newgena.loaders.settings.JsonTimeDescription
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonTimeDescription
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.EventTarget
 import javafx.scene.input.KeyCode

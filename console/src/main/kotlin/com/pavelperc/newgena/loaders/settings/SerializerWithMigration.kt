@@ -1,5 +1,7 @@
 package com.pavelperc.newgena.loaders.settings
 
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
+import com.pavelperc.newgena.loaders.settings.jsonSettings.SettingsInfo
 import com.pavelperc.newgena.loaders.settings.migration.Migrator
 import com.pavelperc.newgena.loaders.settings.migration.selectPetrinetMigrators
 import kotlinx.serialization.json.*

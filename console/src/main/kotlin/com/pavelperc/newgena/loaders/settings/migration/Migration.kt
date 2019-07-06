@@ -1,6 +1,6 @@
 package com.pavelperc.newgena.loaders.settings.migration
 
-import com.pavelperc.newgena.loaders.settings.JsonSettings
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
