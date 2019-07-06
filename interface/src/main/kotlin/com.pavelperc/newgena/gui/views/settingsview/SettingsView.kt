@@ -151,7 +151,7 @@ class SettingsView : View("Settings") {
                     
                     action {
                         val result: Boolean
-                        if (controller.hasNewSettings.value) {
+                        if (controller.haveNewSettings.value) {
                             result = controller.saveJsonSettingsAs()
                         } else {
                             result = controller.saveJsonSettings(controller.jsonSettingsPath.value)
@@ -205,10 +205,10 @@ class SettingsView : View("Settings") {
         hbox {
             label("Loaded settings: ")
             label(controller.jsonSettingsPath)
-            hiddenWhen(controller.hasNewSettings)
+            hiddenWhen(controller.haveNewSettings)
         }
         label("Unsaved Settings") {
-            visibleWhen(controller.hasNewSettings)
+            visibleWhen(controller.haveNewSettings)
         }
     }
 }

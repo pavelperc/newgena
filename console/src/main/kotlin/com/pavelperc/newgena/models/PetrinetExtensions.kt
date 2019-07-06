@@ -3,11 +3,13 @@ package com.pavelperc.newgena.models
 import org.processmining.models.graphbased.AttributeMapOwner
 import org.processmining.models.graphbased.directed.petrinet.*
 import org.processmining.models.graphbased.directed.petrinet.elements.*
+import org.processmining.models.graphbased.directed.petrinet.impl.ResetInhibitorNetImpl
 import kotlin.reflect.KProperty
 
 
 /**
  * Replaces given arcs in petrinet with inhibitor and reset arcs.
+ * Arc labels are copied from ordinary arcs. (Usually they contain a label.)
  * Arcs are given as ids.
  * @throws IllegalArgumentException if one of given edges not found in petrinet
  */
@@ -58,6 +60,7 @@ fun ResetInhibitorNet.markInhResetArcsByIds(
 }
 
 
+/** Replaces all IR arcs with default arcs. Weights are set as one, or picked from labels. */
 fun ResetInhibitorNet.deleteAllInhibitorResetArcs() {
     this.transitions
             .flatMap { transition -> this.getInEdges(transition) }
@@ -72,9 +75,43 @@ fun ResetInhibitorNet.deleteAllInhibitorResetArcs() {
                         edge.label.toIntOrNull() ?: 1)
                         .also { it.pnmlId = edge.pnmlId }
             }
-    
-    
 }
+
+/** Don't use subnets. pnmlIds are required! */
+fun ResetInhibitorNet.deepCopy(): ResetInhibitorNetImpl {
+    val copy = ResetInhibitorNetImpl(this.label)
+    
+    val newPlacesByIds = this.places.map { place ->
+        copy.addPlace(place.label).also { it.pnmlId = place.pnmlId }
+    }.map { it.pnmlId to it }.toMap()
+    
+    val newTransitionsByIds = this.transitions.map { transition ->
+        copy.addTransition(transition.label).also { it.pnmlId = transition.pnmlId }
+    }.map { it.pnmlId to it }.toMap()
+    
+    fun PetrinetNode.findPlace() = newPlacesByIds[this.pnmlId] as Place
+    fun PetrinetNode.findTrans() = newTransitionsByIds[this.pnmlId] as Transition
+    
+    this.edges.forEach { edge ->
+        val newArc = when (edge) {
+            is ResetArc ->
+                copy.addResetArc(edge.source.findPlace(), edge.target.findTrans(), edge.label)
+            is InhibitorArc ->
+                copy.addInhibitorArc(edge.source.findPlace(), edge.target.findTrans(), edge.label)
+            is Arc -> {
+                if (edge.source is Place) {
+                    copy.addArc(edge.source.findPlace(), edge.target.findTrans(), edge.weight)
+                } else {
+                    copy.addArc(edge.source.findTrans(), edge.target.findPlace(), edge.weight)
+                }
+            }
+            else -> throw IllegalStateException("Unsupported arc type while petrinet deepcopy. Edge: $edge.")
+        }
+        newArc.pnmlId = edge.pnmlId
+    }
+    return copy
+}
+
 
 const val DEFAULT_PNML_ID = "noPnmlId"
 

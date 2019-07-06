@@ -67,7 +67,7 @@ class GenerationView : View("Generation View") {
         button("show petrinet") {
             action {
                 val petrinetView = find<PetrinetImageView>()
-                petrinetView.draw(true)
+                petrinetView.draw()
                 petrinetView.openWindow(owner = this@GenerationView.currentStage)
             }
         }

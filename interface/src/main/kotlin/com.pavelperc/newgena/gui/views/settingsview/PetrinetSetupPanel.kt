@@ -63,6 +63,8 @@ fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsVie
             }
         }
         
+        checkboxField(petrinetSetup.irArcsFromPnml)
+        
         val validateEdges: Validator<List<String>> = { list ->
             val input = list.toSet()
             val unknown = input - input.intersect(controller.inputEdgeIdsWithHints.keys)

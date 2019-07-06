@@ -13,6 +13,7 @@ import java.util.*
 import kotlin.math.max
 import kotlin.random.Random
 import org.processmining.models.time_driven_behavior.TimeDrivenTransition.DistortionType.*
+import kotlin.random.nextLong
 
 private typealias WPlace = WeightedPlace<TimeDrivenToken, TimeDrivenPlace>
 
@@ -229,10 +230,8 @@ class TimeDrivenTransition(
     }
     
     private fun startTransition(trace: XTrace, movementResult: MovementResult<TimeDrivenToken>, timeStamp: Long) {
-        var timeDeviation = (Random.nextDouble() * (maxTimeDeviation + 1)).toLong()
-        if (Random.nextBoolean()) {
-            timeDeviation = -timeDeviation
-        }
+        val timeDeviation = Random.nextLong(-maxTimeDeviation..maxTimeDeviation)
+        
         val producedToken: TimeDrivenToken
         if (generationDescription.isUsingResources) {
             val usedResource = logger.logStartEventWithResource(trace, node, timeStamp)

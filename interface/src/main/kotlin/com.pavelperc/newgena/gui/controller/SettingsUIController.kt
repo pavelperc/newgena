@@ -34,33 +34,36 @@ class SettingsUIController : Controller() {
     
     val prefController by inject<PreferencesController>()
     
+    val petrinetController = PetrinetUIController()
+    
     val jsonSettings: JsonSettings
         get() = settingsModel.item!!
     
-    val petrinetProp = SimpleObjectProperty<ResetInhibitorNet?>(null).apply {
-        onChange { value ->
+    private fun setPetrinetOnChange() {
+        petrinetController.petrinetProp.onChange { value ->
             placeIdsWithHints = value?.places
                     ?.map { it.pnmlId to (it.label ?: "") }
                     ?.toMap()
                     ?: emptyMap()
-    
+            
             transitionIdsWithHints = value?.transitions
                     ?.map { it.pnmlId to (it.label ?: "") }
                     ?.toMap()
                     ?: emptyMap()
-    
+            
             inputEdgeIdsWithHints = value?.transitions
                     ?.flatMap { value.getInEdges(it) }
                     ?.map { it.pnmlId to "${it.source.pnmlId}->${it.target.pnmlId}" }
                     ?.toMap()
                     ?: emptyMap()
-    
+            
             // restart validation ???
 //            settingsModel.validate()
         }
     }
     
-    var petrinet by petrinetProp
+    val petrinet: ResetInhibitorNet?
+        get() = petrinetController.petrinet
     
     /** Place pnml ids of loaded petrinet, or empty map. Hints are labels. */
     var placeIdsWithHints: Map<String, String> = emptyMap()
@@ -75,8 +78,6 @@ class SettingsUIController : Controller() {
         private set
     
     
-    private var pnmlMarking = emptyMarking()
-    
     val markings: Pair<Marking, Marking>
         get() {
             val fromSettings = petrinet?.let { petrinet ->
@@ -85,22 +86,23 @@ class SettingsUIController : Controller() {
             } ?: return emptyMarking() to emptyMarking()
             
             if (markingModel.isUsingInitialMarkingFromPnml.value)
-                return pnmlMarking to fromSettings.second
+                return petrinetController.pnmlMarking to fromSettings.second
             
             return fromSettings
         }
     
+    
     // --- javafx properties:
-    /** True if the loaded petrinet corresponds with settings file path. */
+    /** True if the loaded petrinet path corresponds with settings file path. */
     val isPetrinetUpdated = SimpleBooleanProperty(false)
     val isPetrinetDirty = isPetrinetUpdated.not()
     
-    private var loadedPetrinetFilePath: String? = null
     
     /** Currently loaded json settings. */
     val jsonSettingsPath = SimpleStringProperty(null)
     
-    val hasNewSettings = jsonSettingsPath.isNull
+    /** Completely new, unsaved settings. */
+    val haveNewSettings = jsonSettingsPath.isNull!!
     
     // --- MODELS---:
     val settingsModel = SettingsModel(JsonSettings()) // start from default jsonSettings.
@@ -121,7 +123,8 @@ class SettingsUIController : Controller() {
             }
     
     
-    /** Warning! not dirty callback doesn't mean, that the settings are saved. */
+    /** Setup good settings dirtiness property.
+     * Warning! not dirty callback doesn't mean, that the settings are saved. */
     private fun onSomeModelGetsDirty(onDirty: () -> Unit) {
         // boolean binding doesn't work for some reason
         settingsModel.allModels.forEach { model ->
@@ -154,6 +157,7 @@ class SettingsUIController : Controller() {
     
     
     init {
+        setPetrinetOnChange()
         profile("Graphviz, loading engine:") {
             // graphviz: speedup first draw
             Graphviz.useDefaultEngines()
@@ -161,7 +165,7 @@ class SettingsUIController : Controller() {
         
         // check if the entered file path is synchronized with the model.
         petrinetSetupModel.petrinetFile.onChange { enteredFile ->
-            isPetrinetUpdated.set(loadedPetrinetFilePath == enteredFile)
+            isPetrinetUpdated.set(petrinetController.loadedPetrinetFilePath == enteredFile)
         }
         
         
@@ -215,7 +219,7 @@ class SettingsUIController : Controller() {
     
     /** @return if the dialog was not cancelled. */
     fun requestPetrinetFileChooseDialog(): Boolean {
-        val cwd = File(System.getProperty("user.dir"))
+        val cwd = File(getCwd())
         val prev = File(petrinetSetupModel.petrinetFile.value).parentFile
         
         val fileChooser = FileChooser()
@@ -234,19 +238,11 @@ class SettingsUIController : Controller() {
         return false
     }
     
+    /** Loading petrinet from petrinetFile in a text field. */
     fun loadPetrinet(): ResetInhibitorNet {
-        profile("Loading petrinet:") {
-            petrinet = null
-            loadedPetrinetFilePath = null
-            PnmlLoader.loadPetrinetWithOwnParser(petrinetSetupModel.petrinetFile.value).also { result ->
-                petrinet = result.first
-                pnmlMarking = result.second
-            }
+        return petrinetController.loadPetrinet(petrinetSetupModel.petrinetFile.value).also {
+            isPetrinetUpdated.set(true)
         }
-        loadedPetrinetFilePath = petrinetSetupModel.petrinetFile.value
-        isPetrinetUpdated.set(true)
-        
-        return petrinet!!
     }
     
     /** @return true if the fileChooser dialog was not canceled and everything is ok. */
@@ -315,18 +311,9 @@ class SettingsUIController : Controller() {
         settingsAreSaved.set(true)
     }
     
-    
     fun updateInhResetArcsFromModel() {
-        petrinet?.also { petrinet ->
-            val resetArcIds = petrinetSetupModel.resetArcIds.value.toList()
-            val inhibitorArcIds = petrinetSetupModel.inhibitorArcIds.value.toList()
-            
-            // what if we fail after deleting?
-            petrinet.deleteAllInhibitorResetArcs()
-            petrinet.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
-        } ?: IllegalStateException("Petrinet is not loaded.")
+        petrinetController.updateInhResetArcsFromModel(petrinetSetupModel)
     }
-    
     
     fun prepareGenerationKit(): PetrinetGenerators.GenerationKit<*> {
         if (!settingsModel.commit())

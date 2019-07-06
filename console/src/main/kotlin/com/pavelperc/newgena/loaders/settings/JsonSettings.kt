@@ -29,7 +29,7 @@ data class SettingsInfo(
 @Serializable
 class JsonSettings {
     companion object {
-        const val LAST_SETTINGS_VERSION = "0.3"
+        const val LAST_SETTINGS_VERSION = "0.4"
     }
     
     @Required
@@ -114,6 +114,8 @@ class JsonPetrinetSetup {
     var inhibitorArcIds: MutableList<String> = mutableListOf()
     @Required
     var resetArcIds: MutableList<String> = mutableListOf()
+    @Required
+    var irArcsFromPnml: Boolean = true
     
     override fun toString() = reflectionToString(this)
 }

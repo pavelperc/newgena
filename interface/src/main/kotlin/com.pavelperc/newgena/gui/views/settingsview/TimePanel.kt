@@ -2,8 +2,6 @@ package com.pavelperc.newgena.gui.views.settingsview
 
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
-import com.pavelperc.newgena.gui.views.ResourceGroupsEditor
-import com.pavelperc.newgena.gui.views.ResourceMappingEditor
 import com.pavelperc.newgena.gui.views.TransitionDelaysEditor
 import javafx.event.EventTarget
 import javafx.scene.layout.Priority
@@ -13,8 +11,6 @@ import tornadofx.*
 import java.time.Instant
 import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
-import java.time.temporal.Temporal
-import java.time.temporal.TemporalUnit
 
 
 fun EventTarget.timePanel(controller: SettingsUIController) {
@@ -93,24 +89,24 @@ fun EventTarget.timePanel(controller: SettingsUIController) {
                 }
             }
             
-            val label = textfield(getStatus()) {
+            val statusLabel = textfield(getStatus()) {
                 hgrow = Priority.ALWAYS
                 isEditable = false
                 style {
                     backgroundColor += Color.TRANSPARENT
                 }
             }
-            time.transitionIdsToDelays.addValidator(label) {
+            time.transitionIdsToDelays.addValidator(statusLabel) {
                 getStatus().let { status ->
-                    label.text = status
+                    statusLabel.text = status
                     when (status) {
                         Status.correct, Status.unknown -> null
                         else -> warning(status)
                     }
                 }
             }
-            controller.petrinetProp.onChange {
-                label.text = getStatus()
+            controller.petrinetController.petrinetProp.onChange {
+                statusLabel.text = getStatus()
             }
             button("Edit") {
                 action {

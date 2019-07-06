@@ -1,7 +1,12 @@
 package com.pavelperc.newgena.loaders.settings
 
+import com.pavelperc.newgena.loaders.settings.migration.Migrator
+import com.pavelperc.newgena.loaders.settings.migration.setVersion
+import com.pavelperc.newgena.loaders.settings.migration.updated
 import kotlinx.serialization.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 import org.junit.Test
 
 

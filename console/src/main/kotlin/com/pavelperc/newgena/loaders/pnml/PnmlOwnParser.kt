@@ -71,7 +71,7 @@ object PnmlOwnParser {
                 pnPlace.pnmlId = id
                 
                 
-                for (i in 0 until markingCount) {
+                repeat(markingCount) {
                     marking += pnPlace
                 }
             }
@@ -109,8 +109,9 @@ object PnmlOwnParser {
                     "reset" -> petrinet.addResetArc(srcNode as Place, trgNode as Transition, name ?: id)
                     "inhibitor" -> petrinet.addInhibitorArc(srcNode as Place, trgNode as Transition, name ?: id)
                     else -> {
-                        if (arcType != "normal")
+                        if (arcType != "normal") {
                             println("arc ${arc.textContent.replace("\n", "")} has unknown type $arcType. Used as normal arc.")
+                        }
                         val weight = name?.toIntOrNull() ?: 1
                         if (srcNode is Place) {
                             petrinet.addArc(srcNode, trgNode as Transition, weight)

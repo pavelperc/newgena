@@ -1,7 +1,6 @@
 package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.graphviz.PetrinetDrawer
-import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.ImageViewer
 import com.pavelperc.newgena.gui.customfields.notification
@@ -22,13 +21,13 @@ class PetrinetImageView : View("Petrinet Viewer.") {
     var tmpImageFile by tmpImageFileProp
     
     
-    val drawArcIdsProp = SimpleBooleanProperty(false)
-    val drawTransitionIdsProp = SimpleBooleanProperty(false)
-    val drawTransitionNamesProp = SimpleBooleanProperty(true)
-    val drawLegendProp = SimpleBooleanProperty(true)
-    val drawLabelProp = SimpleBooleanProperty(false)
-    val drawVerticalProp = SimpleBooleanProperty(false)
-    val drawFinalMarkingProp = SimpleBooleanProperty(true)
+    private val drawArcIdsProp = SimpleBooleanProperty(false)
+    private val drawTransitionIdsProp = SimpleBooleanProperty(false)
+    private val drawTransitionNamesProp = SimpleBooleanProperty(true)
+    private val drawLegendProp = SimpleBooleanProperty(true)
+    private val drawLabelProp = SimpleBooleanProperty(false)
+    private val drawVerticalProp = SimpleBooleanProperty(false)
+    private val drawFinalMarkingProp = SimpleBooleanProperty(true)
     
     
     override fun onBeforeShow() {
@@ -37,8 +36,10 @@ class PetrinetImageView : View("Petrinet Viewer.") {
     }
     
     /** [isFirstDraw] is true when we do not update an already drawn image. */
-    fun draw(isFirstDraw: Boolean = false) {
-        controller.updateInhResetArcsFromModel()
+    fun draw(updateInhResetArcs: Boolean = false) {
+        if (updateInhResetArcs) {
+            controller.updateInhResetArcsFromModel()
+        }
         
         // update window title.
         title = controller.petrinet?.label ?: "No petrinet loaded."
@@ -93,7 +94,7 @@ class PetrinetImageView : View("Petrinet Viewer.") {
             button("Update") {
                 action {
                     try {
-                        draw()
+                        draw(true)
                     } catch (e: Exception) {
                         error("Can not update image:", e.message)
 //                            imgProp.value = null

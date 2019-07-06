@@ -48,7 +48,7 @@ class JsonSettingsController(var jsonSettings: JsonSettings) {
     /** Changes the [petrinet]. */
     private fun updateInhResetArcsFromSettings() {
         with(jsonSettings.petrinetSetup) {
-            if (inhibitorArcIds.size + resetArcIds.size > 0) {
+            if (!irArcsFromPnml && inhibitorArcIds.size + resetArcIds.size > 0) {
                 petrinet.deleteAllInhibitorResetArcs()
                 petrinet.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
             }

@@ -1,7 +1,7 @@
 {
   "settingsInfo": {
     "type": "petrinet",
-    "version": "0.3"
+    "version": "0.4"
   },
   "petrinetSetup": {
     "petrinetFile": "examples/petrinet/complex1/complex1.pnml",
@@ -23,7 +23,8 @@
     "resetArcIds": [
       "arc12",
       "arc13"
-    ]
+    ],
+    "irArcsFromPnml": false
   },
   "outputFolder": "xes-out",
   "numberOfLogs": 1,
