@@ -1,5 +1,6 @@
 package org.processmining.models.descriptions
 
+import com.pavelperc.newgena.models.pnmlId
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 
 /**
@@ -21,7 +22,7 @@ open class GenerationDescriptionWithStaticPriorities(
     
     init {
         priorities.forEach { tr, priority ->
-            require(priority >= 1) { "Priority for transition ${tr.label} should be greater than 0." }
+            require(priority >= 1) { "Priority for transition ${tr.pnmlId} should be greater than 0." }
         }
     }
     

@@ -34,13 +34,12 @@
   "isRemovingUnfinishedTraces": true,
   "isUsingNoise": false,
   "noiseDescription": {
-    "noiseLevel": 8,
+    "noiseLevel": 100,
     "isSkippingTransitions": false,
-    "isUsingExternalTransitions": true,
-    "isUsingInternalTransitions": false,
+    "isUsingExternalTransitions": false,
+    "isUsingInternalTransitions": true,
     "internalTransitionIds": [
-      "transition1",
-      "transition2"
+      "transition4"
     ],
     "artificialNoiseEvents": [
       {
@@ -96,7 +95,7 @@
     },
     "generationStart": "2019-05-05T00:00:00Z",
     "isUsingLifecycle": true,
-    "isSeparatingStartAndFinish": true,
+    "isSeparatingStartAndFinish": false,
     "minimumIntervalBetweenActions": 0,
     "maximumIntervalBetweenActions": 0,
     "isUsingResources": true,

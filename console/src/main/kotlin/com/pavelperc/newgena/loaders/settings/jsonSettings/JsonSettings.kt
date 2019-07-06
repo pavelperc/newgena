@@ -157,7 +157,7 @@ class JsonNoise {
     var isUsingInternalTransitions = true
     
     @Required
-    @Doc("Exising transitions for the noise.")
+    @Doc("Existing transitions for noise.")
     var internalTransitionIds = mutableListOf<String>()
     @Required
     @Doc("Artificial noise events. Params:\n" +
@@ -219,7 +219,7 @@ class JsonTimeDescription {
     }
     
     @Required
-    @Doc("Delays of transitions in seconds." +
+    @Doc("Delays of transitions in seconds. " +
             "Should be specified for all transitions.")
     var transitionIdsToDelays = mutableMapOf<String, DelayWithDeviation>()
     

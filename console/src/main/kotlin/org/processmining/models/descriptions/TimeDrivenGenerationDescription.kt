@@ -1,5 +1,6 @@
 package org.processmining.models.descriptions
 
+import com.pavelperc.newgena.models.pnmlId
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.models.organizational_extension.Group
 import org.processmining.models.organizational_extension.Resource
@@ -86,6 +87,10 @@ class TimeDrivenGenerationDescription(
         
         
         /** Internal transitions, wrapped to NoiseEvents. */
-        val existingNoiseEvents: List<NoiseEvent> = time.map { (tr, pair) -> NoiseEvent(tr, pair) }
+        val existingNoiseEvents: List<NoiseEvent> = internalTransitions.map { tr ->
+            val timePair = time[tr]
+                    ?: throw IllegalArgumentException("Not found time for transition ${tr.pnmlId} while making NoiseEvents.")
+            NoiseEvent(tr, timePair)
+        }
     }
 }
