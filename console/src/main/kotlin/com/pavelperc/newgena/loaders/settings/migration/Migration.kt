@@ -122,12 +122,15 @@ val migrator_0_3__0_4 = Migrator("""
     0.3 -> 0.4
     Added a setting in petrinetSetup section: irArcsFromPnml.
     It is true by default, but in old settings is set as false.
-    
+    Removed maxPriority from static priorities.
 """.trimIndent()) { jo ->
     jo.updated {
         setVersion("0.4")
         updateObject("petrinetSetup") {
             this["irArcsFromPnml"] = JsonPrimitive(false)
+        }
+        updateObject("staticPriorities", required = false) {
+            remove("maxPriority")
         }
         
     }

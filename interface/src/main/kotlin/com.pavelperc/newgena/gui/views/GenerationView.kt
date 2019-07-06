@@ -107,7 +107,7 @@ class GenerationView : View("Generation View") {
             }
         } ui { logArray ->
             pb.progress = 1.0
-            logArray.toList().map { it.eventNames() }.joinToString("\n").also { println(it) }
+//            logArray.toList().map { it.eventNames() }.joinToString("\n").also { println(it) }
             
             eventLogArray = logArray
 //            val forList = logArray.eventNames().map { event ->

@@ -175,18 +175,11 @@ class JsonNoise {
 
 @Serializable
 class JsonStaticPriorities {
-    @Required
-    @Doc("Max priority. Should be >= 1.")
-    var maxPriority: Int = 100 // >= 1
     /** Ids with larger numbers go first. Default priority is 1.*/
     @Required
     @Doc("Priority dictionary. Transitions with higher priority fire earlier.\n" +
-            "Default priority is 1.")
+            "Default priority is 1. All priorities should be positive.")
     var transitionIdsToPriorities = mutableMapOf<String, Int>()
-    
-    init {
-//        check(maxPriority >= 1) { "Field maxPriority should be >= 1." }
-    }
     
     override fun toString() = reflectionToString(this)
 }

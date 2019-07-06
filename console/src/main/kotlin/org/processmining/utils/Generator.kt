@@ -36,10 +36,6 @@ class Generator(private val callback: ProgressBarCallback) {
         val logArray = EventLogArrayFactory.createEventLogArray()
         val generationDescription = generationHelper.generationDescription
         
-        with(generationDescription) {
-            println("Number of logs=$numberOfLogs, numberOfTraces=$numberOfTraces")
-        }
-        
         for (logNumber in 0 until generationDescription.numberOfLogs) {
             val generatedLog = generateLog(generationHelper)
             logArray.addLog(generatedLog)

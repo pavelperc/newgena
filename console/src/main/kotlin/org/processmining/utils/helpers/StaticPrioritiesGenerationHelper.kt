@@ -78,7 +78,7 @@ class StaticPrioritiesGenerationHelper protected constructor(
             val modifiedPriorities = allTransitions
                     .groupBy {
                         description.priorities[it.node]
-                                ?: throw IllegalArgumentException("Not defined priority for ${it.node.label}(${it.node.pnmlId})")
+                                ?: GenerationDescriptionWithStaticPriorities.DEFAULT_PRIORITY
                     }
                     .toSortedMap()
             

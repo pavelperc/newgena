@@ -119,8 +119,7 @@ class MarkingModel(initial: JsonMarking)
 class StaticPrioritiesModel(initial: JsonStaticPriorities)
     : NestingItemViewModel<JsonStaticPriorities>(initial) {
     
-    val maxPriority = bind(JsonStaticPriorities::maxPriority) // >= 1
-    val transitionIdsToPriorities = bind(JsonStaticPriorities::transitionIdsToPriorities, forceObjectProperty = true)
+    val transitionIdsToPriorities = bindMap(JsonStaticPriorities::transitionIdsToPriorities)
 }
 
 

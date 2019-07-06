@@ -52,7 +52,6 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
         if (isUsingStaticPriorities) {
             description = staticPriorities.run {
                 GenerationDescriptionWithStaticPriorities(
-                        maxPriority = maxPriority,
                         numberOfLogs = numberOfLogs,
                         numberOfTraces = numberOfTraces,
                         maxNumberOfSteps = maxNumberOfSteps,

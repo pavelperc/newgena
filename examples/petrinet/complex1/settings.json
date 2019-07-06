@@ -62,7 +62,6 @@
   },
   "isUsingStaticPriorities": false,
   "staticPriorities": {
-    "maxPriority": 100,
     "transitionIdsToPriorities": {
       "transition1": 5,
       "transition2": 4,
