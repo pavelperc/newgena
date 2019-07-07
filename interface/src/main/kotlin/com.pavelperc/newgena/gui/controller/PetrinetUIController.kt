@@ -30,6 +30,13 @@ class PetrinetUIController() {
     var loadedPetrinetFilePath: String? = null
         private set
     
+    fun unloadPetrinet() {
+        petrinet = null
+        petrinetCopy = null
+        pnmlMarking = emptyMarking()
+        loadedPetrinetFilePath = null
+    }
+    
     /** Loading petrinet from petrinetFile in a text field. */
     fun loadPetrinet(petrinetFilePath: String): ResetInhibitorNet {
         profile("Loading petrinet:") {

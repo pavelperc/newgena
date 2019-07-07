@@ -43,6 +43,7 @@ fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsVie
                         controller.loadPetrinet()
                         settingsView.notification("Petrinet loaded", "okey, okey...") { hideAfter(Duration(2000.0)) }
                     } catch (e: Exception) {
+                        controller.unloadPetrinet()
                         error("Failed to load model:", e.message)
                     }
                 }

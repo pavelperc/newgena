@@ -53,8 +53,7 @@ class SettingsUIController : Controller() {
                     ?.toMap()
                     ?: emptyMap()
             
-            // restart validation ???
-            
+            // restart validation 
             // validate this and all inner models.
             settingsModel.allModels.forEach { it.validate() }
         }
@@ -241,6 +240,12 @@ class SettingsUIController : Controller() {
         return petrinetController.loadPetrinet(petrinetSetupModel.petrinetFile.value).also {
             isPetrinetUpdated.set(true)
         }
+    }
+    
+    /** In case of unsuccessful petrinet loading. Removes the petrinet and sets [isPetrinetUpdated] as false. */
+    fun unloadPetrinet() {
+        petrinetController.unloadPetrinet()
+        isPetrinetUpdated.set(false)
     }
     
     /** @return true if the fileChooser dialog was not canceled and everything is ok. */
