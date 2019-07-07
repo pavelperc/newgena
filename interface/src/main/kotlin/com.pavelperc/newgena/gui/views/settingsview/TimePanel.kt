@@ -3,6 +3,7 @@ package com.pavelperc.newgena.gui.views.settingsview
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
 import com.pavelperc.newgena.gui.views.TransitionDelaysEditor
+import javafx.beans.property.Property
 import javafx.event.EventTarget
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
@@ -68,46 +69,23 @@ fun EventTarget.timePanel(controller: SettingsUIController) {
         
         intField(time.minimumIntervalBetweenActions, nonNegative = true)
         intField(time.maximumIntervalBetweenActions, nonNegative = true)
-    
+        
         docField("transitionIdsToDelays") {
-            val Status = object {
-                val incorrect = "Ids doesn't match with model transitions."
-                val correct = "Correct."
-                val unknown = "Unknown: Petrinet is not loaded or empty"
-                val empty = "Empty."
-            }
-            
-            fun getStatus(): String {
-                val delayIds = time.transitionIdsToDelays.value.keys
+            statusLabel(time.transitionIdsToDelays) { newValue ->
+                val delayIds = newValue.keys
                 val petrinetIds = controller.transitionIdsWithHints.keys
                 
-                return when {
+                val unknownIds = delayIds - petrinetIds
+                val unsetIds = petrinetIds - delayIds
+                
+                when {
                     petrinetIds.isEmpty() -> Status.unknown
-                    delayIds.isEmpty() -> Status.empty
-                    petrinetIds != delayIds -> Status.incorrect
+                    unknownIds.isNotEmpty() -> Status("Found ${unknownIds.size} unknown ids.", true)
+                    unsetIds.isNotEmpty() -> Status("Found ${unsetIds.size} unset ids.", true)
                     else -> Status.correct
                 }
             }
             
-            val statusLabel = textfield(getStatus()) {
-                hgrow = Priority.ALWAYS
-                isEditable = false
-                style {
-                    backgroundColor += Color.TRANSPARENT
-                }
-            }
-            time.transitionIdsToDelays.addValidator(statusLabel) {
-                getStatus().let { status ->
-                    statusLabel.text = status
-                    when (status) {
-                        Status.correct, Status.unknown -> null
-                        else -> warning(status)
-                    }
-                }
-            }
-            controller.petrinetController.petrinetProp.onChange {
-                statusLabel.text = getStatus()
-            }
             button("Edit") {
                 action {
                     TransitionDelaysEditor(time.transitionIdsToDelays.value,
@@ -120,5 +98,12 @@ fun EventTarget.timePanel(controller: SettingsUIController) {
         
         // ---RESOURCES---
         resourcesPanel(controller)
+    }
+}
+
+data class Status(val text: String, val isWarning: Boolean = false) {
+    companion object {
+        val unknown = Status("Unknown: Petrinet is not loaded or empty")
+        val correct = Status("Correct.")
     }
 }

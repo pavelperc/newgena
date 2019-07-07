@@ -128,9 +128,6 @@ class JsonSettingsBuilder(val petrinet: PetrinetGraph, val jsonSettings: JsonSet
                 timeNoiseDescriptionCreator = { TimeNoiseDescription() }
             }
             
-            if (transitionIdsToDelays.size != petrinet.transitions.size) {
-                throw IllegalStateException("transitionIdsToDelays mapping should be specified for each transition.")
-            }
             
             TimeDrivenGenerationDescription(
                     numberOfLogs = numberOfLogs,

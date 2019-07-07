@@ -51,8 +51,7 @@ class TimeDrivenTransition(
         }
     
     init {
-        val timePair = generationDescription.time[node]
-                ?: throw IllegalStateException("No timePair for transition $node.")
+        val timePair = generationDescription.time[node] ?: TimeDrivenGenerationDescription.DEFAULT_TRANSITION_DELAY
         executionTime = timePair.first
         maxTimeDeviation = timePair.second
     }

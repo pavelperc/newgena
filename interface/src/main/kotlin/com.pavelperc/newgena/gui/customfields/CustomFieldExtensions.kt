@@ -15,7 +15,7 @@ import javafx.event.EventHandler
 import javafx.scene.control.Tooltip
 import org.controlsfx.control.textfield.TextFields
 
-// See more extensions in this package
+// See more extensions in the current package
 
 
 class QuiteIntConverter : StringConverter<Int>() {

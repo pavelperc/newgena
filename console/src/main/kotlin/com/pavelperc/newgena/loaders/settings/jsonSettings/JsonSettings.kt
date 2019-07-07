@@ -219,8 +219,8 @@ class JsonTimeDescription {
     }
     
     @Required
-    @Doc("Delays of transitions in seconds. " +
-            "Should be specified for all transitions.")
+    @Doc("Delays of transitions in seconds with deviation.\n" +
+            "By default for transition it is 0 with 0 deviation.")
     var transitionIdsToDelays = mutableMapOf<String, DelayWithDeviation>()
     
     @Required

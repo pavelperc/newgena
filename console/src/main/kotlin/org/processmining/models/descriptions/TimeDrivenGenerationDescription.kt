@@ -40,7 +40,8 @@ class TimeDrivenGenerationDescription(
         
         val simplifiedResources: List<Resource> = listOf(),
         override val isUsingTime: Boolean = true,
-        /** transitionIdsToDelays: executionTime and maxTimeDeviation in seconds. */
+        /** Transitions to Delays: executionTime and maxTimeDeviation in seconds.
+         * See default value in [DEFAULT_TRANSITION_DELAY].*/
         val time: Map<Transition, Pair<Long, Long>> = emptyMap(),
         override val isUsingLifecycle: Boolean = true,
         var generationStart: Instant = Instant.now(),
@@ -88,9 +89,12 @@ class TimeDrivenGenerationDescription(
         
         /** Internal transitions, wrapped to NoiseEvents. */
         val existingNoiseEvents: List<NoiseEvent> = internalTransitions.map { tr ->
-            val timePair = time[tr]
-                    ?: throw IllegalArgumentException("Not found time for transition ${tr.pnmlId} while making NoiseEvents.")
-            NoiseEvent(tr, timePair)
+            NoiseEvent(tr, time[tr] ?: DEFAULT_TRANSITION_DELAY)
         }
+    }
+    
+    companion object {
+        /** 0 Seconds with 0 deviation. */
+        val DEFAULT_TRANSITION_DELAY = 0L to 0L
     }
 }

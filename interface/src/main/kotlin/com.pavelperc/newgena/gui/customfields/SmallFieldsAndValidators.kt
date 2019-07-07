@@ -1,6 +1,7 @@
 package com.pavelperc.newgena.gui.customfields
 
 import com.pavelperc.newgena.gui.app.Styles
+import com.pavelperc.newgena.gui.views.settingsview.Status
 import com.pavelperc.newgena.loaders.settings.documentation.documentationByName
 import javafx.beans.property.Property
 import javafx.event.EventTarget
@@ -228,6 +229,28 @@ fun <T> EventTarget.readOnlyTextField(prop: Property<T>, converter: (T) -> Strin
     }
     prop.onChange { newValue ->
         tf.text = newValue?.let { converter(it) } ?: ""
+    }
+    
+}
+
+/** This label updates its status on [bindProp] update. */
+inline fun <reified T> EventTarget.statusLabel(bindProp: Property<T>, crossinline getStatus: (newValue: T) -> Status) {
+    val statusLabel = textfield(getStatus(bindProp.value).text) {
+        hgrow = Priority.ALWAYS
+        isEditable = false
+        style {
+            backgroundColor += Color.TRANSPARENT
+        }
+    }
+    
+    bindProp.addValidator(statusLabel) { newValue ->
+        getStatus(newValue!!).let { status ->
+            statusLabel.text = status.text
+            
+            if (status.isWarning)
+                warning(status.text)
+            else null
+        }
     }
     
 }

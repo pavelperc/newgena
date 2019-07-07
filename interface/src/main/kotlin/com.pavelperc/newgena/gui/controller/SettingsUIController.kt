@@ -54,7 +54,9 @@ class SettingsUIController : Controller() {
                     ?: emptyMap()
             
             // restart validation ???
-//            settingsModel.validate()
+            
+            // validate this and all inner models.
+            settingsModel.allModels.forEach { it.validate() }
         }
     }
     
