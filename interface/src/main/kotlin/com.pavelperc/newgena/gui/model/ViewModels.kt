@@ -2,6 +2,7 @@ package com.pavelperc.newgena.gui.model
 
 import com.pavelperc.newgena.loaders.settings.jsonSettings.*
 import javafx.beans.property.BooleanProperty
+import javafx.beans.property.Property
 import tornadofx.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
@@ -59,7 +60,10 @@ abstract class NestingItemViewModel<T>(initial: T?) : ItemViewModel<T>(initial) 
         innerModelsToProps.keys.forEach { it.commit() }
     }
 }
-
+/** Trigger this property validator, if can find it. */
+fun Property<*>.triggerValidator() {
+    viewModel?.validationContext?.validators?.find { it.property == this }?.validate()
+}
 
 /**
  * A middleman between [JsonSettings] and ui.

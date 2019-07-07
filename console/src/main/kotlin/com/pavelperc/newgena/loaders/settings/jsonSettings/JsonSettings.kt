@@ -336,6 +336,13 @@ object JsonResources {
             var resourceGroups: MutableList<String> = mutableListOf(),
             var resourceRoles: MutableList<String> = mutableListOf()
     ) {
+        fun isEmpty() = simplifiedResourceNames.size +
+                complexResourceNames.size +
+                resourceGroups.size +
+                resourceRoles.size == 0
+        
+        fun isNotEmpty() = !isEmpty()
+        
         override fun toString() = reflectionToString(this)
     }
 }

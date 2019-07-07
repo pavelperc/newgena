@@ -103,7 +103,7 @@ fun EventTarget.timePanel(controller: SettingsUIController) {
 
 data class Status(val text: String, val isWarning: Boolean = false) {
     companion object {
-        val unknown = Status("Unknown: Petrinet is not loaded or empty")
+        val unknown = Status("Unknown: Petrinet is not loaded or empty.")
         val correct = Status("Correct.")
     }
 }
