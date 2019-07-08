@@ -1,13 +1,17 @@
 package com.pavelperc.newgena.launchers
 
 import com.pavelperc.newgena.graphviz.PetrinetDrawer
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
 import com.pavelperc.newgena.testutils.GraphvizDrawer
+import com.pavelperc.newgena.testutils.jsonSettingsHelpers.setFinalMarking
+import com.pavelperc.newgena.testutils.jsonSettingsHelpers.setInitialMarking
+import com.pavelperc.newgena.testutils.launchers.justGenerate
+import com.pavelperc.newgena.testutils.petrinetUtils.simplePetrinetBuilder
 import com.pavelperc.newgena.utils.common.markingOf
 import com.pavelperc.newgena.utils.xlogutils.eventNames
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.Test
-import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
 import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.graphbased.directed.petrinet.impl.ResetInhibitorNetImpl
@@ -179,62 +183,55 @@ class InhibitorResetPetrinetTest : GraphvizDrawer(false) {
     
     @Test
     fun priorityInhResetNet() {
-        val petrinet: ResetInhibitorNet = ResetInhibitorNetImpl("simplePetriNet")
-
-//        val a = petrinet.addTransition("A")
-        val b = petrinet.addTransition("B")
-        val c = petrinet.addTransition("C")
-        val d = petrinet.addTransition("D")
+    
+        val petrinet = simplePetrinetBuilder("""
+            places:
+            p1 p2 p3 p4
+            transitions:
+            a b c d
+            arcs:
+            p2-->b-->p3
+            p2->>c-->p3-o>d-->p4
+                     p1-->d
+        """.trimIndent(), "priorityInhResetNet")
         
-        val p1 = petrinet.addPlace("p1")
-        val p2 = petrinet.addPlace("p2")
-        val p3 = petrinet.addPlace("p3")
-        val p4 = petrinet.addPlace("p4")
-        
-        petrinet.addArc(p2, b)
-        petrinet.addResetArc(p2, c)
-        petrinet.addArc(b, p3)
-        petrinet.addArc(c, p3)
-        petrinet.addInhibitorArc(p3, d)
-        petrinet.addArc(p1, d)
-        petrinet.addArc(d, p4)
         //       B          p1
         //   /     \         \
         // p2 ->> C -> p3 --o D -> p4
         
         
-        val description = GenerationDescriptionWithStaticPriorities(
-                maxPriority = 100,
-                numberOfLogs = 6,
-                numberOfTraces = 8,
-                priorities = mapOf(
-                        b to 1,
-                        c to 2, // should always choose c instead of b
-                        d to 3 // will be chosen first
+        val settings = JsonSettings().apply {
+            numberOfLogs = 6
+            numberOfTraces = 8
+            isUsingStaticPriorities = true
+            staticPriorities.apply {
+                transitionIdsToPriorities = mutableMapOf(
+                        "b" to 1,
+                        "c" to 2, // should always choose c instead of b
+                        "d" to 3 // will be chosen first
                 )
-        )
+            }
+            
+            setInitialMarking("p2" to 2, "p1" to 1)
+            setFinalMarking("p3" to 1, "p4" to 1)
+        }
         
-        var logArray = PetrinetGenerators.generateWithPriorities(
-                petrinet,
-                Marking(listOf(p2, p2, p1)),
-                Marking(listOf(p3, p4)),
-                description
-        )
-        logArray.eventNames().shouldNotBeEmpty().forEach { it shouldEqual listOf("D", "C") }
+        var logArray = justGenerate(petrinet, settings)
         
-        description.putPriorities(mapOf(
-                b to 3, // first
-                c to 2,
-                d to 1
-        ))
-    
-        logArray = PetrinetGenerators.generateWithPriorities(
-                petrinet,
-                Marking(listOf(p2, p2, p1)),
-                Marking(listOf(p3, p3, p1)),
-                description
-        )
-        logArray.eventNames().shouldNotBeEmpty().forEach { it shouldEqual listOf("B", "B") }
+        logArray.eventNames().shouldNotBeEmpty().forEach { it shouldEqual listOf("d", "c") }
+        
+        settings.apply {
+            staticPriorities.transitionIdsToPriorities = mutableMapOf(
+                    "b" to 3, // first
+                    "c" to 2,
+                    "d" to 1
+            )
+            setInitialMarking("p2" to 2, "p1" to 1)
+            setFinalMarking("p3" to 2, "p1" to 1)
+        }
+        logArray = justGenerate(petrinet, settings)
+        
+        logArray.eventNames().shouldNotBeEmpty().forEach { it shouldEqual listOf("b", "b") }
         
         
     }

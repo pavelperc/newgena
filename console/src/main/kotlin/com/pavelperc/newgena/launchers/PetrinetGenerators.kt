@@ -23,14 +23,14 @@ object PetrinetGenerators {
     
     
     /** Generation kit for petri net */
-    data class GenerationKit<G : GenerationDescription>(
+    data class GenerationKit(
             val petrinet: ResetInhibitorNet,
             val initialMarking: Marking,
             val finalMarking: Marking,
-            val description: G
+            val description: GenerationDescription
     )
     
-    fun generateFromKit(generationKit: GenerationKit<*>, callbackOp: CallbackOperation = { _, _ -> }): EventLogArray {
+    fun generateFromKit(generationKit: GenerationKit, callbackOp: CallbackOperation = { _, _ -> }): EventLogArray {
         val callback = generateCallback(generationKit.description, callbackOp)
         val logArray = with(generationKit) {
             //        petrinet.toGraphviz(initialMarking, saveToSvg = "gv/simpleExample/simple.svg")

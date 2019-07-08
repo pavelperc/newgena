@@ -1,9 +1,8 @@
 package com.pavelperc.newgena.loaders.settings
 
 import com.pavelperc.newgena.loaders.settings.jsonSettings.SettingsInfo
+import com.pavelperc.newgena.loaders.settings.migration.Migration
 import com.pavelperc.newgena.loaders.settings.migration.Migrator
-import com.pavelperc.newgena.loaders.settings.migration.setVersion
-import com.pavelperc.newgena.loaders.settings.migration.updated
 import kotlinx.serialization.*
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
@@ -36,11 +35,13 @@ class JsonCommonTest {
         Added field c with default value "EMPTY".
         b is now Integer. (default is 0)
     """.trimIndent()) { oldSettings ->
-        oldSettings.updated {
-            setVersion("0.1")
-            
-            this["c"] = JsonPrimitive("EMPTY")
-            this["b"] = JsonPrimitive(this["b"]?.contentOrNull?.toIntOrNull() ?: 0)
+        with(Migration) {
+            oldSettings.updated {
+                setVersion("0.1")
+                
+                this["c"] = JsonPrimitive("EMPTY")
+                this["b"] = JsonPrimitive(this["b"]?.contentOrNull?.toIntOrNull() ?: 0)
+            }
         }
     }
     

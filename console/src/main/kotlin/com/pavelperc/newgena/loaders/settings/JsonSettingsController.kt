@@ -57,7 +57,7 @@ class JsonSettingsController(var jsonSettings: JsonSettings) {
     }
     
     /** When we are ready for generation. */
-    fun getGenerationKit(): PetrinetGenerators.GenerationKit<GenerationDescription> {
+    fun getGenerationKit(): PetrinetGenerators.GenerationKit {
         updateInhResetArcsFromSettings()
         
         val builder = JsonSettingsBuilder(petrinet, jsonSettings)

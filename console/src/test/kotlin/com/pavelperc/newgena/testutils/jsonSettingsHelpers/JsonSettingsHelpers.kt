@@ -1,6 +1,7 @@
 package com.pavelperc.newgena.testutils.jsonSettingsHelpers
 
 import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonResources
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
 import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonTimeDescription
 
 
@@ -28,3 +29,12 @@ fun JsonTimeDescription.fastGroups(vararg fullRes: String): MutableList<JsonReso
 
 fun JsonTimeDescription.complexResourceMapping(vararg res: String) =
         JsonResources.JsonResourceMapping(complexResourceNames = res.toMutableList())
+
+fun JsonSettings.setInitialMarking(vararg placeToAmount: Pair<String, Int>) {
+    petrinetSetup.marking.initialPlaceIds = placeToAmount.toMap().toMutableMap()
+}
+
+fun JsonSettings.setFinalMarking(vararg placeToAmount: Pair<String, Int>) {
+    petrinetSetup.marking.finalPlaceIds = placeToAmount.toMap().toMutableMap()
+}
+

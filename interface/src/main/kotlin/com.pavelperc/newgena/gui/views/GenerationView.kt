@@ -21,12 +21,12 @@ import tornadofx.*
 class GenerationView : View("Generation View") {
     
     override fun onBeforeShow() {
-        super.onBeforeShow()
+        // square
         root.setPrefSize(MyApp.WINDOW_WIDTH, MyApp.WINDOW_WIDTH)
     }
     
     
-    val generationKit: PetrinetGenerators.GenerationKit<*> by param()
+    val generationKit: PetrinetGenerators.GenerationKit by param()
     val outputFolder: String by param()
     
     

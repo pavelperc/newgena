@@ -318,7 +318,7 @@ class SettingsUIController : Controller() {
         petrinetController.updateInhResetArcsFromModel(petrinetSetupModel)
     }
     
-    fun prepareGenerationKit(): PetrinetGenerators.GenerationKit<*> {
+    fun prepareGenerationKit(): PetrinetGenerators.GenerationKit {
         if (!settingsModel.commit())
             throw IllegalStateException("Can not generate. Model is not valid.")
         

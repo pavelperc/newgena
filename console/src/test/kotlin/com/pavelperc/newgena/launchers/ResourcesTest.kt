@@ -5,6 +5,7 @@ import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.complexResourceMapping
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.delayNoDeviation
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.fastGroups
+import com.pavelperc.newgena.testutils.launchers.justGenerate
 import com.pavelperc.newgena.testutils.petrinetUtils.simplePetrinetBuilder
 import com.pavelperc.newgena.utils.xlogutils.*
 import org.amshove.kluent.shouldBeIn
@@ -14,24 +15,6 @@ import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import java.time.Instant
 
 class ResourcesTest {
-    /** Test version of launch from petrinet, settings and marking */
-    fun generate(
-            petrinet: ResetInhibitorNet,
-            settings: JsonSettings
-    ): EventLogArray {
-        val builder = JsonSettingsBuilder(petrinet, settings)
-        val generationDescription = builder.buildDescription()
-        val (initialMarking, finalMarking) = builder.buildMarking()
-        
-        val generationKit = PetrinetGenerators.GenerationKit(
-                petrinet,
-                initialMarking = initialMarking,
-                finalMarking = finalMarking,
-                description = generationDescription
-        )
-        return PetrinetGenerators.generateFromKit(generationKit)
-    }
-    
     
     @Test
     fun resourceRace() {
@@ -43,9 +26,7 @@ class ResourcesTest {
             t1 delay t2
             arcs:
             p1-->t1
-            p0-->delay
-            delay-->p2
-            p2-->t2
+            p0-->delay-->p2-->t2
         """.trimIndent())
         
         // (p1) ---------------> t1   ----  resource
@@ -89,7 +70,7 @@ class ResourcesTest {
         settings.numberOfLogs = 1
         settings.numberOfTraces = 10
         
-        val logs = generate(petrinet, settings)
+        val logs = justGenerate(petrinet, settings)
         
         println(logs.allTraces.joinToString("\n---\n") { trace ->
             trace.drawEvents(startTime.toEpochMilli(), timeGranularity = 1000, drawLifeCycle = true, drawRes = true)

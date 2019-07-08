@@ -50,7 +50,6 @@ class PetrinetPriorityTimeDrivenTest : GraphvizDrawer(false) {
         val finalMarking = Marking(listOf(p4))
         
         val description = GenerationDescriptionWithStaticPriorities(
-                maxPriority = 100,
                 numberOfLogs = 6,
                 numberOfTraces = 8,
                 priorities = mapOf(
@@ -114,7 +113,7 @@ class PetrinetPriorityTimeDrivenTest : GraphvizDrawer(false) {
         
         val initialMarking = Marking(listOf(p1))
         val finalMarking = Marking(listOf(p4))
-            
+        
         val description = TimeDrivenGenerationDescription(
                 time = mutableMapOf(
                         a to Pair(100L, 0L), // delay in seconds, deviation

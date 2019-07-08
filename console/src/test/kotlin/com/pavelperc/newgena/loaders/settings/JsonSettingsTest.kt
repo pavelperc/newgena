@@ -43,8 +43,7 @@ class JsonSettingsTest {
         settings.petrinetSetup.marking.finalPlaceIds = mutableMapOf("p4" to 1)
         
         
-        settings.staticPriorities!!.apply {
-            this.maxPriority = 10
+        settings.staticPriorities.apply {
             this.transitionIdsToPriorities = mutableMapOf(
                     a.label to 1,
                     b.label to 2,

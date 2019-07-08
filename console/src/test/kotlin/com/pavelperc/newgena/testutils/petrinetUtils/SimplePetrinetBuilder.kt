@@ -2,32 +2,32 @@ package com.pavelperc.newgena.testutils.petrinetUtils
 
 import com.pavelperc.newgena.models.makeArcPnmlIdsFromEnds
 import com.pavelperc.newgena.models.makePnmlIdsFromLabels
+import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.graphbased.directed.petrinet.elements.Place
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.models.graphbased.directed.petrinet.impl.ResetInhibitorNetImpl
-import java.lang.IllegalArgumentException
 
 /**
  * Convert string representation of petrinet.
- * example:
+ * Example:
  * ```
  * places:
- * p1 // or in one line with space separator
- * p2
- *
- * // support blank lines
+ * p1 p2 p3 p4 // or in separate lines
  * transitions:
- * t1
- * t2
+ * a b c d
+ * 
+ * // support blank lines
  * arcs:
- * p1-->t1
- * p1-o>t2
- * p2->>t1
+ * p1-o>a-->p2-->b-->p3-->d-->p4
+ *          p2->>c-->p3 // arcs may be chained!!
  * ```
  */
-fun simplePetrinetBuilder(descr: String): ResetInhibitorNetImpl {
+fun simplePetrinetBuilder(descr: String, name: String = "net1"): ResetInhibitorNet {
     // splitting
-    val lines = descr.lines().filter { it.isNotBlank() }
+    val lines = descr.lines()
+            .map { it.substringBefore("//").trim() }
+            .filter { it.isNotBlank() }
+    // search sections:
     val trInd = lines.indexOf("transitions:")
     val arcInd = lines.indexOf("arcs:")
     require(trInd != -1) { "not found `transitions:` for descr:\n$descr." }
@@ -38,7 +38,7 @@ fun simplePetrinetBuilder(descr: String): ResetInhibitorNetImpl {
     val arcsStr = lines.subList(arcInd + 1, lines.size).flatMap { it.split(" ") }
     
     // building:
-    val petrinet = ResetInhibitorNetImpl("net1")
+    val petrinet = ResetInhibitorNetImpl(name)
     
     // making nodes
     val nodesByLabel = placesStr.map { it to petrinet.addPlace(it) }.toMap() +
@@ -49,20 +49,34 @@ fun simplePetrinetBuilder(descr: String): ResetInhibitorNetImpl {
     fun String.trans() = nodesByLabel[this] as Transition
     
     // making arcs
-    val arcRegex = Regex("""([\w\d_]+)-([-o>])>([\w\d_]+)""")
-    arcsStr.forEach { arcLabel ->
-        // split regex
-        val (_, src, arcType, dest) = arcRegex.matchEntire(arcLabel)
-                ?.groupValues ?: throw IllegalArgumentException("Can not parse arc in line $arcLabel.")
-        
-        when (arcType) {
-            "-" ->
-                if (src.node() is Place)
-                    petrinet.addArc(src.place(), dest.trans())
-                else petrinet.addArc(src.trans(), dest.place())
-            "o" -> petrinet.addInhibitorArc(src.place(), dest.trans())
-            ">" -> petrinet.addResetArc(src.place(), dest.trans())
+    val arcLineRegex = Regex("""([\w\d_]+)|(-[-o>]>)""")
+    arcsStr.forEach { arcLine ->
+        fun addArc(src: String, arcType: String, dst: String) {
+            when (arcType) {
+                "-->" ->
+                    if (src.node() is Place)
+                        petrinet.addArc(src.place(), dst.trans())
+                    else petrinet.addArc(src.trans(), dst.place())
+                "-o>" -> petrinet.addInhibitorArc(src.place(), dst.trans(), "")
+                "->>" -> petrinet.addResetArc(src.place(), dst.trans(), "")
+            }
         }
+        // split regex
+        arcLineRegex.findAll(arcLine)
+                .windowed(3, 2)
+                .forEach { window ->
+                    val (srcMatch, arcMatch, dstMatch) = window
+//                    println("Window: ${window.map { it.value }}")
+                    fun err(token: MatchResult) = IllegalStateException("Unexpected ${token.value} in line $arcLine")
+                    
+                    // check if we got sequence: id, arc, id
+                    val src = srcMatch.groups[1]?.value ?: throw err(srcMatch)
+                    val arcType = arcMatch.groups[2]?.value ?: throw err(arcMatch)
+                    val dst = dstMatch.groups[1]?.value ?: throw err(dstMatch)
+                    
+                    addArc(src, arcType, dst)
+                }
+        
     }
     
     // making pnmlId

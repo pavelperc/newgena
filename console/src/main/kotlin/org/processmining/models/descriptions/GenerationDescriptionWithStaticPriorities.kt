@@ -6,7 +6,7 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 /**
  * Created by Ivan Shugurov on 29.12.2014.
  */
-open class GenerationDescriptionWithStaticPriorities(
+class GenerationDescriptionWithStaticPriorities(
         numberOfLogs: Int = 5,
         numberOfTraces: Int = 10,
         maxNumberOfSteps: Int = 100,
