@@ -233,9 +233,16 @@ class IntMapEditor(
                         isFocusTraversable = false
                     }
                     if (fillDefaultButton) {
-                        right = button("fill with default") {
+                        right = button("update to default") {
                             action {
-                                objects.setAll(predefinedValuesToHints.keys.map { MutablePair(it, 1) })
+                                val defaultIds = predefinedValuesToHints.keys
+                                val oldIds = objects.map { it.string }.toSet()
+                                
+                                objects.removeIf { it.string !in defaultIds }
+                                objects.addAll(defaultIds
+                                        .filter { it !in oldIds }
+                                        .map { MutablePair(it, 1) })
+                                objects.sortBy { it.string }
                             }
                         }
                     }

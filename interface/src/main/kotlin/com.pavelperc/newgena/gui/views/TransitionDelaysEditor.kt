@@ -12,7 +12,6 @@ import javafx.util.converter.DefaultStringConverter
 import tornadofx.*
 
 
-/**  */
 class TransitionDelaysEditor(
         initialObjects: Map<String, JsonTimeDescription.DelayWithDeviation>,
         private val predefinedTransitionsToHints: Map<String, String> = emptyMap(),
@@ -26,8 +25,8 @@ class TransitionDelaysEditor(
     
     public data class TransitionDelayTuple(
             var transitionId: String = "",
-            var delay: Long = 5L,
-            var deviation: Long = 1L
+            var delay: Long = 0L,
+            var deviation: Long = 0L
     ) {
         constructor(transitionId: String, delayWithDeviation: JsonTimeDescription.DelayWithDeviation)
                 : this(transitionId, delayWithDeviation.delay, delayWithDeviation.deviation)
@@ -147,11 +146,16 @@ class TransitionDelaysEditor(
                     }
                 }
                 if (showLabel) {
-                    button("fill with default") {
+                    button("update to default") {
                         action {
-                            objects.setAll(predefinedTransitionsToHints.keys
+                            val defaultIds = predefinedTransitionsToHints.keys
+                            val oldIds = objects.map { it.transitionId.value }.toSet()
+                            objects.removeIf { it.transitionId.value !in defaultIds }
+                            objects.addAll(defaultIds
+                                    .filter { it !in oldIds }
                                     .map { TransitionDelayTuple(it) }
                                     .map { TransitionDelayModel(it) })
+                            objects.sortBy { it.transitionId.value }
                         }
                     }
                 }
@@ -160,6 +164,11 @@ class TransitionDelaysEditor(
         }
     }
     
+    override fun onDock() {
+        if (!showLabel) {
+            notification(text = "Try to load the petrinet model to use hints.")
+        }
+    }
     
     override val root = vbox {
         prefWidth = 500.0
