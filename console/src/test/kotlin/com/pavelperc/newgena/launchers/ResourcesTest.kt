@@ -1,17 +1,14 @@
 package com.pavelperc.newgena.launchers
 
 import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
-import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.complexResourceMapping
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.delayNoDeviation
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.fastGroups
 import com.pavelperc.newgena.testutils.launchers.justGenerate
-import com.pavelperc.newgena.testutils.petrinetUtils.simplePetrinetBuilder
+import com.pavelperc.newgena.petrinet.fastPetrinet.simplePetrinetBuilder
 import com.pavelperc.newgena.utils.xlogutils.*
 import org.amshove.kluent.shouldBeIn
 import org.junit.Test
-import org.processmining.log.models.EventLogArray
-import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import java.time.Instant
 
 class ResourcesTest {

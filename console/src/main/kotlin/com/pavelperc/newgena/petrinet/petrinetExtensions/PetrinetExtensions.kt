@@ -1,4 +1,4 @@
-package com.pavelperc.newgena.models
+package com.pavelperc.newgena.petrinet.petrinetExtensions
 
 import org.processmining.models.graphbased.AttributeMapOwner
 import org.processmining.models.graphbased.directed.petrinet.*
@@ -124,6 +124,18 @@ private class PnmlIdDelegate {
         (thisRef as AttributeMapOwner).attributeMap.put("pnmlId", value)
     }
 }
+
+/**
+ * fastPn is fast pnml format, developed for testing this tool.
+ * See [com.pavelperc.newgena.petrinet.fastPetrinet.simplePetrinetBuilder].
+ * It is stored near name tag in pnml.
+ */
+var ResetInhibitorNet.fastPn: String?
+    get() = attributeMap["fastPn"] as String?
+    set(value) {
+        attributeMap.put("fastPn", value)
+    }
+
 
 /** Id, that was stored in original pnml file.*/
 var PetrinetEdge<*, *>.pnmlId by PnmlIdDelegate()

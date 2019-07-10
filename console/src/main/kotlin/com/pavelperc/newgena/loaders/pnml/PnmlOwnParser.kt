@@ -1,6 +1,7 @@
 package com.pavelperc.newgena.loaders.pnml
 
-import com.pavelperc.newgena.models.pnmlId
+import com.pavelperc.newgena.petrinet.petrinetExtensions.fastPn
+import com.pavelperc.newgena.petrinet.petrinetExtensions.pnmlId
 import org.processmining.models.graphbased.directed.petrinet.elements.Place
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.models.graphbased.directed.petrinet.impl.ResetInhibitorNetImpl
@@ -9,7 +10,7 @@ import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
-import java.io.File
+import java.io.*
 import javax.xml.parsers.DocumentBuilderFactory
 
 object PnmlOwnParser {
@@ -35,9 +36,17 @@ object PnmlOwnParser {
     private fun Element.pName() = elements("name").firstOrNull()?.pText()
     
     
-    fun parseFromFile(file: File): Pair<ResetInhibitorNetImpl, Marking> {
+    fun parseFromFile(file: File): Pair<ResetInhibitorNetImpl, Marking> =
+            parseFromStream(FileInputStream(file))
+    
+    fun parseFromString(pnml: String): Pair<ResetInhibitorNetImpl, Marking> =
+            parseFromStream(ByteArrayInputStream(pnml.toByteArray()))
+    
+    
+    
+    fun parseFromStream(input: InputStream): Pair<ResetInhibitorNetImpl, Marking> {
 //        val file = File("../examples/petrinet/simple.pnml")
-        val doc: Document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file)
+        val doc: Document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(input)
         //optional, but recommended (removes whitespaces an so on
         doc.getDocumentElement().normalize()
         
@@ -48,9 +57,12 @@ object PnmlOwnParser {
 //        println("name: $netName")
         
         
+        
         // creating prom petriNet
         val petrinet = ResetInhibitorNetImpl(netName)
         val marking = Marking()
+    
+        petrinet.fastPn = net1.elementOpt("fastPn")?.textContent
         
         // how will this work with multiple pages???
         // what if there will be links to the second page from the first??

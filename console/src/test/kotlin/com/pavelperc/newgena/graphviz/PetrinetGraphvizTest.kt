@@ -2,11 +2,8 @@ package com.pavelperc.newgena.graphviz
 
 import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
 import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonMarking
-import com.pavelperc.newgena.testutils.petrinetUtils.simplePetrinetBuilder
+import com.pavelperc.newgena.petrinet.fastPetrinet.simplePetrinetBuilder
 import org.junit.Test
-import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
-import org.processmining.models.graphbased.directed.petrinet.impl.ResetInhibitorNetImpl
-import org.processmining.models.semantics.petrinet.Marking
 
 class PetrinetGraphvizTest {
     

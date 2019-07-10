@@ -4,12 +4,8 @@ import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
 import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.setFinalMarking
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.setInitialMarking
-import com.pavelperc.newgena.testutils.launchers.justGenerate
-import com.pavelperc.newgena.testutils.petrinetUtils.simplePetrinetBuilder
+import com.pavelperc.newgena.petrinet.fastPetrinet.simplePetrinetBuilder
 import com.pavelperc.newgena.utils.xlogutils.exportXml
-import org.deckfour.xes.model.XAttributeMap
-import org.deckfour.xes.model.buffered.XAttributeMapBufferedImpl
-import org.deckfour.xes.model.buffered.XTraceBufferedImpl
 import org.junit.Test
 
 
@@ -31,7 +27,7 @@ class BigLogTest {
             setInitialMarking("p1" to 1)
             setFinalMarking()
             maxNumberOfSteps = 500_000
-            numberOfLogs = 10
+            numberOfLogs = 2
             numberOfTraces = 5
             isRemovingUnfinishedTraces = false
         }

@@ -2,14 +2,12 @@ package com.pavelperc.newgena.gui.controller
 
 import com.pavelperc.newgena.gui.model.PetrinetSetupModel
 import com.pavelperc.newgena.loaders.pnml.PnmlLoader
-import com.pavelperc.newgena.models.deepCopy
-import com.pavelperc.newgena.models.deleteAllInhibitorResetArcs
-import com.pavelperc.newgena.models.markInhResetArcsByIds
+import com.pavelperc.newgena.petrinet.petrinetExtensions.deepCopy
+import com.pavelperc.newgena.petrinet.petrinetExtensions.deleteAllInhibitorResetArcs
+import com.pavelperc.newgena.petrinet.petrinetExtensions.markInhResetArcsByIds
 import com.pavelperc.newgena.utils.common.emptyMarking
 import com.pavelperc.newgena.utils.common.profile
 import javafx.beans.property.SimpleObjectProperty
-import org.processmining.models.graphbased.directed.petrinet.PetrinetEdge
-import org.processmining.models.graphbased.directed.petrinet.PetrinetNode
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import tornadofx.*
 

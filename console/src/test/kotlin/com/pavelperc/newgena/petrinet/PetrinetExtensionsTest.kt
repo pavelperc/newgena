@@ -1,5 +1,6 @@
-package com.pavelperc.newgena.models
+package com.pavelperc.newgena.petrinet
 
+import com.pavelperc.newgena.petrinet.petrinetExtensions.*
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotBeNull

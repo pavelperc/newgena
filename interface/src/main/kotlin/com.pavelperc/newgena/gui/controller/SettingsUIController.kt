@@ -8,7 +8,7 @@ import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
 import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
 import com.pavelperc.newgena.loaders.settings.fromFilePath
 import com.pavelperc.newgena.loaders.settings.toJson
-import com.pavelperc.newgena.models.pnmlId
+import com.pavelperc.newgena.petrinet.petrinetExtensions.pnmlId
 import com.pavelperc.newgena.utils.common.emptyMarking
 import com.pavelperc.newgena.utils.common.getCwd
 import com.pavelperc.newgena.utils.common.profile

@@ -1,6 +1,5 @@
 package org.processmining.models.descriptions
 
-import com.pavelperc.newgena.models.pnmlId
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.models.organizational_extension.Group
 import org.processmining.models.organizational_extension.Resource
@@ -8,7 +7,6 @@ import org.processmining.models.time_driven_behavior.GranularityTypes
 import org.processmining.models.time_driven_behavior.NoiseEvent
 import org.processmining.models.time_driven_behavior.ResourceMapping
 import java.time.Instant
-import java.time.LocalDateTime
 import java.util.*
 
 

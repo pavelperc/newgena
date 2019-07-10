@@ -3,10 +3,9 @@ package com.pavelperc.newgena.loaders.settings
 import com.pavelperc.newgena.launchers.PetrinetGenerators
 import com.pavelperc.newgena.loaders.pnml.PnmlLoader
 import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
-import com.pavelperc.newgena.models.deleteAllInhibitorResetArcs
-import com.pavelperc.newgena.models.markInhResetArcsByIds
+import com.pavelperc.newgena.petrinet.petrinetExtensions.deleteAllInhibitorResetArcs
+import com.pavelperc.newgena.petrinet.petrinetExtensions.markInhResetArcsByIds
 import com.pavelperc.newgena.utils.common.emptyMarking
-import org.processmining.models.GenerationDescription
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.semantics.petrinet.Marking
 

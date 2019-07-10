@@ -1,6 +1,6 @@
 package com.pavelperc.newgena.graphviz
 
-import com.pavelperc.newgena.models.pnmlId
+import com.pavelperc.newgena.petrinet.petrinetExtensions.pnmlId
 import com.pavelperc.newgena.utils.common.plusAssign
 import guru.nidi.graphviz.*
 import guru.nidi.graphviz.attribute.*

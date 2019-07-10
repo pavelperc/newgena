@@ -1,7 +1,7 @@
 package com.pavelperc.newgena.loaders.pnml
 
 import com.pavelperc.newgena.graphviz.PetrinetDrawer
-import com.pavelperc.newgena.models.pnmlId
+import com.pavelperc.newgena.petrinet.petrinetExtensions.pnmlId
 import com.pavelperc.newgena.testutils.GraphvizDrawer
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotBeEmpty

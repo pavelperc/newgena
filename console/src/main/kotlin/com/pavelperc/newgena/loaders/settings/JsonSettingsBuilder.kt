@@ -1,7 +1,7 @@
 package com.pavelperc.newgena.loaders.settings
 
 import com.pavelperc.newgena.loaders.settings.jsonSettings.*
-import com.pavelperc.newgena.models.pnmlId
+import com.pavelperc.newgena.petrinet.petrinetExtensions.pnmlId
 import com.pavelperc.newgena.utils.common.markingOf
 import org.processmining.models.GenerationDescription
 import org.processmining.models.descriptions.*

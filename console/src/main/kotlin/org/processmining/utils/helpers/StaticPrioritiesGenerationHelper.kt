@@ -1,23 +1,14 @@
 package org.processmining.utils.helpers
 
-import com.pavelperc.newgena.models.pnmlId
 import com.pavelperc.newgena.utils.common.randomOrNull
 import org.processmining.models.descriptions.GenerationDescriptionWithStaticPriorities
 import org.processmining.models.Movable
 import org.processmining.models.abstract_net_representation.Place
 import org.processmining.models.abstract_net_representation.Token
 import org.processmining.models.base_implementation.BaseTransition
-import org.processmining.models.graphbased.NodeID
-import org.processmining.models.graphbased.directed.petrinet.Petrinet
-import org.processmining.models.graphbased.directed.petrinet.PetrinetEdge
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
-import org.processmining.models.graphbased.directed.petrinet.PetrinetNode
-import org.processmining.models.graphbased.directed.petrinet.elements.Arc
-import org.processmining.models.graphbased.directed.petrinet.elements.InhibitorArc
-import org.processmining.models.graphbased.directed.petrinet.elements.ResetArc
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.models.semantics.petrinet.Marking
-import org.processmining.models.simple_behavior.SimpleTransition
 
 import java.util.*
 

@@ -1,6 +1,6 @@
 package org.processmining.models.descriptions
 
-import com.pavelperc.newgena.models.pnmlId
+import com.pavelperc.newgena.petrinet.petrinetExtensions.pnmlId
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 
 /**

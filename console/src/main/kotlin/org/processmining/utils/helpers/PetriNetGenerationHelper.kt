@@ -1,6 +1,5 @@
 package org.processmining.utils.helpers
 
-import com.pavelperc.newgena.models.pnmlId
 import com.pavelperc.newgena.utils.common.randomOrNull
 import org.processmining.models.*
 import org.processmining.models.abstract_net_representation.Place
@@ -12,8 +11,6 @@ import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph
 import org.processmining.models.graphbased.directed.petrinet.elements.Arc
 import org.processmining.models.graphbased.directed.petrinet.elements.InhibitorArc
 import org.processmining.models.graphbased.directed.petrinet.elements.ResetArc
-
-import java.util.ArrayList
 
 /**
  * Created by Иван on 27.10.2014.

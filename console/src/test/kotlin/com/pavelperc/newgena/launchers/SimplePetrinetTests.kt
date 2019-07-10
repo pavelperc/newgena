@@ -2,8 +2,8 @@ package com.pavelperc.newgena.launchers
 
 import com.pavelperc.newgena.graphviz.PetrinetDrawer
 import com.pavelperc.newgena.testutils.GraphvizDrawer
-import com.pavelperc.newgena.models.makeArcPnmlIdsFromEnds
-import com.pavelperc.newgena.models.makePnmlIdsFromLabels
+import com.pavelperc.newgena.petrinet.petrinetExtensions.makeArcPnmlIdsFromEnds
+import com.pavelperc.newgena.petrinet.petrinetExtensions.makePnmlIdsFromLabels
 import com.pavelperc.newgena.utils.common.markingOf
 import com.pavelperc.newgena.utils.xlogutils.eventNames
 import org.amshove.kluent.*
@@ -15,7 +15,6 @@ import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl
 import org.processmining.models.graphbased.directed.petrinet.impl.ResetInhibitorNetImpl
 import org.processmining.models.semantics.petrinet.Marking
 import java.io.File
-import kotlin.math.log
 
 class SimplePetrinetTests : GraphvizDrawer(false) {
     
