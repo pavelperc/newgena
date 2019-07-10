@@ -1,5 +1,6 @@
 package com.pavelperc.newgena.petrinet.fastPetrinet
 
+import com.pavelperc.newgena.petrinet.petrinetExtensions.fastPn
 import com.pavelperc.newgena.petrinet.petrinetExtensions.pnmlId
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldEqual
@@ -12,7 +13,7 @@ class FastPnTest {
     @Test
     fun testFastPn() {
         
-        val petrinet = simplePetrinetBuilder("""
+        val fastPn = """
             places:
             p1 p2 p3 p4 p5 p6 p7
             transitions:
@@ -25,7 +26,10 @@ class FastPnTest {
                         p4--2-->c-->p7
             p6--o>c
             p6-->y-->p5-->x-->p6
-        """.trimIndent(), "complex1")
+        """.trimIndent()
+        
+        val petrinet = simplePetrinetBuilder(fastPn, "complex1")
+        petrinet.fastPn shouldEqual fastPn
         
         petrinet.label shouldEqual "complex1"
         petrinet.places.map { it.pnmlId } shouldContainSame listOf("p1", "p2", "p3", "p4", "p5", "p6", "p7")

@@ -26,11 +26,13 @@ class PnmlCreatorTest {
                      p2->>c-->p3
         """.trimIndent()
         val petrinet = simplePetrinetBuilder(fastPn, "complex1")
+        // descr is copied to fastPn field
+        petrinet.fastPn shouldEqual fastPn
         
         petrinet.label shouldEqual "complex1"
         petrinet.places.map { it.pnmlId }
         
-        val pnml = makePnmlStr(petrinet, fastPn)
+        val pnml = makePnmlStr(petrinet)
         
         println(pnml)
         val (restored, _) = PnmlOwnParser.parseFromString(pnml)

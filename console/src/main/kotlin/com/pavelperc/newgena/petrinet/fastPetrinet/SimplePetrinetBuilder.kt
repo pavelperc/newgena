@@ -1,5 +1,6 @@
 package com.pavelperc.newgena.petrinet.fastPetrinet
 
+import com.pavelperc.newgena.petrinet.petrinetExtensions.fastPn
 import com.pavelperc.newgena.petrinet.petrinetExtensions.makeArcPnmlIdsFromEnds
 import com.pavelperc.newgena.petrinet.petrinetExtensions.pnmlId
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
@@ -7,8 +8,10 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Place
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.models.graphbased.directed.petrinet.impl.ResetInhibitorNetImpl
 
+
+const val FAST_PN_VERSION = "1.0"
 /**
- * Convert string representation of petrinet. (fastPn format)
+ * Convert string representation of petrinet. (fastPn format).
  * Example:
  * ```
  * places:
@@ -44,6 +47,7 @@ fun simplePetrinetBuilder(descr: String, name: String = "net1"): ResetInhibitorN
     
     // building:
     val petrinet = ResetInhibitorNetImpl(name)
+    petrinet.fastPn = descr
     
     // making places
     val placesByLabel = placesStr.map { placeStr ->
