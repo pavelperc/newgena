@@ -1,6 +1,7 @@
 package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.gui.app.MyApp
+import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.notification
 import com.pavelperc.newgena.launchers.PetrinetGenerators
 import com.pavelperc.newgena.utils.xlogutils.eventNames
@@ -66,7 +67,9 @@ class GenerationView : View("Generation View") {
         }
         button("show petrinet") {
             action {
-                val petrinetView = find<PetrinetImageView>()
+                val petrinetView = find<PetrinetImageView>(
+                        "petrinetDrawProvider" to find<SettingsUIController>() as PetrinetDrawProvider
+                )
                 petrinetView.draw()
                 petrinetView.openWindow(owner = this@GenerationView.currentStage)
             }

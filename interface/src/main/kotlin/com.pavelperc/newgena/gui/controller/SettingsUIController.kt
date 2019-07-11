@@ -3,6 +3,7 @@ package com.pavelperc.newgena.gui.controller
 import com.pavelperc.newgena.gui.app.ArtificialIntelligence
 import com.pavelperc.newgena.gui.customfields.confirmIf
 import com.pavelperc.newgena.gui.model.SettingsModel
+import com.pavelperc.newgena.gui.views.PetrinetDrawProvider
 import com.pavelperc.newgena.launchers.PetrinetGenerators
 import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
 import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
@@ -26,7 +27,7 @@ import tornadofx.*
 import java.io.File
 
 
-class SettingsUIController : Controller() {
+class SettingsUIController : Controller(), PetrinetDrawProvider {
     
     val prefController by inject<PreferencesController>()
     
@@ -59,7 +60,7 @@ class SettingsUIController : Controller() {
         }
     }
     
-    val petrinet: ResetInhibitorNet?
+    override val petrinet: ResetInhibitorNet?
         get() = petrinetController.petrinet
     
     /** Place pnml ids of loaded petrinet, or empty map. Hints are labels. */
@@ -74,8 +75,15 @@ class SettingsUIController : Controller() {
     var transitionIdsWithHints: Map<String, String> = emptyMap()
         private set
     
+    // for petrinetImageView
+    override fun requestPetrinetUpdate() {
+        updateInhResetArcsFromModel()
+    }
     
-    val markings: Pair<Marking, Marking>
+    override val pnmlLocationForDrawing: String?
+        get() = petrinetSetupModel.petrinetFile.value
+    
+    override val markings: Pair<Marking, Marking>
         get() {
             val fromSettings = petrinet?.let { petrinet ->
                 markingModel.commit()

@@ -1,7 +1,6 @@
 package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.graphviz.PetrinetDrawer
-import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.ImageViewer
 import com.pavelperc.newgena.gui.customfields.notification
 import guru.nidi.graphviz.engine.Format
@@ -9,13 +8,26 @@ import guru.nidi.graphviz.toGraphviz
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Pos
+import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
+import org.processmining.models.semantics.petrinet.Marking
 import tornadofx.*
 import java.io.File
+
+interface PetrinetDrawProvider {
+    val petrinet: ResetInhibitorNet?
+    
+    fun requestPetrinetUpdate()
+    
+    val markings: Pair<Marking, Marking>
+    
+    /** File path, ended with .pnml extension. */
+    val pnmlLocationForDrawing: String?
+}
 
 class PetrinetImageView : View("Petrinet Viewer.") {
     //class PetrinetImageView : Fragment("Petrinet Viewer.") {
     
-    val controller by inject<SettingsUIController>()
+    val petrinetDrawProvider by param<PetrinetDrawProvider>()
     
     val tmpImageFileProp = SimpleObjectProperty<File>(null)
     var tmpImageFile by tmpImageFileProp
@@ -38,15 +50,15 @@ class PetrinetImageView : View("Petrinet Viewer.") {
     /** [isFirstDraw] is true when we do not update an already drawn image. */
     fun draw(updateInhResetArcs: Boolean = false) {
         if (updateInhResetArcs) {
-            controller.updateInhResetArcsFromModel()
+            petrinetDrawProvider.requestPetrinetUpdate()
         }
         
         // update window title.
-        title = controller.petrinet?.label ?: "No petrinet loaded."
+        title = petrinetDrawProvider.petrinet?.label ?: "No petrinet loaded."
         
-        val (initialMarking, finalMarking) = controller.markings
+        val (initialMarking, finalMarking) = petrinetDrawProvider.markings
         
-        val graph = controller.petrinet?.let { petrinet ->
+        val graph = petrinetDrawProvider.petrinet?.let { petrinet ->
             PetrinetDrawer(
                     petrinet,
                     initialMarking = initialMarking,
@@ -75,7 +87,7 @@ class PetrinetImageView : View("Petrinet Viewer.") {
             alignment = Pos.BOTTOM_LEFT
             button("Save image to file") {
                 action {
-                    val fileStr = controller.petrinetSetupModel.petrinetFile.value?.replace(".pnml", ".svg")
+                    val fileStr = petrinetDrawProvider.pnmlLocationForDrawing?.removeSuffix(".pnml")?.plus(".svg")
                     if (fileStr != null) {
                         confirm("Save image to $fileStr?") {
                             
@@ -92,11 +104,13 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                 }
             }
             button("Update") {
+                shortcut("Ctrl+R")
+                tooltip("Ctrl+R")
                 action {
                     try {
                         draw(true)
                     } catch (e: Exception) {
-                        error("Can not update image:", e.message)
+                        notification("Can not update image:", e.message ?: "", duration = 3000)
 //                            imgProp.value = null
                     }
                 }

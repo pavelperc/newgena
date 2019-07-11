@@ -2,15 +2,10 @@ package com.pavelperc.newgena.petrinet.fastPetrinet
 
 import com.pavelperc.newgena.petrinet.petrinetExtensions.fastPn
 import com.pavelperc.newgena.petrinet.petrinetExtensions.pnmlId
-import com.pavelperc.newgena.utils.common.plusAssign
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.Test
-import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
-import org.processmining.models.graphbased.directed.petrinet.elements.Arc
-import org.processmining.models.graphbased.directed.petrinet.elements.InhibitorArc
-import org.processmining.models.graphbased.directed.petrinet.elements.ResetArc
 
 class FastPnTest {
     
@@ -19,7 +14,7 @@ class FastPnTest {
         
         val fastPn = """
             places:
-            p1 p2 p3 p4 p5 p6 p7
+            p1 p2 p4 p5 p6 p7
             transitions:
             a(A) b c x(X) y
             arcs:
@@ -36,7 +31,7 @@ class FastPnTest {
         petrinet.fastPn shouldEqual fastPn
         
         petrinet.label shouldEqual "complex1"
-        petrinet.places.map { it.pnmlId } shouldContainSame listOf("p1", "p2", "p3", "p4", "p5", "p6", "p7")
+        petrinet.places.map { it.pnmlId } shouldContainSame listOf("p1", "p2", "p4", "p5", "p6", "p7")
         petrinet.transitions.map { it.pnmlId } shouldContainSame listOf("a", "b", "c", "x", "y")
         petrinet.transitions.map { it.label } shouldContainSame listOf("A", "b", "c", "X", "y")
         
@@ -57,7 +52,7 @@ class FastPnTest {
     fun converterToFastPn() {
         val petrinet = simplePetrinetBuilder("""
             places:
-            p1 p2 p3 p4 p5 p6 p7
+            p1 p2 p4 p5 p6 p7
             transitions:
             a(A) b c x(X) y
             arcs:

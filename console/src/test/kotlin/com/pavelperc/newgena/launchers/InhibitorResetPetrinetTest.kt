@@ -188,7 +188,7 @@ class InhibitorResetPetrinetTest : GraphvizDrawer(false) {
             places:
             p1 p2 p3 p4
             transitions:
-            a b c d
+            b c d
             arcs:
             p2-->b-->p3
             p2->>c-->p3-o>d-->p4
