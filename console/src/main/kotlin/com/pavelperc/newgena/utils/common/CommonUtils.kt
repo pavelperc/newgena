@@ -29,7 +29,7 @@ fun <T> profile(message: String, op: () -> T) : T {
 fun getCwd() = System.getProperty("user.dir")
 fun getCwdFile() = File(getCwd())
 
-
+/** Overrides append(string) */
 operator fun StringBuilder.plusAssign(str: String) {
     append(str)
 }
