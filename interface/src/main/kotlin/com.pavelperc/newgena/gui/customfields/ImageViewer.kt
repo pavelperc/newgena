@@ -15,7 +15,10 @@ import tornadofx.*
 import java.io.File
 
 
-class ImageViewer(val imagePath: Property<File?>, val uiComponent: UIComponent) : VBox() {
+class ImageViewer(val uiComponent: UIComponent) : VBox() {
+    
+    var buttonActionsEnabled = true
+    
     @Suppress("UNCHECKED_CAST")
     val zoomProp = SimpleDoubleProperty(1.0) as Property<Double>
     
@@ -28,16 +31,24 @@ class ImageViewer(val imagePath: Property<File?>, val uiComponent: UIComponent) 
                 tooltip(hint)
             }
             
+            fun Button.optAction(op: () -> Unit) {
+                action {
+                    if (buttonActionsEnabled) {
+                        op()
+                    }
+                }
+            }
+            
             alignment = Pos.CENTER_LEFT
             button("ZoomIn") {
-                action {
+                optAction {
                     zoomProp.value += 0.1
                 }
-                hintShortcut("=", "+")
+                hintShortcut("=", "=")
             }
             button("ZoomOut") {
                 hintShortcut("-")
-                action {
+                optAction {
                     if (zoomProp.value > 0.1) {
                         zoomProp.value -= 0.1
                     }
@@ -45,13 +56,13 @@ class ImageViewer(val imagePath: Property<File?>, val uiComponent: UIComponent) 
             }
             button("Reset") {
                 hintShortcut("R")
-                action {
-                    zoomProp.value = 1.0
+                optAction {
+                    resetSize()
                 }
             }
             button("adjust") {
                 hintShortcut("A")
-                action {
+                optAction {
                     adjustSize()
                 }
             }
@@ -59,17 +70,29 @@ class ImageViewer(val imagePath: Property<File?>, val uiComponent: UIComponent) 
             label(zoomProp, converter = object : StringConverter<Double>() {
                 override fun toString(obj: Double) = "Zoom: %.2f".format(obj)
                 override fun fromString(string: String) = 0.0
-            })
+            }) {
+                paddingLeft = 5.0
+            }
         }
     }
     
-    private fun draw() {
-        val path = "file:///" + imagePath.value?.absolutePath ?: ""
+    private var adjustSizeOnLoad = false
+    private var resetSizeOnLoad = false
+    
+    
+    fun drawFile(imageFile: File?, adjustSize: Boolean = false, resetSize: Boolean = false) {
+        adjustSizeOnLoad = adjustSize
+        resetSizeOnLoad = resetSize
+        val path = "file:///" + (imageFile?.absolutePath ?: "")
         webView.engine.loadContent("""<html><body>
                 <div id="mydiv">
                 <img id="myimg" src=$path>
                 </div>
                 </body></html>""".trimIndent())
+    }
+    
+    fun resetSize() {
+        zoomProp.value = 1.0
     }
     
     fun adjustSize() {
@@ -83,7 +106,7 @@ class ImageViewer(val imagePath: Property<File?>, val uiComponent: UIComponent) 
                     .executeScript("document.getElementById('mydiv').offsetWidth") as Int
 //            val actualHeight = webView.engine
 //                    .executeScript("document.getElementById('mydiv').offsetHeight") as Int
-            
+
 //            val coeff = if (imageWidth > imageHeight)
 //                (actualWidth + 1) / (imageWidth + 10.0)
 //            else (actualHeight + 1) / (imageHeight + 10.0)
@@ -124,19 +147,16 @@ class ImageViewer(val imagePath: Property<File?>, val uiComponent: UIComponent) 
             
             engine.loadWorker.stateProperty().onChange { value ->
                 if (value == Worker.State.SUCCEEDED) {
-                    adjustSize()
+                    if (adjustSizeOnLoad) {
+                        adjustSize()
+                    } else if (resetSizeOnLoad) {
+                        resetSize()
+                    }
                 }
             }
             
             zoomProperty().bind(zoomProp)
         }
         zoomPanel()
-        
-        
-        
-        imagePath.onChange {
-            draw()
-        }
-        draw()
     }
 }

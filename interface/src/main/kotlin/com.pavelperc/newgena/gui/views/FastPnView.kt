@@ -5,14 +5,13 @@ import com.pavelperc.newgena.utils.common.emptyMarking
 import com.pavelperc.newgena.utils.common.profile
 import guru.nidi.graphviz.engine.Graphviz
 import javafx.beans.property.SimpleStringProperty
-import javafx.geometry.Orientation
 import javafx.scene.layout.Priority
 import javafx.scene.text.Font
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.semantics.petrinet.Marking
 import tornadofx.*
 
-class FastPnView : View("My View"), PetrinetDrawProvider {
+class FastPnView : View("FastPn Editor"), PetrinetDrawProvider {
     
     val fastPnTextProp = SimpleStringProperty("""
         places:
@@ -59,7 +58,12 @@ class FastPnView : View("My View"), PetrinetDrawProvider {
                     vgrow = Priority.ALWAYS
                     promptText = "write fastPn here"
                     
-                    font = Font.font("Consolas")
+                    font = Font.font("Consolas", 16.0)
+                    
+                    focusedProperty().onChange { focused -> 
+                        // disable only adjust, reset and zoom buttons
+                        petrinetImageView.imageViewer.buttonActionsEnabled = !focused
+                    }
                 }
             }
             setDividerPositions(0.3, 0.7)

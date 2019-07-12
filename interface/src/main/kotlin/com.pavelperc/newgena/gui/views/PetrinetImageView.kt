@@ -1,13 +1,16 @@
 package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.graphviz.PetrinetDrawer
+import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.customfields.ImageViewer
 import com.pavelperc.newgena.gui.customfields.notification
 import guru.nidi.graphviz.engine.Format
 import guru.nidi.graphviz.toGraphviz
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.property.SimpleObjectProperty
+import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.control.ToggleButton
+import javafx.scene.paint.Color
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.semantics.petrinet.Marking
 import tornadofx.*
@@ -29,8 +32,7 @@ class PetrinetImageView : View("Petrinet Viewer.") {
     
     val petrinetDrawProvider by param<PetrinetDrawProvider>()
     
-    val tmpImageFileProp = SimpleObjectProperty<File>(null)
-    var tmpImageFile by tmpImageFileProp
+    var tmpImageFile: File? = null
     
     
     private val drawArcIdsProp = SimpleBooleanProperty(false)
@@ -74,13 +76,22 @@ class PetrinetImageView : View("Petrinet Viewer.") {
         }
         
         if (graph != null) {
-            tmpImageFile = createTempFile(System.currentTimeMillis().toString(), ".svg")
-            graph.toGraphviz().render(Format.SVG).toFile(tmpImageFile)
+            val imageFile = createTempFile(System.currentTimeMillis().toString(), ".svg")
+            graph.toGraphviz().render(Format.SVG).toFile(imageFile)
+
+//            tmpImageFile?.delete()
+            tmpImageFile = imageFile
             
-        } else {
-            
+            if (drawVerticalProp.value) {
+                imageViewer.drawFile(imageFile, resetSize = true)
+            } else {
+                imageViewer.drawFile(imageFile, adjustSize = true)
+            }
         }
     }
+    
+    val imageViewer = ImageViewer(this)
+    
     
     override val root = vbox {
         flowpane {
@@ -110,40 +121,66 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                     try {
                         draw(true)
                     } catch (e: Exception) {
-                        notification("Can not update image:", e.message ?: "", duration = 3000)
+                        notification("Can not update image:", e.message ?: "", duration = 4000)
 //                            imgProp.value = null
                     }
                 }
                 
             }
-
-//                addClass(Styles.graphvizButtonsPanel)
-            spacing = 3.0
-            checkbox("Draw vertical", drawVerticalProp) {
+            
+            
+            hgap = 5.0
+            vgap = 5.0
+            paddingAll = 5.0
+            //                addClass(Styles.graphvizButtonsPanel)
+            
+            fun toggleCheckbox(text: String, prop: SimpleBooleanProperty, op: ToggleButton.() -> Unit = {}) {
+                togglebutton(text) {
+                    stylesheet {
+                        Stylesheet.toggleButton {
+                            backgroundColor += Color.TRANSPARENT
+                            and(Stylesheet.hover) {
+                                backgroundColor += c("#E3E3E3")
+                            }
+                            and(Stylesheet.selected) {
+                                backgroundColor += Color.LIGHTBLUE
+                                and(Stylesheet.hover) {
+                                    backgroundColor += c("#BCE5F0")
+                                }
+                            }
+                            
+                        }
+                    }
+                    selectedProperty().bindBidirectional(prop)
+                    op()
+                }
+            }
+    
+            toggleCheckbox("Draw vertical", drawVerticalProp) {
                 action { draw() }
             }
             label("  Show: ")
-            checkbox("Arc ids", drawArcIdsProp) {
+            toggleCheckbox("Arc ids", drawArcIdsProp) {
                 action { draw() }
             }
-            checkbox("Transition ids", drawTransitionIdsProp) {
+            toggleCheckbox("Transition ids", drawTransitionIdsProp) {
                 action { draw() }
             }
-            checkbox("Transition names", drawTransitionNamesProp) {
+            toggleCheckbox("Transition names", drawTransitionNamesProp) {
                 action { draw() }
             }
-            checkbox("Legend", drawLegendProp) {
+            toggleCheckbox("Legend", drawLegendProp) {
                 action { draw() }
             }
-            checkbox("FinalMarking", drawFinalMarkingProp) {
+            toggleCheckbox("FinalMarking", drawFinalMarkingProp) {
                 action { draw() }
             }
-            checkbox("Label", drawLabelProp) {
+            toggleCheckbox("Label", drawLabelProp) {
                 action { draw() }
             }
         }
         
-        ImageViewer(tmpImageFileProp, this@PetrinetImageView).apply {
+        imageViewer.apply {
             attachTo(this@vbox)
         }
         

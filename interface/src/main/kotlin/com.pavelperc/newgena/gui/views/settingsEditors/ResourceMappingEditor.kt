@@ -1,4 +1,4 @@
-package com.pavelperc.newgena.gui.views
+package com.pavelperc.newgena.gui.views.settingsEditors
 
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.customfields.actionedAutoCompletion
@@ -13,7 +13,7 @@ import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
 import tornadofx.*
-import com.pavelperc.newgena.gui.views.ResourceMappingEditor.ResourceType.*
+import com.pavelperc.newgena.gui.views.settingsEditors.ResourceMappingEditor.ResourceType.*
 import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonResources
 import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonResources.JsonResourceMapping
 import impl.org.controlsfx.autocompletion.SuggestionProvider

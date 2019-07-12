@@ -3,6 +3,7 @@ package com.pavelperc.newgena.gui.views.settingsview
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
+import com.pavelperc.newgena.gui.views.PetrinetDrawProvider
 import com.pavelperc.newgena.gui.views.PetrinetImageView
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
@@ -53,7 +54,7 @@ fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsVie
                 enableWhen(controller.isPetrinetUpdated)
                 action {
                     try {
-                        val petrinetView = find<PetrinetImageView>()
+                        val petrinetView = find<PetrinetImageView>(FX.defaultScope, "petrinetDrawProvider" to controller)
                         petrinetView.draw(true)
                         petrinetView.openWindow(owner = settingsView.currentStage)
                         

@@ -1,4 +1,4 @@
-package com.pavelperc.newgena.gui.views
+package com.pavelperc.newgena.gui.views.settingsEditors
 
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.customfields.*

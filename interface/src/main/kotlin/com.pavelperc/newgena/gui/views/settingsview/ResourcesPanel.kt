@@ -3,10 +3,9 @@ package com.pavelperc.newgena.gui.views.settingsview
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
 import com.pavelperc.newgena.gui.model.triggerValidator
-import com.pavelperc.newgena.gui.views.ResourceGroupsEditor
-import com.pavelperc.newgena.gui.views.ResourceMappingEditor
+import com.pavelperc.newgena.gui.views.settingsEditors.ResourceGroupsEditor
+import com.pavelperc.newgena.gui.views.settingsEditors.ResourceMappingEditor
 import com.pavelperc.newgena.utils.common.plusAssign
-import javafx.beans.property.Property
 import javafx.event.EventTarget
 import javafx.scene.layout.Priority
 import tornadofx.*

@@ -17,8 +17,9 @@ class MyWebView : View("MyWebView") {
     
     override val root = vbox {
         val path = "examples\\petrinet\\simpleExample\\simple.svg"
-        ImageViewer(SimpleObjectProperty(File(path)), this@MyWebView).apply {
+        ImageViewer(this@MyWebView).apply {
             attachTo(this@vbox)
+            drawFile(File(path))
         }
     }
 }

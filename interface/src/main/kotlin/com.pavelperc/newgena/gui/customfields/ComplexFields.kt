@@ -1,7 +1,7 @@
 package com.pavelperc.newgena.gui.customfields
 
-import com.pavelperc.newgena.gui.views.ArrayEditor
-import com.pavelperc.newgena.gui.views.IntMapEditor
+import com.pavelperc.newgena.gui.views.settingsEditors.ArrayEditor
+import com.pavelperc.newgena.gui.views.settingsEditors.IntMapEditor
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.property.Property

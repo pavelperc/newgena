@@ -2,11 +2,8 @@ package com.pavelperc.newgena.gui.views.settingsview
 
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
-import com.pavelperc.newgena.gui.views.TransitionDelaysEditor
-import javafx.beans.property.Property
+import com.pavelperc.newgena.gui.views.settingsEditors.TransitionDelaysEditor
 import javafx.event.EventTarget
-import javafx.scene.layout.Priority
-import javafx.scene.paint.Color
 import javafx.util.StringConverter
 import tornadofx.*
 import java.time.Instant
