@@ -80,6 +80,7 @@ fun ResetInhibitorNet.deleteAllInhibitorResetArcs() {
 /** Don't use subnets. pnmlIds are required! */
 fun ResetInhibitorNet.deepCopy(): ResetInhibitorNetImpl {
     val copy = ResetInhibitorNetImpl(this.label)
+    copy.fastPn = this.fastPn
     
     val newPlacesByIds = this.places.map { place ->
         copy.addPlace(place.label).also { it.pnmlId = place.pnmlId }

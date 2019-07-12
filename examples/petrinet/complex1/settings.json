@@ -7,24 +7,21 @@
     "petrinetFile": "examples/petrinet/complex1/complex1.pnml",
     "marking": {
       "initialPlaceIds": {
-        "place1": 2,
-        "place2": 1,
-        "place5": 1
+        "p1": 2,
+        "p2": 1,
+        "p5": 1
       },
       "finalPlaceIds": {
-        "place7": 2,
-        "place6": 1
+        "p7": 2,
+        "p6": 1
       },
       "isUsingInitialMarkingFromPnml": false
     },
     "inhibitorArcIds": [
-      "arc17"
     ],
     "resetArcIds": [
-      "arc12",
-      "arc13"
     ],
-    "irArcsFromPnml": false
+    "irArcsFromPnml": true
   },
   "outputFolder": "xes-out",
   "numberOfLogs": 1,

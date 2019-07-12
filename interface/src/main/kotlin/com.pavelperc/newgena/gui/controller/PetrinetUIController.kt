@@ -35,7 +35,7 @@ class PetrinetUIController() {
         loadedPetrinetFilePath = null
     }
     
-    /** Loading petrinet from petrinetFile in a text field. */
+    /** Loading petrinet from petrinetFilePath in a text field. */
     fun loadPetrinet(petrinetFilePath: String): ResetInhibitorNet {
         profile("Loading petrinet:") {
             petrinet = null
@@ -49,6 +49,11 @@ class PetrinetUIController() {
         }
         loadedPetrinetFilePath = petrinetFilePath
         return petrinet!!
+    }
+    
+    fun loadUpdatedPetrinet(updatedPetrinet: ResetInhibitorNet) {
+        petrinet = updatedPetrinet
+        petrinetCopy = updatedPetrinet.deepCopy()
     }
     
     

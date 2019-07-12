@@ -5,10 +5,11 @@ import com.pavelperc.newgena.gui.customfields.confirmIf
 import com.pavelperc.newgena.gui.model.SettingsModel
 import com.pavelperc.newgena.gui.views.PetrinetDrawProvider
 import com.pavelperc.newgena.launchers.PetrinetGenerators
-import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
 import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
 import com.pavelperc.newgena.loaders.settings.fromFilePath
+import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
 import com.pavelperc.newgena.loaders.settings.toJson
+import com.pavelperc.newgena.petrinet.output.makePnmlStr
 import com.pavelperc.newgena.petrinet.petrinetExtensions.pnmlId
 import com.pavelperc.newgena.utils.common.emptyMarking
 import com.pavelperc.newgena.utils.common.getCwd
@@ -17,6 +18,7 @@ import guru.nidi.graphviz.engine.Graphviz
 import javafx.beans.binding.Bindings
 import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.EventHandler
 import javafx.stage.DirectoryChooser
@@ -63,6 +65,9 @@ class SettingsUIController : Controller(), PetrinetDrawProvider {
     override val petrinet: ResetInhibitorNet?
         get() = petrinetController.petrinet
     
+    val petrinetProp: SimpleObjectProperty<ResetInhibitorNet?>
+        get() = petrinetController.petrinetProp
+    
     /** Place pnml ids of loaded petrinet, or empty map. Hints are labels. */
     var placeIdsWithHints: Map<String, String> = emptyMap()
         private set
@@ -102,6 +107,8 @@ class SettingsUIController : Controller(), PetrinetDrawProvider {
     val isPetrinetUpdated = SimpleBooleanProperty(false)
     val isPetrinetDirty = isPetrinetUpdated.not()
     
+    /** Is petrinet not null. (Created or loaded.) */
+    val isPetrinetLoaded = petrinetProp.isNotNull
     
     /** Currently loaded json settings. */
     val jsonSettingsPath = SimpleStringProperty(null)
@@ -250,6 +257,40 @@ class SettingsUIController : Controller(), PetrinetDrawProvider {
         }
     }
     
+    /** Load new petrinet from editor. */
+    fun loadUpdatedPetrinet(updatedPetrinet: ResetInhibitorNet) {
+        petrinetController.loadUpdatedPetrinet(updatedPetrinet)
+    }
+    
+    fun savePetrinet(path: String) {
+        if (petrinet == null) {
+            return
+        }
+        
+        val file = File(path)
+        val pnml = makePnmlStr(petrinet!!)
+        file.writeText(pnml)
+        
+        petrinetSetupModel.petrinetFile.value = path
+        isPetrinetUpdated.set(true)
+        
+    }
+    
+    /** Returns saving path or null in case of cancel. */
+    fun savePetrinetAs(): String? {
+        val cwd = File(getCwd())
+        val prev = File(jsonSettingsPath.value ?: "").parentFile
+        
+        val fileChooser = FileChooser()
+        fileChooser.initialDirectory = if (prev != null && prev.isDirectory) prev else cwd
+        
+        val path = fileChooser.showSaveDialog(null)?.relativePath ?: return null
+        
+        savePetrinet(path)
+        return path
+    }
+    
+    
     /** In case of unsuccessful petrinet loading. Removes the petrinet and sets [isPetrinetUpdated] as false. */
     fun unloadPetrinet() {
         petrinetController.unloadPetrinet()
@@ -322,6 +363,7 @@ class SettingsUIController : Controller(), PetrinetDrawProvider {
         settingsAreSaved.set(true)
     }
     
+    /** Updates ir arcs from settings or pnml! */
     fun updateInhResetArcsFromModel() {
         petrinetController.updateInhResetArcsFromModel(petrinetSetupModel)
     }
@@ -340,5 +382,6 @@ class SettingsUIController : Controller(), PetrinetDrawProvider {
         
         return PetrinetGenerators.GenerationKit(petrinet, initialMarking, finalMarking, generationDescription)
     }
+    
     
 }

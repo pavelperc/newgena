@@ -3,15 +3,22 @@ package com.pavelperc.newgena.gui.views.settingsview
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
+import com.pavelperc.newgena.gui.views.FastPnView
 import com.pavelperc.newgena.gui.views.PetrinetDrawProvider
 import com.pavelperc.newgena.gui.views.PetrinetImageView
+import com.pavelperc.newgena.petrinet.output.makePnml
+import com.pavelperc.newgena.petrinet.petrinetExtensions.deepCopy
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.event.EventTarget
+import javafx.geometry.Orientation
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
+import javafx.scene.layout.Priority
 import javafx.util.Duration
 import tornadofx.*
+import java.io.File
+import java.io.FileOutputStream
 
 fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsView: SettingsView) {
     val petrinetSetup = controller.petrinetSetupModel
@@ -19,47 +26,101 @@ fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsVie
     
     fieldset("petrinetSetup") {
         addClass(Styles.fieldSetFrame)
-    
-        docField("petrinetFile") {
-            
-            textfield(petrinetSetup.petrinetFile).required()
-            var btnLoadPetrinet: Button? = null
-            // select file
-            button(graphic = FontAwesomeIconView(FontAwesomeIcon.FILE)) {
-                action {
-                    if (controller.requestPetrinetFileChooseDialog()) {
-                        btnLoadPetrinet?.fire()
-                    }
-                }
-                isFocusTraversable = false
-            }
-            btnLoadPetrinet = button("Load model") {
-                //                    enableWhen(controller.isPetrinetDirty)
+        
+        docField("petrinetFile", Orientation.VERTICAL) {
+            hbox {
+                useMaxSize = true
+                hgrow = Priority.ALWAYS
                 
-                toggleClass(Styles.redButton, controller.isPetrinetDirty)
+                textfield(petrinetSetup.petrinetFile) {
+                    required()
+                    useMaxSize = true
+                    hgrow = Priority.ALWAYS
+                }
+                var btnLoadPetrinet: Button? = null
+                // select file
+                button(graphic = FontAwesomeIconView(FontAwesomeIcon.FILE)) {
+                    action {
+                        if (controller.requestPetrinetFileChooseDialog()) {
+                            btnLoadPetrinet?.fire()
+                        }
+                    }
+                    isFocusTraversable = false
+                }
+                btnLoadPetrinet = button("Load model") {
+                    //                    enableWhen(controller.isPetrinetDirty)
+                    
+                    toggleClass(Styles.redButton, controller.isPetrinetDirty)
 //                            toggleClass(Styles.greenButton, isPetrinetUpdated)
-                action {
-                    // may crash
-                    try {
-                        controller.loadPetrinet()
-                        settingsView.notification("Petrinet loaded", "okey, okey...") { hideAfter(Duration(2000.0)) }
-                    } catch (e: Exception) {
-                        controller.unloadPetrinet()
-                        error("Failed to load model:", e.message)
+                    action {
+                        // may crash
+                        try {
+                            controller.loadPetrinet()
+                            settingsView.notification("Petrinet loaded", "okey, okey...") { hideAfter(Duration(2000.0)) }
+                        } catch (e: Exception) {
+                            controller.unloadPetrinet()
+                            error("Failed to load model:", e.message)
+                        }
+                    }
+                    isFocusTraversable = false
+                }
+            }
+            hbox {
+                button("draw") {
+                    enableWhen(controller.isPetrinetLoaded)
+                    action {
+                        try {
+                            val petrinetView = find<PetrinetImageView>(FX.defaultScope, "petrinetDrawProvider" to controller)
+                            petrinetView.draw(true)
+                            petrinetView.openWindow(owner = settingsView.currentStage)
+                            
+                        } catch (e: Exception) {
+                            alert(Alert.AlertType.ERROR, "Failed to update arcs and draw.", e.message)
+                        }
                     }
                 }
-                isFocusTraversable = false
-            }
-            button("draw") {
-                enableWhen(controller.isPetrinetUpdated)
-                action {
-                    try {
-                        val petrinetView = find<PetrinetImageView>(FX.defaultScope, "petrinetDrawProvider" to controller)
-                        petrinetView.draw(true)
-                        petrinetView.openWindow(owner = settingsView.currentStage)
-                        
-                    } catch (e: Exception) {
-                        alert(Alert.AlertType.ERROR, "Failed to update arcs and draw.", e.message)
+                button("create") {
+                    controller.isPetrinetLoaded.onChange { isLoaded ->
+                        if (isLoaded) {
+                            this@button.text = "edit"
+                        } else {
+                            this@button.text = "create"
+                        }
+                    }
+                    
+                    action {
+                        controller.updateInhResetArcsFromModel()
+                        val fastPnEditor = FastPnView(controller.petrinet?.deepCopy()) { updatedPetrinet ->
+                            controller.loadUpdatedPetrinet(updatedPetrinet)
+                        }
+                        fastPnEditor.openWindow(owner = settingsView.currentStage, escapeClosesWindow = false)
+                    }
+                }
+                button("save") {
+                    enableWhen(controller.isPetrinetLoaded)
+                    action {
+                        val path = petrinetSetup.petrinetFile.value
+                        confirm("Save petrinet", "Save to $path?") {
+                            try {
+                                controller.savePetrinet(path)
+                                settingsView.notification("Saved petrinet to $path")
+                            } catch (e: Exception) {
+                                error("Can not save petrinet.", e.message)
+                            }
+                        }
+                    }
+                }
+                button("save as") {
+                    enableWhen(controller.isPetrinetLoaded)
+                    action {
+                        try {
+                            val path = controller.savePetrinetAs()
+                            if (path != null) {
+                                settingsView.notification("Saved petrinet to $path")
+                            }
+                        } catch (e: Exception) {
+                            error("Can not save petrinet.", e.message)
+                        }
                     }
                 }
             }

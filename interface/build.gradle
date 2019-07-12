@@ -30,7 +30,6 @@ dependencies {
     compile 'no.tornado:tornadofx:1.7.18'
     compile 'de.jensd:fontawesomefx:8.9'
     compile 'no.tornado:tornadofx-controlsfx:0.1.1'
-//    compile 'no.tornado:tornadofx-controls:1.0.3'
     
     // tests
     testImplementation 'junit:junit:4.12'

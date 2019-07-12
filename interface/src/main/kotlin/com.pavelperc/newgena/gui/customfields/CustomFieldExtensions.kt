@@ -94,7 +94,7 @@ fun Tooltip.delayHack(delayInMillis: Int) {
     }
     
 }
-
+/** returns true if confirmed. */
 fun confirmed(
         header: String,
         content: String = "",
