@@ -1,51 +1,73 @@
 package org.processmining.utils
 
-import com.pavelperc.newgena.utils.xlogutils.eventNames
 import com.pavelperc.newgena.utils.xlogutils.name
 import org.deckfour.xes.extension.std.XConceptExtension
 import org.deckfour.xes.extension.std.XLifecycleExtension
 import org.deckfour.xes.extension.std.XOrganizationalExtension
 import org.deckfour.xes.extension.std.XTimeExtension
-import org.deckfour.xes.factory.XFactory
 import org.deckfour.xes.factory.XFactoryBufferedImpl
-import org.deckfour.xes.model.XAttribute
 import org.deckfour.xes.model.XLog
 import org.deckfour.xes.model.XTrace
 import org.processmining.log.models.EventLogArray
 import org.processmining.log.models.impl.EventLogArrayFactory
-import org.processmining.models.AssessedMovementResult
 import org.processmining.models.GenerationDescription
 import org.processmining.models.Movable
 import org.processmining.models.MovementResult
-import org.processmining.models.descriptions.SimpleGenerationDescription
 import org.processmining.models.descriptions.TimeDrivenGenerationDescription
 import org.processmining.utils.helpers.GenerationHelper
 import org.processmining.utils.helpers.PetriNetGenerationHelper
+
+
+typealias GenerationCallback = (progress: Int, maxProgress: Int) -> Unit
+
+val emptyCallback: GenerationCallback = { _, _ -> }
+
+/** returns callback, normed by 100. */
+fun percentCallBack(callback: GenerationCallback) : GenerationCallback {
+    var oldPercents = 0
+    return { progress, maxProgress ->
+        val percents = progress * 100 / maxProgress
+        if (percents != oldPercents) {
+            callback(percents, 100)
+        }
+        oldPercents = percents
+    }
+}
 
 /**
  * @author Ivan Shugurov
  * Created on 25.11.2013
  */
-class Generator(private val callback: ProgressBarCallback) {
+class Generator(
+        private val generationHelper: GenerationHelper<out Movable, out Movable>,
+        private val callback: GenerationCallback = { _, _ -> }
+) {
     private val factory = XFactoryBufferedImpl()
     
-    fun generate(generationHelper: GenerationHelper<out Movable, out Movable>): EventLogArray = generateLogs(generationHelper)
+    
+    private val generationDescription = generationHelper.generationDescription
+    
+    private var progress = 0
+    private val maxProgress = generationDescription.numberOfLogs * generationDescription.numberOfTraces
+    
+    private fun incrementCallback() {
+        callback(progress++, maxProgress)
+    }
     
     
-    private fun generateLogs(generationHelper: GenerationHelper<out Movable, out Movable>): EventLogArray {
+    fun generate(): EventLogArray {
         val logArray = EventLogArrayFactory.createEventLogArray()
         val generationDescription = generationHelper.generationDescription
         
         for (logNumber in 0 until generationDescription.numberOfLogs) {
-            val generatedLog = generateLog(generationHelper)
+            val generatedLog = generateLog()
             logArray.addLog(generatedLog)
         }
         return logArray
     }
     
-    private fun generateLog(generationHelper: GenerationHelper<out Movable, out Movable>): XLog {
+    private fun generateLog(): XLog {
         val log = factory.createLog()
-        val generationDescription = generationHelper.generationDescription
         
         val conceptExtension = XConceptExtension.instance()
         log.extensions.add(conceptExtension)
@@ -110,7 +132,7 @@ class Generator(private val callback: ProgressBarCallback) {
                 isCorrectTrace = false
             } else {
                 log.add(generatedTrace)
-                callback.increment()
+                incrementCallback()
             }
             
             return isCorrectTrace
@@ -131,7 +153,7 @@ class Generator(private val callback: ProgressBarCallback) {
 //        println("New trace")
         
         fun dumpPetrinet(moreText: String = "") {
-            (generationHelper as? PetriNetGenerationHelper<*,*,*>)?.dumpPetrinet(moreText)
+            (generationHelper as? PetriNetGenerationHelper<*, *, *>)?.dumpPetrinet(moreText)
         }
         
         do {
@@ -139,7 +161,7 @@ class Generator(private val callback: ProgressBarCallback) {
             generationHelper.moveToInitialState()
             trace = createTrace(traceName)
             var stepNumber = 0
-    
+
 //            dumpPetrinet("before trace")
             while (stepNumber < generationDescription.maxNumberOfSteps && !replayedCompletely) {
                 
@@ -165,11 +187,10 @@ class Generator(private val callback: ProgressBarCallback) {
                 addTraceToLog = assessedMovementResult.isTraceEligibleForAddingToLog
                 stepNumber++
                 
-//                if (replayedCompletely) {
-//                    println("In final Marking!!")
-//                }
                 
-//                (generationHelper as? PetriNetGenerationHelper<*,*,*>)?.dumpPetrinet()
+                if (Thread.interrupted()) {
+                    throw InterruptedException("Interrupted generation after ${trace.size} events in a trace.")
+                }
             }
             
             maxIterations--

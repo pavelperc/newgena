@@ -381,6 +381,4 @@ class SettingsUIController : Controller(), PetrinetDrawProvider {
         
         return PetrinetGenerators.GenerationKit(petrinet, initialMarking, finalMarking, generationDescription)
     }
-    
-    
 }

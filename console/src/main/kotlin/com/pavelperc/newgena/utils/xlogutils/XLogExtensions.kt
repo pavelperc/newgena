@@ -84,7 +84,7 @@ fun XTrace.drawEvents(
 }
 
 var XTrace.name
-    get() = attributes["concept:name"].toString()
+    get() = attributes["concept:name"]?.toString()
     set(value) {
         val name = factory.createAttributeLiteral("concept:name", value, XConceptExtension.instance())
         attributes["concept:name"] = name
@@ -100,6 +100,7 @@ val EventLogArray.allTraces: List<XTrace>
     get() = this.toList().flatten()
 
 
+/** This is more efficient, because logs are sometimes loaded from binary database. */
 fun EventLogArray.toSeq(): Sequence<XLog> = sequence {
     repeat(size) { i ->
         yield(getLog(i))

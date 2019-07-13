@@ -17,6 +17,6 @@ object BpmnGenerators {
         
         
         val helper = SimpleBPMNHelper.createSimpleHelper(diagram, description)
-        return Generator(PetrinetGenerators.emptyCallback).generate(helper)
+        return Generator(helper).generate()
     }
 }

@@ -7,6 +7,7 @@ import com.pavelperc.newgena.testutils.jsonSettingsHelpers.setInitialMarking
 import com.pavelperc.newgena.petrinet.fastPetrinet.simplePetrinetBuilder
 import com.pavelperc.newgena.utils.xlogutils.exportXml
 import org.junit.Test
+import org.processmining.utils.percentCallBack
 
 
 class BigLogTest {
@@ -22,8 +23,8 @@ class BigLogTest {
             arcs:
             p1-->t1-->p2-->t2-->p1
         """.trimIndent())
-
-        val settings = JsonSettings().apply { 
+        
+        val settings = JsonSettings().apply {
             setInitialMarking("p1" to 1)
             setFinalMarking()
             maxNumberOfSteps = 500_000
@@ -31,12 +32,12 @@ class BigLogTest {
             numberOfTraces = 5
             isRemovingUnfinishedTraces = false
         }
-
-
+        
+        
         val builder = JsonSettingsBuilder(petrinet, settings)
         val generationDescription = builder.buildDescription()
         val (initialMarking, finalMarking) = builder.buildMarking()
-
+        
         val generationKit = PetrinetGenerators.GenerationKit(
                 petrinet,
                 initialMarking = initialMarking,
@@ -44,14 +45,9 @@ class BigLogTest {
                 description = generationDescription
         )
         
-        var oldPercents = 0
-        val logs = PetrinetGenerators.generateFromKit(generationKit) { progress, maxProgress -> 
-            val percents = progress * 100 / maxProgress
-            if (percents != oldPercents) {
-                println("$percents %")
-            }
-            oldPercents = percents
-        }
+        val logs = PetrinetGenerators.generateFromKit(generationKit, percentCallBack { percents, _ ->
+            println("$percents %")
+        })
         
         logs.exportXml("../xes-out/big/big.xes")
     }

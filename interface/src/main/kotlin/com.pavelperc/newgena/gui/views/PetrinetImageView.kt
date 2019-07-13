@@ -126,13 +126,14 @@ class PetrinetImageView : View("Petrinet Viewer.") {
 //                            imgProp.value = null
                     }
                 }
-                
             }
             
             hgap = 5.0
             vgap = 5.0
-//            paddingAll = 5.0
-            paddingBottom = 5.0
+            paddingAll = 5.0
+//            paddingBottom = 5.0
+//            paddingTop = 5.0
+//            paddingVertical = 5.0
             
             toggleCheckbox("Draw vertical", drawVerticalProp) {
                 action { draw() }

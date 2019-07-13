@@ -7,27 +7,27 @@
     "petrinetFile": "examples\\petrinet\\cycle1\\cycle1.pnml",
     "marking": {
       "initialPlaceIds": {
-        "place5": 1,
-        "place1": 2
+        "p5": 1,
+        "p1": 2
       },
       "finalPlaceIds": {
-        "place4": 2
+        "p4": 2,
+        "p6": 1
       },
       "isUsingInitialMarkingFromPnml": false
     },
     "inhibitorArcIds": [
-      "arc6"
     ],
     "resetArcIds": [
     ],
-    "irArcsFromPnml": false
+    "irArcsFromPnml": true
   },
   "outputFolder": "xes-out",
   "numberOfLogs": 5,
   "numberOfTraces": 10,
-  "maxNumberOfSteps": 30,
+  "maxNumberOfSteps": 16,
   "isRemovingEmptyTraces": true,
-  "isRemovingUnfinishedTraces": true,
+  "isRemovingUnfinishedTraces": false,
   "isUsingNoise": false,
   "noiseDescription": {
     "noiseLevel": 5,
