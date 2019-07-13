@@ -8,15 +8,15 @@
     <fastPn version="1.0">places:
 p1 p2 p4 p5 p6 p7
 transitions:
-t1(A) t2(B) t4(X) t5(Y) t6(C)
+a(A) b(B) x(X) y(Y) c(C)
 arcs:
-p2--&gt;t1-6-&gt;p4-2-&gt;t6--&gt;p7
-p4-4-&gt;t2--&gt;p7
-p2-&gt;&gt;t2
-p1--&gt;t1
-p1-&gt;&gt;t2
-t4--&gt;p6-o&gt;t6
-p6--&gt;t5--&gt;p5--&gt;t4</fastPn>
+p2--&gt;a-6-&gt;p4-2-&gt;c--&gt;p7
+p4-4-&gt;b--&gt;p7
+p2-&gt;&gt;b
+p1--&gt;a
+p1-&gt;&gt;b
+x--&gt;p6-o&gt;c
+p6--&gt;y--&gt;p5--&gt;x</fastPn>
     <page id="n0">
       <place id="p1"/>
       <place id="p2"/>
@@ -24,104 +24,32 @@ p6--&gt;t5--&gt;p5--&gt;t4</fastPn>
       <place id="p5"/>
       <place id="p6"/>
       <place id="p7"/>
-      <transition id="t1">
+      <transition id="a">
         <name>
           <text>A</text>
         </name>
       </transition>
-      <transition id="t2">
+      <transition id="b">
         <name>
           <text>B</text>
         </name>
       </transition>
-      <transition id="t4">
+      <transition id="x">
         <name>
           <text>X</text>
         </name>
       </transition>
-      <transition id="t5">
+      <transition id="y">
         <name>
           <text>Y</text>
         </name>
       </transition>
-      <transition id="t6">
+      <transition id="c">
         <name>
           <text>C</text>
         </name>
       </transition>
-      <arc id="p6_t5" source="p6" target="t5">
-        <name>
-          <text>1</text>
-        </name>
-        <arctype>
-          <text>normal</text>
-        </arctype>
-      </arc>
-      <arc id="p1_t2" source="p1" target="t2">
-        <name>
-          <text>1</text>
-        </name>
-        <arctype>
-          <text>reset</text>
-        </arctype>
-      </arc>
-      <arc id="p2_t1" source="p2" target="t1">
-        <name>
-          <text>1</text>
-        </name>
-        <arctype>
-          <text>normal</text>
-        </arctype>
-      </arc>
-      <arc id="p4_t6" source="p4" target="t6">
-        <name>
-          <text>2</text>
-        </name>
-        <arctype>
-          <text>normal</text>
-        </arctype>
-      </arc>
-      <arc id="t4_p6" source="t4" target="p6">
-        <name>
-          <text>1</text>
-        </name>
-        <arctype>
-          <text>normal</text>
-        </arctype>
-      </arc>
-      <arc id="p4_t2" source="p4" target="t2">
-        <name>
-          <text>4</text>
-        </name>
-        <arctype>
-          <text>normal</text>
-        </arctype>
-      </arc>
-      <arc id="p5_t4" source="p5" target="t4">
-        <name>
-          <text>1</text>
-        </name>
-        <arctype>
-          <text>normal</text>
-        </arctype>
-      </arc>
-      <arc id="t2_p7" source="t2" target="p7">
-        <name>
-          <text>1</text>
-        </name>
-        <arctype>
-          <text>normal</text>
-        </arctype>
-      </arc>
-      <arc id="t5_p5" source="t5" target="p5">
-        <name>
-          <text>1</text>
-        </name>
-        <arctype>
-          <text>normal</text>
-        </arctype>
-      </arc>
-      <arc id="p6_t6" source="p6" target="t6">
+      <arc id="p6_c" source="p6" target="c">
         <name>
           <text>1</text>
         </name>
@@ -129,23 +57,7 @@ p6--&gt;t5--&gt;p5--&gt;t4</fastPn>
           <text>inhibitor</text>
         </arctype>
       </arc>
-      <arc id="t6_p7" source="t6" target="p7">
-        <name>
-          <text>1</text>
-        </name>
-        <arctype>
-          <text>normal</text>
-        </arctype>
-      </arc>
-      <arc id="p1_t1" source="p1" target="t1">
-        <name>
-          <text>1</text>
-        </name>
-        <arctype>
-          <text>normal</text>
-        </arctype>
-      </arc>
-      <arc id="p2_t2" source="p2" target="t2">
+      <arc id="p2_b" source="p2" target="b">
         <name>
           <text>1</text>
         </name>
@@ -153,9 +65,97 @@ p6--&gt;t5--&gt;p5--&gt;t4</fastPn>
           <text>reset</text>
         </arctype>
       </arc>
-      <arc id="t1_p4" source="t1" target="p4">
+      <arc id="p1_a" source="p1" target="a">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="x_p6" source="x" target="p6">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="p1_b" source="p1" target="b">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>reset</text>
+        </arctype>
+      </arc>
+      <arc id="p4_b" source="p4" target="b">
+        <name>
+          <text>4</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="p2_a" source="p2" target="a">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="p4_c" source="p4" target="c">
+        <name>
+          <text>2</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="a_p4" source="a" target="p4">
         <name>
           <text>6</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="c_p7" source="c" target="p7">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="y_p5" source="y" target="p5">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="b_p7" source="b" target="p7">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="p6_y" source="p6" target="y">
+        <name>
+          <text>1</text>
+        </name>
+        <arctype>
+          <text>normal</text>
+        </arctype>
+      </arc>
+      <arc id="p5_x" source="p5" target="x">
+        <name>
+          <text>1</text>
         </name>
         <arctype>
           <text>normal</text>

@@ -193,7 +193,6 @@ class SettingsUIController : Controller(), PetrinetDrawProvider {
             event.consume() // cancels closing
         }
         
-        
         loadInitialSettings()
         
         

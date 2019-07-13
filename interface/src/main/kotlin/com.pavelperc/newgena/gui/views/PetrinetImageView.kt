@@ -4,6 +4,7 @@ import com.pavelperc.newgena.graphviz.PetrinetDrawer
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.customfields.ImageViewer
 import com.pavelperc.newgena.gui.customfields.notification
+import com.pavelperc.newgena.gui.customfields.toggleCheckbox
 import guru.nidi.graphviz.engine.Format
 import guru.nidi.graphviz.toGraphviz
 import javafx.beans.property.SimpleBooleanProperty
@@ -128,34 +129,11 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                 
             }
             
-            
             hgap = 5.0
             vgap = 5.0
-            paddingAll = 5.0
-            //                addClass(Styles.graphvizButtonsPanel)
+//            paddingAll = 5.0
+            paddingBottom = 5.0
             
-            fun toggleCheckbox(text: String, prop: SimpleBooleanProperty, op: ToggleButton.() -> Unit = {}) {
-                togglebutton(text) {
-                    stylesheet {
-                        Stylesheet.toggleButton {
-                            backgroundColor += Color.TRANSPARENT
-                            and(Stylesheet.hover) {
-                                backgroundColor += c("#E3E3E3")
-                            }
-                            and(Stylesheet.selected) {
-                                backgroundColor += Color.LIGHTBLUE
-                                and(Stylesheet.hover) {
-                                    backgroundColor += c("#BCE5F0")
-                                }
-                            }
-                            
-                        }
-                    }
-                    selectedProperty().bindBidirectional(prop)
-                    op()
-                }
-            }
-    
             toggleCheckbox("Draw vertical", drawVerticalProp) {
                 action { draw() }
             }

@@ -4,8 +4,8 @@ import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.views.settingsview.Status
 import com.pavelperc.newgena.loaders.settings.documentation.documentationByName
 import javafx.beans.property.Property
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.event.EventTarget
-import javafx.geometry.Insets
 import javafx.geometry.Orientation
 import javafx.scene.control.*
 import javafx.scene.layout.Priority
@@ -150,17 +150,30 @@ fun EventTarget.docField(
             val doc = documentationByName[name]
             if (doc != null) {
                 spacing = 3.0
-                button("?") {
-                    addClass(Styles.documentationButton)
-                    action {
-                        information("Documentation for $name", doc)
-                    }
-                    tooltip(doc) {
-                        font = Font.font("", 15.0)
-                    }
-                }
+                docButton(doc, name)
             }
         }
+        op()
+    }
+}
+
+fun EventTarget.docButton(doc: String, propName: String) {
+    button("?") {
+        addClass(Styles.documentationButton)
+        isFocusTraversable = false
+        action {
+            information("Documentation for $propName", doc)
+        }
+        tooltip(doc) {
+            font = Font.font("", 15.0)
+        }
+    }
+}
+
+fun EventTarget.toggleCheckbox(text: String, prop: SimpleBooleanProperty, op: ToggleButton.() -> Unit = {}) {
+    togglebutton(text) {
+        addClass(Styles.myToggleButton)
+        selectedProperty().bindBidirectional(prop)
         op()
     }
 }
@@ -226,6 +239,7 @@ fun <T> EventTarget.readOnlyTextField(prop: Property<T>, converter: (T) -> Strin
         style {
             backgroundColor += Color.TRANSPARENT
         }
+        op()
     }
     prop.onChange { newValue ->
         tf.text = newValue?.let { converter(it) } ?: ""

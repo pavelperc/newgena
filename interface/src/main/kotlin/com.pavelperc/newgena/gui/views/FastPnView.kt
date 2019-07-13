@@ -1,12 +1,18 @@
 package com.pavelperc.newgena.gui.views
 
+import com.pavelperc.newgena.gui.app.Styles
+import com.pavelperc.newgena.gui.customfields.docButton
 import com.pavelperc.newgena.gui.customfields.statusLabel
+import com.pavelperc.newgena.gui.customfields.toggleCheckbox
 import com.pavelperc.newgena.petrinet.fastPetrinet.generateFastPn
 import com.pavelperc.newgena.petrinet.fastPetrinet.simplePetrinetBuilder
 import com.pavelperc.newgena.petrinet.petrinetExtensions.fastPn
 import com.pavelperc.newgena.utils.common.emptyMarking
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.geometry.Orientation
 import javafx.geometry.Pos
+import javafx.scene.Parent
 import javafx.scene.control.TextArea
 import javafx.scene.layout.Priority
 import javafx.scene.text.Font
@@ -17,13 +23,15 @@ import tornadofx.*
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.paint.Color
+import javafx.scene.text.FontWeight
+import javafx.stage.Modality
+import javafx.stage.Stage
 
 
 class FastPnView(
         override var petrinet: ResetInhibitorNet? = null,
         val onUpdatePetrinet: (petrinet: ResetInhibitorNet) -> Unit = {}
 ) : View("FastPn Editor"), PetrinetDrawProvider {
-    
     companion object {
         val fastPnScope = Scope()
     }
@@ -54,7 +62,7 @@ class FastPnView(
     override val pnmlLocationForDrawing: String?
         get() = null
     
-    // do not reuse petrinetImageView, because of problems in draw button
+    // do not use default scope in petrinetImageView, because of problems with draw button in main settings.
     val petrinetImageView = find<PetrinetImageView>(fastPnScope, "petrinetDrawProvider" to this@FastPnView)
     
     
@@ -107,37 +115,7 @@ class FastPnView(
                         tooltip("Ctrl+F")
                         
                         action {
-                            dialog("Replace", stageStyle = StageStyle.UTILITY) {
-                                val tfFrom = textfield()
-                                val tfTo = textfield()
-                                
-                                alignment = Pos.CENTER
-                                button("ok") {
-                                    addEventHandler(KeyEvent.KEY_PRESSED) { ev ->
-                                        if (ev.getCode() === KeyCode.ENTER) {
-                                            fire()
-                                            ev.consume()
-                                        }
-                                    }
-                                    action {
-                                        // we need to prevent clearing input history in the textArea,
-                                        // so we use textArea replace method
-                                        val oldText = textArea.text
-                                        val newText = oldText.replace(tfFrom.text, tfTo.text)
-                                        
-                                        // just replaceText throws out of bounds sometimes in undo
-                                        // just a very bad javafx bug in undo
-                                        if (oldText.length < newText.length) {
-                                            textArea.replaceText(0, oldText.length, "")
-                                            textArea.appendText(newText)
-                                        } else {
-                                            textArea.replaceText(0, oldText.length, newText)
-                                        }
-                                        
-                                        this@dialog.close()
-                                    }
-                                }
-                            }?.show()
+                            refactorDialog().show()
                             
                         }
                     }
@@ -149,12 +127,109 @@ class FastPnView(
         }
     }
     
+    private fun customDialog(title: String, rootBuilder: UIComponent.() -> Parent): Stage {
+        // this code is copied from [dialog] tornadofx function,
+        // but doesn't contains dialog label. (I can make my own instead.) 
+        val fragment = builderFragment(title, scope, rootBuilder)
+        
+        val stage = fragment.openWindow(StageStyle.UTILITY, Modality.APPLICATION_MODAL)!!
+        stage.sizeToScene()
+        return stage
+    }
+    
+    private fun refactorDialog() = customDialog("Replace") {
+            vbox {
+                alignment = Pos.CENTER
+                hbox {
+                    alignment = Pos.CENTER
+                    label("Replace") {
+                        style {
+                            fontSize = 1.3.em
+                            fontWeight = FontWeight.BOLD
+                        }
+                    }
+                    docButton("""
+                    This refactoring tries not to change section
+                    headings (like places:, transitions: ...).
+                    You can undo this refactor by clicking Ctrl+Z.
+                """.trimIndent(), "Replace")
+                }
+                
+                val isRegex = SimpleBooleanProperty(false)
+                val txtFrom = SimpleStringProperty("")
+                val txtTo = SimpleStringProperty("")
+                
+                hbox {
+                    alignment = Pos.CENTER
+                    textfield(txtFrom)
+                    
+                    hbox { // just need
+                        alignment = Pos.CENTER
+                        toggleCheckbox("Regex", isRegex) {
+                            hgrow = Priority.NEVER
+                            isFocusTraversable = false
+                            vgrow = Priority.ALWAYS
+                            useMaxHeight = true
+                            paddingHorizontal = 5.0
+                        }
+                        docButton("""
+                        You can use regex while refactoring.
+                        For example: replace `place(\d+)` with `p$1`
+                        - this regex will keep numbers in places.
+                    """.trimIndent(), "Regex")
+                    }
+                }
+                
+                textfield(txtTo)
+                
+                button("ok") {
+                    addEventHandler(KeyEvent.KEY_PRESSED) { ev ->
+                        if (ev.code === KeyCode.ENTER) {
+                            fire()
+                            ev.consume()
+                        }
+                    }
+                    action {
+                        // we need to prevent clearing input history in the textArea,
+                        // so we use textArea replace method
+                        val oldText = textArea.text
+                        
+                        val replaceRegex = if (isRegex.value) Regex(txtFrom.value) else null
+                        
+                        // try not to change section names
+                        val newText = oldText.split("places:", "transitions:", "arcs:").map {
+                            if (replaceRegex != null) {
+                                it.replace(replaceRegex, txtTo.value)
+                            } else {
+                                it.replace(txtFrom.value, txtTo.value)
+                            }
+                        }.let { (bPl, bTr, bArc, aArc) -> // bPl = before Places
+                            "${bPl}places:${bTr}transitions:${bArc}arcs:${aArc}"
+                        }
+                        
+                        
+                        // just replaceText throws out of bounds sometimes in undo
+                        // just a very bad javafx bug in undo
+                        if (oldText.length < newText.length) {
+                            textArea.deleteText(0, oldText.length)
+                            textArea.appendText(newText)
+                        } else {
+                            textArea.replaceText(0, oldText.length, newText)
+                        }
+//                        textArea.replaceText(0, oldText.length, newText)
+                        
+                        
+                        this@customDialog.close()
+                    }
+                }
+            }
+        }
     init {
 //        profile("Graphviz, loading engine:") {
 //            // graphviz: speedup first draw
 //            Graphviz.useDefaultEngines()
 //        }
-        
+//        importStylesheet(Styles::class)
         petrinetImageView.draw()
     }
 }

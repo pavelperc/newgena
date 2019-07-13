@@ -43,15 +43,17 @@ class Styles : Stylesheet() {
     init {
         val lightGrey = c("#E3E3E3")
         
-        
         myToggleButton {
-           toggleButton {
-               backgroundColor += Color.TRANSPARENT
-    
-               and(":selected") {
-                   backgroundColor += Color.LIGHTBLUE
-               }
-           }
+            backgroundColor += Color.TRANSPARENT
+            and(hover) {
+                backgroundColor += c("#E3E3E3")
+            }
+            and(selected) {
+                backgroundColor += Color.LIGHTBLUE
+                and(Stylesheet.hover) {
+                    backgroundColor += c("#BCE5F0")
+                }
+            }
         }
 
 //        itemRoot {

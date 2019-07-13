@@ -69,23 +69,23 @@
   "isUsingTime": true,
   "timeDescription": {
     "transitionIdsToDelays": {
-      "transition1": {
+      "a": {
         "delay": 5,
         "deviation": 0
       },
-      "transition2": {
+      "b": {
         "delay": 5,
         "deviation": 0
       },
-      "transition4": {
+      "c": {
         "delay": 5,
         "deviation": 0
       },
-      "transition5": {
+      "x": {
         "delay": 5,
         "deviation": 0
       },
-      "transition6": {
+      "y": {
         "delay": 5,
         "deviation": 0
       }
@@ -167,7 +167,7 @@
       }
     ],
     "transitionIdsToResources": {
-      "transition1": {
+      "a": {
         "simplifiedResourceNames": [
         ],
         "complexResourceNames": [
@@ -178,7 +178,7 @@
           "r2"
         ]
       },
-      "transition2": {
+      "b": {
         "simplifiedResourceNames": [
         ],
         "complexResourceNames": [
@@ -189,7 +189,7 @@
         "resourceRoles": [
         ]
       },
-      "transition4": {
+      "x": {
         "simplifiedResourceNames": [
         ],
         "complexResourceNames": [
@@ -200,7 +200,7 @@
         "resourceRoles": [
         ]
       },
-      "transition5": {
+      "y": {
         "simplifiedResourceNames": [
         ],
         "complexResourceNames": [
@@ -211,7 +211,7 @@
         "resourceRoles": [
         ]
       },
-      "transition6": {
+      "c": {
         "simplifiedResourceNames": [
         ],
         "complexResourceNames": [
