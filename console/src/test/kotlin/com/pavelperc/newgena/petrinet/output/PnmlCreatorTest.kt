@@ -1,14 +1,12 @@
 package com.pavelperc.newgena.petrinet.output
 
-import com.pavelperc.newgena.loaders.pnml.PnmlLoader
 import com.pavelperc.newgena.loaders.pnml.PnmlOwnParser
-import com.pavelperc.newgena.petrinet.fastPetrinet.simplePetrinetBuilder
+import com.pavelperc.newgena.petrinet.fastPetrinet.buildFastPetrinet
 import com.pavelperc.newgena.petrinet.petrinetExtensions.fastPn
 import com.pavelperc.newgena.petrinet.petrinetExtensions.pnmlId
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotBeNull
-import org.junit.Assert.*
 import org.junit.Test
 
 class PnmlCreatorTest {
@@ -25,7 +23,7 @@ class PnmlCreatorTest {
             p1-->a-->p2-o>b-->p3-->d-33->p4
                      p2->>c-->p3
         """.trimIndent()
-        val petrinet = simplePetrinetBuilder(fastPn, "complex1")
+        val petrinet = buildFastPetrinet(fastPn, "complex1")
         // descr is copied to fastPn field
         petrinet.fastPn shouldEqual fastPn
         

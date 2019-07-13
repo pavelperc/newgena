@@ -1,16 +1,13 @@
 package com.pavelperc.newgena.gui.views
 
-import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.customfields.docButton
-import com.pavelperc.newgena.gui.customfields.statusLabel
 import com.pavelperc.newgena.gui.customfields.toggleCheckbox
 import com.pavelperc.newgena.petrinet.fastPetrinet.generateFastPn
-import com.pavelperc.newgena.petrinet.fastPetrinet.simplePetrinetBuilder
+import com.pavelperc.newgena.petrinet.fastPetrinet.buildFastPetrinet
 import com.pavelperc.newgena.petrinet.petrinetExtensions.fastPn
 import com.pavelperc.newgena.utils.common.emptyMarking
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
-import javafx.geometry.Orientation
 import javafx.geometry.Pos
 import javafx.scene.Parent
 import javafx.scene.control.TextArea
@@ -53,7 +50,7 @@ class FastPnView(
     """.trimIndent())
     
     override fun requestPetrinetUpdate() {
-        petrinet = simplePetrinetBuilder(fastPnTextProp.value, petrinetName.value)
+        petrinet = buildFastPetrinet(fastPnTextProp.value, petrinetName.value)
     }
     
     override val markings: Pair<Marking, Marking>

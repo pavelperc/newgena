@@ -6,7 +6,7 @@ import com.pavelperc.newgena.testutils.GraphvizDrawer
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.setFinalMarking
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.setInitialMarking
 import com.pavelperc.newgena.testutils.launchers.justGenerate
-import com.pavelperc.newgena.petrinet.fastPetrinet.simplePetrinetBuilder
+import com.pavelperc.newgena.petrinet.fastPetrinet.buildFastPetrinet
 import com.pavelperc.newgena.utils.common.markingOf
 import com.pavelperc.newgena.utils.xlogutils.eventNames
 import org.amshove.kluent.shouldEqual
@@ -184,7 +184,7 @@ class InhibitorResetPetrinetTest : GraphvizDrawer(false) {
     @Test
     fun priorityInhResetNet() {
     
-        val petrinet = simplePetrinetBuilder("""
+        val petrinet = buildFastPetrinet("""
             places:
             p1 p2 p3 p4
             transitions:

@@ -128,7 +128,7 @@ private class PnmlIdDelegate {
 
 /**
  * fastPn is fast pnml format, developed for testing this tool.
- * See [com.pavelperc.newgena.petrinet.fastPetrinet.simplePetrinetBuilder].
+ * See [com.pavelperc.newgena.petrinet.fastPetrinet.buildFastPetrinet].
  * It is stored near name tag in pnml.
  */
 var ResetInhibitorNet.fastPn: String?

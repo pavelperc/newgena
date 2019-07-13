@@ -10,7 +10,6 @@ import org.processmining.models.graphbased.directed.petrinet.elements.ResetArc
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.io.ByteArrayOutputStream
-import java.io.PrintStream
 import javax.xml.parsers.DocumentBuilderFactory
 import java.io.OutputStream
 import javax.xml.transform.OutputKeys
@@ -90,7 +89,7 @@ fun makePnmlStr(
 }
 
 /** [fastPn] is fast pnml format, developed for testing this tool.
- * See [com.pavelperc.newgena.petrinet.fastPetrinet.simplePetrinetBuilder]. 
+ * See [com.pavelperc.newgena.petrinet.fastPetrinet.buildFastPetrinet]. 
  * It will be stored inside tag fastPn near the petrinet name.*/
 fun makePnml(
         petrinet: ResetInhibitorNet,

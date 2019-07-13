@@ -31,7 +31,7 @@ const val FAST_PN_VERSION = "1.0"
  *
  * See tests form more examples.
  */
-fun simplePetrinetBuilder(descr: String, name: String = "net1"): ResetInhibitorNet {
+fun buildFastPetrinet(descr: String, name: String = "net1"): ResetInhibitorNet {
     // splitting
     val lines = descr.lines()
             .map { it.substringBefore("//").trim() }
@@ -71,6 +71,11 @@ fun simplePetrinetBuilder(descr: String, name: String = "net1"): ResetInhibitorN
     }.toMap()
     
     val nodesByLabel = placesByLabel + transitionsByLabel
+    
+    val repeatingIds = petrinet.nodes.groupingBy { it.pnmlId }.eachCount().filterValues { it > 1 }.keys
+    if (repeatingIds.isNotEmpty()) {
+        throw IllegalArgumentException("Can not build fastPn. Found repeating pnml ids: $repeatingIds")
+    }
     
     fun String.node() = nodesByLabel[this] ?: throw IllegalArgumentException("Unexpected node $this")
     fun String.place() = node() as? Place ?: throw IllegalArgumentException("Unexpected place $this")

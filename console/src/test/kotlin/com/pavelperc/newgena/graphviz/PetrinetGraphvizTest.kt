@@ -2,7 +2,7 @@ package com.pavelperc.newgena.graphviz
 
 import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
 import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonMarking
-import com.pavelperc.newgena.petrinet.fastPetrinet.simplePetrinetBuilder
+import com.pavelperc.newgena.petrinet.fastPetrinet.buildFastPetrinet
 import org.junit.Test
 
 class PetrinetGraphvizTest {
@@ -10,7 +10,7 @@ class PetrinetGraphvizTest {
     
     @Test
     fun convertAndSave() {
-        val petrinet = simplePetrinetBuilder("""
+        val petrinet = buildFastPetrinet("""
             places:
             p1 p2 p3 p4
             transitions:

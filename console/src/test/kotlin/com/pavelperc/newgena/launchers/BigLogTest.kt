@@ -4,7 +4,7 @@ import com.pavelperc.newgena.loaders.settings.JsonSettingsBuilder
 import com.pavelperc.newgena.loaders.settings.jsonSettings.JsonSettings
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.setFinalMarking
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.setInitialMarking
-import com.pavelperc.newgena.petrinet.fastPetrinet.simplePetrinetBuilder
+import com.pavelperc.newgena.petrinet.fastPetrinet.buildFastPetrinet
 import com.pavelperc.newgena.utils.xlogutils.exportXml
 import org.junit.Test
 import org.processmining.utils.percentCallBack
@@ -15,7 +15,7 @@ class BigLogTest {
     @Test
     fun bufferedTraceTest() {
         
-        val petrinet = simplePetrinetBuilder("""
+        val petrinet = buildFastPetrinet("""
             places:
             p1 p2
             transitions:

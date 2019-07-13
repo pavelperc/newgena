@@ -27,7 +27,7 @@ class FastPnTest {
             p6-->y-->p5-->x-->p6
         """.trimIndent()
         
-        val petrinet = simplePetrinetBuilder(fastPn, "complex1")
+        val petrinet = buildFastPetrinet(fastPn, "complex1")
         petrinet.fastPn shouldEqual fastPn
         
         petrinet.label shouldEqual "complex1"
@@ -50,7 +50,7 @@ class FastPnTest {
     
     @Test
     fun converterToFastPn() {
-        val petrinet = simplePetrinetBuilder("""
+        val petrinet = buildFastPetrinet("""
             places:
             p1 p2 p4 p5 p6 p7
             transitions:
@@ -68,7 +68,7 @@ class FastPnTest {
         
         val generatedFastPn = generateFastPn(petrinet, true, true)
         println(generatedFastPn)
-        val restored = simplePetrinetBuilder(generatedFastPn)
+        val restored = buildFastPetrinet(generatedFastPn)
         
         restored.places.map { it.pnmlId } shouldContainSame petrinet.places.map { it.pnmlId }
         restored.transitions.map { it.pnmlId } shouldContainSame petrinet.transitions.map { it.pnmlId }

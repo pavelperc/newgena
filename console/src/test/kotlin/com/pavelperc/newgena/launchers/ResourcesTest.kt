@@ -5,7 +5,7 @@ import com.pavelperc.newgena.testutils.jsonSettingsHelpers.complexResourceMappin
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.delayNoDeviation
 import com.pavelperc.newgena.testutils.jsonSettingsHelpers.fastGroups
 import com.pavelperc.newgena.testutils.launchers.justGenerate
-import com.pavelperc.newgena.petrinet.fastPetrinet.simplePetrinetBuilder
+import com.pavelperc.newgena.petrinet.fastPetrinet.buildFastPetrinet
 import com.pavelperc.newgena.utils.xlogutils.*
 import org.amshove.kluent.shouldBeIn
 import org.junit.Test
@@ -16,7 +16,7 @@ class ResourcesTest {
     @Test
     fun resourceRace() {
         
-        val petrinet = simplePetrinetBuilder("""
+        val petrinet = buildFastPetrinet("""
             places:
             p0 p1 p2
             transitions:
