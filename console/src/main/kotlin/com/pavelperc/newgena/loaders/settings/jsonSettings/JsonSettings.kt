@@ -27,7 +27,7 @@ data class SettingsInfo(
 @Serializable
 class JsonSettings {
     companion object {
-        const val LAST_SETTINGS_VERSION = "0.4"
+        const val LAST_SETTINGS_VERSION = "0.5"
     }
     
     @Required
@@ -125,17 +125,6 @@ class JsonPetrinetSetup {
     var petrinetFile = "petrinet.pnml"
     @Required
     var marking = JsonMarking()
-    @Required
-    @Doc("Inhibitor arcs work, when in the input place there are no tokens.")
-    var inhibitorArcIds: MutableList<String> = mutableListOf()
-    @Required
-    @Doc("Reset arcs remove all tokens from incoming places.")
-    var resetArcIds: MutableList<String> = mutableListOf()
-    @Required
-    @Doc("Should we take inhibitor and reset arcs " +
-            "from pnml either from settings.")
-    var irArcsFromPnml: Boolean = true
-    
     override fun toString() = reflectionToString(this)
 }
 

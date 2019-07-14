@@ -1,67 +1,77 @@
 {
   "settingsInfo": {
     "type": "petrinet",
-    "version": "0.1"
+    "version": "0.4"
   },
-  "petrinetSetup" : {
-    "petrinetFile" : "examples/petrinet/simpleExample/simple.pnml",
-    "inhibitorArcIds" : [ "arc1" ],
-    "marking" : {
-      "initialPlaceIds" : {
-        "place3" : 2,
-        "place2" : 1
+  "petrinetSetup": {
+    "petrinetFile": "examples/petrinet/simpleExample/simple.pnml",
+    "marking": {
+      "initialPlaceIds": {
+        "place3": 2,
+        "place2": 1
       },
-      "finalPlaceIds" : {
-        "place4" : 2
+      "finalPlaceIds": {
+        "place4": 2
       },
-      "isUsingInitialMarkingFromPnml" : false
+      "isUsingInitialMarkingFromPnml": false
     },
-    "resetArcIds" : [ "arc6" ]
+    "inhibitorArcIds": [
+    ],
+    "resetArcIds": [
+    ],
+    "irArcsFromPnml": true
   },
-  "outputFolder" : "xes-out/simple",
-  "isRemovingEmptyTraces" : true,
-  "isRemovingUnfinishedTraces" : true,
-  "isUsingNoise" : false,
-  "isUsingStaticPriorities" : false,
-  "isUsingTime" : false,
-  "maxNumberOfSteps" : 100,
-  "noiseDescription" : {
-    "noiseLevel" : 5,
-    "isSkippingTransitions" : true,
-    "isUsingExternalTransitions" : true,
-    "isUsingInternalTransitions" : true,
-    "internalTransitionIds" : [ ],
-    "artificialNoiseEvents" : [ {
-      "activity" : "NoiseEvent",
-      "executionTimeSeconds" : 600,
-      "maxTimeDeviationSeconds" : 120
-    } ]
+  "outputFolder": "xes-out/simple",
+  "numberOfLogs": 5,
+  "numberOfTraces": 10,
+  "maxNumberOfSteps": 100,
+  "isRemovingEmptyTraces": true,
+  "isRemovingUnfinishedTraces": true,
+  "isUsingNoise": false,
+  "noiseDescription": {
+    "noiseLevel": 5,
+    "isSkippingTransitions": true,
+    "isUsingExternalTransitions": true,
+    "isUsingInternalTransitions": true,
+    "internalTransitionIds": [
+    ],
+    "artificialNoiseEvents": [
+      {
+        "activity": "NoiseEvent",
+        "executionTimeSeconds": 600,
+        "maxTimeDeviationSeconds": 120
+      }
+    ]
   },
-  "numberOfLogs" : 5,
-  "numberOfTraces" : 10,
-  "staticPriorities" : {
-    "maxPriority" : 100,
-    "transitionIdsToPriorities" : { }
+  "isUsingStaticPriorities": false,
+  "staticPriorities": {
+    "transitionIdsToPriorities": {
+    }
   },
-  "timeDescription" : {
-    "simplifiedResources" : [ ],
-    "resourceGroups" : [ ],
-    "transitionIdsToDelays" : { },
-    "generationStart" : "2019-04-21T23:37:27.966Z",
-    "transitionIdsToResources" : { },
-    "timeDrivenNoise" : {
-      "isUsingTimestampNoise" : true,
-      "isUsingLifecycleNoise" : true,
-      "isUsingTimeGranularity" : true,
-      "maxTimestampDeviationSeconds" : 0,
-      "granularityType" : "MINUTES_5"
+  "isUsingTime": false,
+  "timeDescription": {
+    "transitionIdsToDelays": {
     },
-    "isUsingLifecycle" : false,
-    "isUsingComplexResourceSettings" : true,
-    "minimumIntervalBetweenActions" : 10,
-    "maximumIntervalBetweenActions" : 20,
-    "isSeparatingStartAndFinish" : true,
-    "isUsingResources" : false,
-    "isUsingSynchronizationOnResources" : true
+    "generationStart": "2019-04-21T23:37:27.966Z",
+    "isUsingLifecycle": false,
+    "isSeparatingStartAndFinish": true,
+    "minimumIntervalBetweenActions": 10,
+    "maximumIntervalBetweenActions": 20,
+    "isUsingResources": false,
+    "isUsingComplexResourceSettings": true,
+    "isUsingSynchronizationOnResources": true,
+    "simplifiedResources": [
+    ],
+    "resourceGroups": [
+    ],
+    "transitionIdsToResources": {
+    },
+    "timeDrivenNoise": {
+      "isUsingTimestampNoise": true,
+      "isUsingLifecycleNoise": true,
+      "isUsingTimeGranularity": true,
+      "maxTimestampDeviationSeconds": 0,
+      "granularityType": "MINUTES_5"
+    }
   }
 }

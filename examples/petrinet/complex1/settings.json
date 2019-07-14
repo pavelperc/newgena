@@ -1,7 +1,7 @@
 {
   "settingsInfo": {
     "type": "petrinet",
-    "version": "0.4"
+    "version": "0.5"
   },
   "petrinetSetup": {
     "petrinetFile": "examples/petrinet/complex1/complex1.pnml",
@@ -16,12 +16,7 @@
         "p6": 1
       },
       "isUsingInitialMarkingFromPnml": false
-    },
-    "inhibitorArcIds": [
-    ],
-    "resetArcIds": [
-    ],
-    "irArcsFromPnml": true
+    }
   },
   "outputFolder": "xes-out",
   "numberOfLogs": 1,

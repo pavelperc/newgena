@@ -55,20 +55,4 @@ class PetrinetUIController() {
         petrinet = updatedPetrinet
         petrinetCopy = updatedPetrinet.deepCopy()
     }
-    
-    
-    fun updateInhResetArcsFromModel(petrinetSetupModel: PetrinetSetupModel) {
-        if (petrinetSetupModel.irArcsFromPnml.value) {
-            petrinet = petrinetCopy?.deepCopy()
-        } else {
-            petrinet?.also { petrinet ->
-                val resetArcIds = petrinetSetupModel.resetArcIds.value
-                val inhibitorArcIds = petrinetSetupModel.inhibitorArcIds.value
-            
-                // what if we fail after deleting?
-                petrinet.deleteAllInhibitorResetArcs()
-                petrinet.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
-            } ?: IllegalStateException("Petrinet is not loaded.")
-        }
-    }
 }

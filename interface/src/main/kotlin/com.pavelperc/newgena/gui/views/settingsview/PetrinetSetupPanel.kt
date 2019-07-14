@@ -90,7 +90,6 @@ fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsVie
                     }
                     
                     action {
-                        controller.updateInhResetArcsFromModel()
                         val fastPnEditor = FastPnView(controller.petrinet?.deepCopy()) { updatedPetrinet ->
                             controller.loadUpdatedPetrinet(updatedPetrinet)
                         }
@@ -129,8 +128,6 @@ fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsVie
             }
         }
         
-        checkboxField(petrinetSetup.irArcsFromPnml)
-        
         val validateEdges: Validator<List<String>> = { list ->
             val input = list.toSet()
             val unknown = input - input.intersect(controller.inputEdgeIdsWithHints.keys)
@@ -138,22 +135,6 @@ fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsVie
                 warning("Not found input edges: $unknown")
             } else null
         }
-        
-        arrayField(
-                petrinetSetup.inhibitorArcIds,
-                listValidator = validateEdges,
-                predefinedValuesToHints = { controller.inputEdgeIdsWithHints },
-                hintName = "hint",
-                valuesName = "id"
-        )
-        arrayField(
-                petrinetSetup.resetArcIds,
-                listValidator = validateEdges,
-                predefinedValuesToHints = { controller.inputEdgeIdsWithHints },
-                hintName = "hint",
-                valuesName = "id"
-        )
-        // TODO restore inhibitor arcs!!
     }
     
     // marking:

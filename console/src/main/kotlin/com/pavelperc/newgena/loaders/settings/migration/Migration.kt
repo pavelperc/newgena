@@ -54,7 +54,11 @@ object Migration {
     }
     
     /** Update all jsonObject values equally. (Like mapValues.) */
-    fun MutableMap<String, JsonElement>.updateObjectValues(mapName: String, required: Boolean = true, elementReplacer: MutableMap<String, JsonElement>.() -> Unit) {
+    fun MutableMap<String, JsonElement>.updateObjectValues(
+            mapName: String,
+            required: Boolean = true,
+            elementReplacer: MutableMap<String, JsonElement>.() -> Unit
+    ) {
         updateObject(mapName, required) {
             forEach { (k, _) ->
                 updateObject(k) {
@@ -138,6 +142,29 @@ object Migration {
         }
     }
     
+    val migrator_0_4__0_5 = Migrator("""
+    0.4 -> 0.5
+    Removed fields resetArcIds, inhibitorArcIds, irArcsFromPnml.
+    Now you should setup them with FastPn editor.
+    See removed arcs in console log.
+""".trimIndent()) { jo ->
+        jo.updated {
+            setVersion("0.5")
+            updateObject("petrinetSetup") {
+                remove("irArcsFromPnml")
+                val resetArcs = get("resetArcIds") 
+                        ?: throw IllegalArgumentException("Not found field resetArcIds in version 0.4.")
+                val inhibitorArcs = get("inhibitorArcIds")
+                        ?: throw IllegalArgumentException("Not found field inhibitorArcIds in version 0.4.")
+                
+                println("Removing reset arcs from settings: $resetArcs")
+                println("Removing inhibitor arcs from settings: $inhibitorArcs")
+                remove("resetArcIds")
+                remove("inhibitorArcIds")
+            }
+        }
+    }
+    
     
     fun selectPetrinetMigrators(version: String): List<Migrator> {
         
@@ -145,6 +172,7 @@ object Migration {
                 "0.1" to migrator_0_1__0_2,
                 "0.2" to migrator_0_2__0_3,
                 "0.3" to migrator_0_3__0_4,
+                "0.4" to migrator_0_4__0_5,
                 JsonSettings.LAST_SETTINGS_VERSION to Migrator.empty
         )
         val versions = versionsToMigrators.map { it.first }

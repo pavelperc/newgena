@@ -82,7 +82,7 @@ class SettingsUIController : Controller(), PetrinetDrawProvider {
     
     // for petrinetImageView
     override fun requestPetrinetUpdate() {
-        updateInhResetArcsFromModel()
+        
     }
     
     override val pnmlLocationForDrawing: String?
@@ -362,17 +362,11 @@ class SettingsUIController : Controller(), PetrinetDrawProvider {
         settingsAreSaved.set(true)
     }
     
-    /** Updates ir arcs from settings or pnml! */
-    fun updateInhResetArcsFromModel() {
-        petrinetController.updateInhResetArcsFromModel(petrinetSetupModel)
-    }
-    
     fun prepareGenerationKit(): PetrinetGenerators.GenerationKit {
         if (!settingsModel.commit())
             throw IllegalStateException("Can not generate. Model is not valid.")
         
         val petrinet = petrinet ?: loadPetrinet()
-        updateInhResetArcsFromModel()
         
         val builder = JsonSettingsBuilder(petrinet, jsonSettings)
         

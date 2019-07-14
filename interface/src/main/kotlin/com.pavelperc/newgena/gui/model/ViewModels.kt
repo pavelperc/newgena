@@ -100,12 +100,6 @@ class PetrinetSetupModel(initial: JsonPetrinetSetup)
     
     val petrinetFile = bind(JsonPetrinetSetup::petrinetFile)
     
-    val inhibitorArcIds = bindList(JsonPetrinetSetup::inhibitorArcIds)
-    
-    val resetArcIds = bindList(JsonPetrinetSetup::resetArcIds)
-    
-    val irArcsFromPnml = bind(JsonPetrinetSetup::irArcsFromPnml)
-    
     // ---INNER MODELS:
     val markingModel = bindModel(JsonPetrinetSetup::marking, MarkingModel::class)
 }

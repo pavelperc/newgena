@@ -45,19 +45,8 @@ class JsonSettingsController(var jsonSettings: JsonSettings) {
         get() = JsonSettingsBuilder.buildMarkingOnly(jsonSettings.petrinetSetup.marking, petrinet).second
     
     
-    /** Changes the [petrinet]. */
-    private fun updateInhResetArcsFromSettings() {
-        with(jsonSettings.petrinetSetup) {
-            if (!irArcsFromPnml && inhibitorArcIds.size + resetArcIds.size > 0) {
-                petrinet.deleteAllInhibitorResetArcs()
-                petrinet.markInhResetArcsByIds(inhibitorArcIds, resetArcIds)
-            }
-        }
-    }
-    
     /** When we are ready for generation. */
     fun getGenerationKit(): PetrinetGenerators.GenerationKit {
-        updateInhResetArcsFromSettings()
         
         val builder = JsonSettingsBuilder(petrinet, jsonSettings)
         val generationDescription = builder.buildDescription()
