@@ -10,6 +10,7 @@ import com.pavelperc.newgena.petrinet.output.makePnml
 import com.pavelperc.newgena.petrinet.petrinetExtensions.deepCopy
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import javafx.event.EventHandler
 import javafx.event.EventTarget
 import javafx.geometry.Orientation
 import javafx.scene.control.Alert
@@ -93,7 +94,9 @@ fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsVie
                         val fastPnEditor = FastPnView(controller.petrinet?.deepCopy()) { updatedPetrinet ->
                             controller.loadUpdatedPetrinet(updatedPetrinet)
                         }
-                        fastPnEditor.openWindow(owner = settingsView.currentStage, escapeClosesWindow = false)
+                        val stage = fastPnEditor.openWindow(owner = settingsView.currentStage, escapeClosesWindow = false)
+                        fastPnEditor.setOnCloseAction(stage)
+                        
                     }
                 }
                 button("save") {

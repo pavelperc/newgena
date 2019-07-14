@@ -17,7 +17,11 @@ const val FAST_PN_VERSION = "1.0"
  * places:
  * p1 p2 p3 p4 // separated by space or in separate lines
  * transitions:
- * a(A) b c d // transition names in round brackets (but without spaces!)
+ * // transition names can be placed in round brackets.
+ * a(A) b
+ * // May contain spaces and other symbols.
+ * // Closing round bracket should be escaped like this: '\)'.
+ * c d(I (am\) label.)
  *
  * // support blank lines
  * arcs:
@@ -45,7 +49,14 @@ fun buildFastPetrinet(descr: String, name: String = "net1"): ResetInhibitorNet {
     require(arcInd != -1) { "not found `arcs:` block." }
     
     val placesStr = lines.subList(1, trInd).flatMap { it.split(" ") }
-    val transitionsStr = lines.subList(trInd + 1, arcInd).flatMap { it.split(" ") }
+    
+    // id, with optional label in round brackets, with closing round bracket escape
+    val trRegex = Regex("""(?<id>[\w\d_]+)(\((?<label>([^)]|\\\))+)\))?""")
+    
+    val transitionMatches = lines.subList(trInd + 1, arcInd)
+            .flatMap { line ->
+                trRegex.findAll(line).toList()
+            }
     val arcsStr = lines.subList(arcInd + 1, lines.size)
     
     // building:
@@ -60,11 +71,11 @@ fun buildFastPetrinet(descr: String, name: String = "net1"): ResetInhibitorNet {
     }.toMap()
     
     // making transitions
-    val trRegex = Regex("""(?<id>[\w\d_]+)(\((?<label>[\w\d_]+)\))?""")
-    val transitionsByLabel = transitionsStr.map { trStr ->
-        val parsed = trRegex.matchEntire(trStr) ?: throw IllegalArgumentException("Can not parse transition $trStr.")
+    val transitionsByLabel = transitionMatches.map { parsed ->
         val id = parsed.groups["id"]!!.value
-        val label = parsed.groups["label"]?.value ?: id
+        val label = parsed.groups["label"]?.value
+                ?.replace("\\)", ")")
+                ?: id
         val tr = petrinet.addTransition(label)
         tr.pnmlId = id
         id to tr
@@ -122,16 +133,22 @@ fun buildFastPetrinet(descr: String, name: String = "net1"): ResetInhibitorNet {
     return petrinet
 }
 
+/** Generates fastPn from [petrinet].
+ * May change [petrinet] if its ids contain invalid symbols!!! (like `-`).*/
 fun generateFastPn(
         petrinet: ResetInhibitorNet,
         longerArcs: Boolean = false,
         arcSpacing: Boolean = false
 ): String {
     val idRegex = Regex("""[\w\d_]+""")
-    petrinet.nodes.forEach { 
-        if (!idRegex.matches(it.pnmlId)) {
+    petrinet.nodes.forEach { node ->
+        if (node.pnmlId.contains('-')) {
+            println("Replacing `-` with `_` in pnmlId ${node.pnmlId}")
+            node.pnmlId = node.pnmlId.replace('-', '_')
+        }
+        if (!idRegex.matches(node.pnmlId)) {
             throw IllegalStateException("Can not generate fastPn, " +
-                    "because node id ${it.pnmlId} contains other symbols except digits, letters and underscore.")
+                    "because node id ${node.pnmlId} contains other symbols except digits, letters and underscore.")
         }
     }
     
@@ -141,7 +158,9 @@ fun generateFastPn(
     
     sb += "transitions:\n"
     sb += petrinet.transitions.joinToString(" ", postfix = "\n") {
-        if (it.label == it.pnmlId) it.pnmlId else "${it.pnmlId}(${it.label})"
+        if (it.label == it.pnmlId)
+            it.pnmlId
+        else "${it.pnmlId}(${it.label.replace(")", "\\)")})"
     }
     
     sb += "arcs:\n"
@@ -151,7 +170,11 @@ fun generateFastPn(
 }
 
 
-/** Generates chains for fastPn */
+/** Generates chains for fastPn, using this algorithm:
+ * 1. Find the node with minimal input arcs and at least one output arc.
+ * 2. Try to make a random chain, removing arcs from graph.
+ * 3. go to 1, if any arcs left.
+ */
 private fun generateChains(
         petrinet: ResetInhibitorNet,
         longerArcs: Boolean,

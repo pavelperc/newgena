@@ -97,7 +97,7 @@ fun Tooltip.delayHack(delayInMillis: Int) {
 /** returns true if confirmed. */
 fun confirmed(
         header: String,
-        content: String = "",
+        content: String? = null,
         confirmButton: ButtonType = ButtonType.OK,
         cancelButton: ButtonType = ButtonType.CANCEL,
         owner: Window? = null,
