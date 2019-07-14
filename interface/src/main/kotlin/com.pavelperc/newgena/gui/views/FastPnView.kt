@@ -73,6 +73,8 @@ class FastPnView(
     
     override val root = vbox {
         splitpane {
+            useMaxSize = true
+            vgrow = Priority.ALWAYS
             vbox {
                 hbox {
                     paddingLeft = 5.0
@@ -302,11 +304,5 @@ class FastPnView(
 //        }
 //        importStylesheet(Styles::class)
         petrinetImageView.draw()
-        
-//        modalStage?.onCloseRequest = EventHandler { event ->
-//            if(!confirmed("Cancel editing?", "Your changes will be lost.")) {
-//                event.consume() // cancels closing
-//            }
-//        }
     }
 }

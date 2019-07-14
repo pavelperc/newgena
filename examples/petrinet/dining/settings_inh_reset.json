@@ -1,7 +1,7 @@
 {
   "settingsInfo": {
     "type": "petrinet",
-    "version": "0.3"
+    "version": "0.4"
   },
   "petrinetSetup": {
     "petrinetFile": "examples\\petrinet\\dining\\dining_inh_reset.pnml",
@@ -36,7 +36,8 @@
       "r9",
       "r10",
       "r11"
-    ]
+    ],
+    "irArcsFromPnml": false
   },
   "outputFolder": "xes-out",
   "numberOfLogs": 5,
@@ -57,7 +58,6 @@
   },
   "isUsingStaticPriorities": false,
   "staticPriorities": {
-    "maxPriority": 100,
     "transitionIdsToPriorities": {
       "p1done": 2,
       "p2done": 2,
