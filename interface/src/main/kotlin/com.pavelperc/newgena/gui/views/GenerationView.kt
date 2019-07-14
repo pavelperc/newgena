@@ -2,9 +2,12 @@ package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.gui.app.MyApp
 import com.pavelperc.newgena.gui.controller.SettingsUIController
+import com.pavelperc.newgena.gui.customfields.docField
 import com.pavelperc.newgena.gui.customfields.notification
 import com.pavelperc.newgena.launchers.PetrinetGenerators
 import com.pavelperc.newgena.utils.xlogutils.*
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -33,8 +36,9 @@ class GenerationView : View("Generation View") {
     
     
     val generationKit: PetrinetGenerators.GenerationKit by param()
-    val outputFolder: String by param()
+    val controller by inject<SettingsUIController>()
     
+    val outputFolder = controller.settingsModel.outputFolder
     
     /** Log index and trace. */
     val logArrayObservable = observableList<Pair<Int, XTrace>>()
@@ -73,14 +77,6 @@ class GenerationView : View("Generation View") {
             removeWhen { tooLargeLogs.not() }
         }
         hbox {
-            button("save to file") {
-                enableWhen(eventLogArrayProp.isNotNull)
-                action {
-                    eventLogArray!!.exportXml("${outputFolder}/${generationKit.petrinet.label}.xes")
-                    
-                    notification("Saved to folder $outputFolder")
-                }
-            }
             button("show petrinet") {
                 action {
                     val petrinetView = find<PetrinetImageView>(
@@ -89,6 +85,22 @@ class GenerationView : View("Generation View") {
                     petrinetView.draw()
                     petrinetView.openWindow(owner = this@GenerationView.currentStage)
                 }
+            }
+            button("save to folder") {
+                enableWhen(eventLogArrayProp.isNotNull)
+                action {
+                    eventLogArray!!.exportXml("${outputFolder.value}/${generationKit.petrinet.label}.xes")
+                    
+                    notification("Saved to folder ${outputFolder.value}")
+                }
+            }
+            textfield(outputFolder).required()
+            
+            button(graphic = FontAwesomeIconView(FontAwesomeIcon.FOLDER)) {
+                action {
+                    controller.requestOutputFolderChooseDialog()
+                }
+                isFocusTraversable = false
             }
         }
         
@@ -130,23 +142,23 @@ class GenerationView : View("Generation View") {
                         progressText.value = "$progress %"
                     }
                 })
-    
+                
                 // onSuccess
                 runLater {
                     progressBar.progress = 1.0
                     progressText.value = "100 %"
-        
+                    
                     eventLogArray = logArray
-        
-        
+                    
+                    
                     with(generationKit.description) {
                         if (numberOfLogs * numberOfTraces > MAX_TRACE_VIEW_COUNT
                                 || maxNumberOfSteps > MAX_EVENT_VIEW_COUNT) {
-                
+                            
                             tooLargeLogs.set(true)
                         }
                     }
-        
+                    
                     logArrayObservable.setAll(logArray.toSeq().mapIndexed { logIndex, log ->
                         log.map { trace -> logIndex to trace }
                     }.flatten().take(MAX_TRACE_VIEW_COUNT).toList())

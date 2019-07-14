@@ -37,9 +37,9 @@
       "r10",
       "r11"
     ],
-    "irArcsFromPnml": false
+    "irArcsFromPnml": true
   },
-  "outputFolder": "xes-out",
+  "outputFolder": "xes-out\\dining-inh-reset",
   "numberOfLogs": 5,
   "numberOfTraces": 10,
   "maxNumberOfSteps": 20,

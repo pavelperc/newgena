@@ -102,8 +102,7 @@ class SettingsView : View("Settings") {
                                 val generationKit = controller.prepareGenerationKit()
                                 
                                 val generationView = find<GenerationView>(mapOf(
-                                        "generationKit" to generationKit,
-                                        "outputFolder" to settings.outputFolder.value)
+                                        "generationKit" to generationKit)
                                 )
                                 if (generationView.isDocked) {
                                     generationView.close()
