@@ -32,8 +32,8 @@ object PnmlOwnParser {
     private fun Element.attr(name: String) = getAttribute(name)
     
     
-    private fun Element.pText() = element("text").textContent
-    private fun Element.pName() = elements("name").firstOrNull()?.pText()
+    private fun Element.pText() = elementOpt("text")?.textContent
+    private fun Element.pName() = elementOpt("name")?.pText()
     
     
     fun parseFromFile(file: File): Pair<ResetInhibitorNetImpl, Marking> =
@@ -43,9 +43,7 @@ object PnmlOwnParser {
             parseFromStream(ByteArrayInputStream(pnml.toByteArray()))
     
     
-    
     fun parseFromStream(input: InputStream): Pair<ResetInhibitorNetImpl, Marking> {
-//        val file = File("../examples/petrinet/simple.pnml")
         val doc: Document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(input)
         //optional, but recommended (removes whitespaces an so on
         doc.getDocumentElement().normalize()
@@ -57,11 +55,10 @@ object PnmlOwnParser {
 //        println("name: $netName")
         
         
-        
         // creating prom petriNet
         val petrinet = ResetInhibitorNetImpl(netName)
         val marking = Marking()
-    
+        
         petrinet.fastPn = net1.elementOpt("fastPn")?.textContent
         
         // how will this work with multiple pages???
@@ -82,7 +79,6 @@ object PnmlOwnParser {
                 val pnPlace = petrinet.addPlace(name ?: id)
                 pnPlace.pnmlId = id
                 
-                
                 repeat(markingCount) {
                     marking += pnPlace
                 }
@@ -92,7 +88,6 @@ object PnmlOwnParser {
             transitions.forEach { transition ->
                 val id = transition.attr("id")
                 val name = transition.pName()
-//                println("id: $id, name: $name")
                 
                 val pnTransition = petrinet.addTransition(name ?: id)
                 pnTransition.pnmlId = id
@@ -101,7 +96,6 @@ object PnmlOwnParser {
             val idsToPlaces = petrinet.places.map { it.pnmlId to it }.toMap()
             val idsToTransitions = petrinet.transitions.map { it.pnmlId to it }.toMap()
             
-            // как ты догадался с типом???
             val idsToNodes = idsToPlaces + idsToTransitions
 
 //            println("arcs:")
@@ -110,20 +104,19 @@ object PnmlOwnParser {
                 val source = arc.attr("source")
                 val target = arc.attr("target")
                 val name = arc.pName()
-                val arcType = arc.element("arctype").pText()
+                val arcType = arc.elementOpt("arctype")?.pText() ?: "normal"
 
 //                println("id: $id, name:$name, source:$source, target:$target, arctype=$arcType")
                 
-                val srcNode = idsToNodes.getValue(source)
+                val srcNode = idsToNodes.get(source)
+                        ?: throw ParserException("Unknown source id $source in arc $id")
                 val trgNode = idsToNodes.getValue(target)
+                        ?: throw ParserException("Unknown target id $source in arc $id")
                 
                 val pnEdge = when (arcType) {
                     "reset" -> petrinet.addResetArc(srcNode as Place, trgNode as Transition, name ?: id)
                     "inhibitor" -> petrinet.addInhibitorArc(srcNode as Place, trgNode as Transition, name ?: id)
-                    else -> {
-                        if (arcType != "normal") {
-                            println("arc ${arc.textContent.replace("\n", "")} has unknown type $arcType. Used as normal arc.")
-                        }
+                    "normal" -> {
                         val weight = name?.toIntOrNull() ?: 1
                         if (srcNode is Place) {
                             petrinet.addArc(srcNode, trgNode as Transition, weight)
@@ -131,6 +124,7 @@ object PnmlOwnParser {
                             petrinet.addArc(srcNode as Transition, trgNode as Place, weight)
                         }
                     }
+                    else -> throw ParserException("Unsupported arc type $arcType in arc $id")
                 }
                 pnEdge.pnmlId = id
             }

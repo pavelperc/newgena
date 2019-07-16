@@ -1,17 +1,14 @@
 package com.pavelperc.newgena.gui.views
 
 import com.pavelperc.newgena.graphviz.PetrinetDrawer
-import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.customfields.ImageViewer
 import com.pavelperc.newgena.gui.customfields.notification
 import com.pavelperc.newgena.gui.customfields.toggleCheckbox
 import guru.nidi.graphviz.engine.Format
 import guru.nidi.graphviz.toGraphviz
+import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.geometry.Insets
 import javafx.geometry.Pos
-import javafx.scene.control.ToggleButton
-import javafx.scene.paint.Color
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import org.processmining.models.semantics.petrinet.Marking
 import tornadofx.*
@@ -36,13 +33,14 @@ class PetrinetImageView : View("Petrinet Viewer.") {
     var tmpImageFile: File? = null
     
     
-    private val drawArcIdsProp = SimpleBooleanProperty(false)
-    private val drawTransitionIdsProp = SimpleBooleanProperty(false)
-    private val drawTransitionNamesProp = SimpleBooleanProperty(true)
-    private val drawLegendProp = SimpleBooleanProperty(true)
-    private val drawLabelProp = SimpleBooleanProperty(false)
-    private val drawVerticalProp = SimpleBooleanProperty(false)
-    private val drawFinalMarkingProp = SimpleBooleanProperty(true)
+    private val drawArcIds = SimpleBooleanProperty(false)
+    private val drawTransitionIds = SimpleBooleanProperty(false)
+    private val drawPlaсeIds = SimpleBooleanProperty(true)
+    private val drawTransitionNames = SimpleBooleanProperty(true)
+    private val drawLegend = SimpleBooleanProperty(true)
+    private val drawLabel = SimpleBooleanProperty(false)
+    private val drawVertical = SimpleBooleanProperty(false)
+    private val drawFinalMarking = SimpleBooleanProperty(true)
     
     
     override fun onBeforeShow() {
@@ -51,7 +49,7 @@ class PetrinetImageView : View("Petrinet Viewer.") {
     }
     
     /** [isFirstDraw] is true when we do not update an already drawn image. */
-    fun draw(updateInhResetArcs: Boolean = false) {
+    fun draw(updateInhResetArcs: Boolean = false, updateZoom: Boolean = false) {
         if (updateInhResetArcs) {
             petrinetDrawProvider.requestPetrinetUpdate()
         }
@@ -66,13 +64,14 @@ class PetrinetImageView : View("Petrinet Viewer.") {
                     petrinet,
                     initialMarking = initialMarking,
                     finalMarking = finalMarking,
-                    graphLabelStr = if (drawLabelProp.value) petrinet.label else "",
-                    drawArcIds = drawArcIdsProp.value,
-                    drawLegend = drawLegendProp.value,
-                    drawTransitionIds = drawTransitionIdsProp.value,
-                    drawTransitionNames = drawTransitionNamesProp.value,
-                    drawVertical = drawVerticalProp.value,
-                    drawFinalMarking = drawFinalMarkingProp.value
+                    graphLabelStr = if (drawLabel.value) petrinet.label else "",
+                    drawArcIds = drawArcIds.value,
+                    drawLegend = drawLegend.value,
+                    drawTransitionIds = drawTransitionIds.value,
+                    drawPlaceIds = drawPlaсeIds.value,
+                    drawTransitionNames = drawTransitionNames.value,
+                    drawVertical = drawVertical.value,
+                    drawFinalMarking = drawFinalMarking.value
             ).makeGraph()
         }
         
@@ -82,12 +81,17 @@ class PetrinetImageView : View("Petrinet Viewer.") {
 
 //            tmpImageFile?.delete()
             tmpImageFile = imageFile
-            
-            if (drawVerticalProp.value) {
-                imageViewer.drawFile(imageFile, resetSize = true)
-            } else {
-                imageViewer.drawFile(imageFile, adjustSize = true)
-            }
+
+//            if (drawVertical.value) {
+//                imageViewer.drawFile(imageFile, resetSize = true)
+//            } else {
+//                imageViewer.drawFile(imageFile, adjustSize = true)
+//            }
+            imageViewer.drawFile(
+                    imageFile,
+                    resetSize = updateZoom && drawVertical.value,
+                    adjustSize = updateZoom && !drawVertical.value
+            )
         }
     }
     
@@ -135,28 +139,21 @@ class PetrinetImageView : View("Petrinet Viewer.") {
 //            paddingTop = 5.0
 //            paddingVertical = 5.0
             
-            toggleCheckbox("Draw vertical", drawVerticalProp) {
-                action { draw() }
+            fun drawCheckbox(text: String, prop: SimpleBooleanProperty, updateZoom: Boolean = false) {
+                toggleCheckbox(text, prop) {
+                    action { draw(updateZoom = updateZoom) }
+                }
             }
-            label("  Show: ")
-            toggleCheckbox("Arc ids", drawArcIdsProp) {
-                action { draw() }
-            }
-            toggleCheckbox("Transition ids", drawTransitionIdsProp) {
-                action { draw() }
-            }
-            toggleCheckbox("Transition names", drawTransitionNamesProp) {
-                action { draw() }
-            }
-            toggleCheckbox("Legend", drawLegendProp) {
-                action { draw() }
-            }
-            toggleCheckbox("FinalMarking", drawFinalMarkingProp) {
-                action { draw() }
-            }
-            toggleCheckbox("Label", drawLabelProp) {
-                action { draw() }
-            }
+            
+            drawCheckbox("Draw vertical", drawVertical, true)
+            label("Show:")
+            drawCheckbox("Arc ids", drawArcIds)
+            drawCheckbox("Place ids", drawPlaсeIds)
+            drawCheckbox("Transition ids", drawTransitionIds)
+            drawCheckbox("Transition names", drawTransitionNames)
+            drawCheckbox("Legend", drawLegend)
+            drawCheckbox("FinalMarking", drawFinalMarking)
+            drawCheckbox("Label", drawLabel)
         }
         
         imageViewer.apply {

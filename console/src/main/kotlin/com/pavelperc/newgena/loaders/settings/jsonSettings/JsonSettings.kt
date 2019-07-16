@@ -41,7 +41,8 @@ class JsonSettings {
     var outputFolder = "xes-out"
     
     @Required
-    @Doc("Number of logs.")
+    @Doc("Number of logs.\n" +
+            "Each Log is stored in a separate file in xes format.")
     var numberOfLogs = 5
     @Required
     @Doc("Number of traces in a log.")

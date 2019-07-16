@@ -371,7 +371,7 @@ class SettingsUIController : Controller(), PetrinetDrawProvider {
         val builder = JsonSettingsBuilder(petrinet, jsonSettings)
         
         val generationDescription = builder.buildDescription()
-        val (initialMarking, finalMarking) = builder.buildMarking()
+        val (initialMarking, finalMarking) = markings
         
         return PetrinetGenerators.GenerationKit(petrinet, initialMarking, finalMarking, generationDescription)
     }

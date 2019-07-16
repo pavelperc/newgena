@@ -36,7 +36,7 @@ class JsonSettingsController(var jsonSettings: JsonSettings) {
     val initialMarking: Marking
         get() = with(jsonSettings.petrinetSetup.marking) {
             if (isUsingInitialMarkingFromPnml) // what about concurrency?? 
-                emptyMarking()
+                pnmlMarking
             else
                 JsonSettingsBuilder.buildMarkingOnly(this, petrinet).first
         }

@@ -23,6 +23,7 @@ class PetrinetDrawer(
         val graphLabelStr: String = petrinet.label,
         val drawLegend: Boolean = true,
         val drawArcIds: Boolean = true,
+        val drawPlaceIds: Boolean = true,
         val drawTransitionIds: Boolean = false,
         val drawTransitionNames: Boolean = true,
         val drawVertical: Boolean = false,
@@ -72,7 +73,11 @@ class PetrinetDrawer(
         
         val places = petrinet.places.map {
             val label = Label.of(it.pnmlId)
-            mutNode(label).add(Shape.CIRCLE, label.external())
+            val node = mutNode(label).add(Shape.CIRCLE)
+            if (drawPlaceIds) {
+                node[label.external()]
+            }
+            node
         }
         
         petrinet.transitions.forEach {

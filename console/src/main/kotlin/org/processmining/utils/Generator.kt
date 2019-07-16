@@ -168,7 +168,7 @@ class Generator(
                 val movable = generationHelper.chooseNextMovable()
                 
                 if (movable == null) {
-                    trace = null
+//                    trace = null
                     break
                 }
                 

@@ -13,7 +13,7 @@ fun main(args: Array<String>) {
     
     val settingsFilePath =
             if (args.size > 0) args[0]
-            else "examples/petrinet/complex1/settings.json"
+            else "examples/petrinet/LM/settings.json"
     
     val settingsController = JsonSettingsController.createFromFilePath(settingsFilePath)
     println("Read settings from file $settingsFilePath")
