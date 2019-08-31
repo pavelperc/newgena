@@ -87,7 +87,10 @@ fun ResetInhibitorNet.deepCopy(): ResetInhibitorNetImpl {
     }.map { it.pnmlId to it }.toMap()
     
     val newTransitionsByIds = this.transitions.map { transition ->
-        copy.addTransition(transition.label).also { it.pnmlId = transition.pnmlId }
+        copy.addTransition(transition.label).also {
+            it.pnmlId = transition.pnmlId
+            it.isInvisible = transition.isInvisible
+        }
     }.map { it.pnmlId to it }.toMap()
     
     fun PetrinetNode.findPlace() = newPlacesByIds[this.pnmlId] as Place

@@ -78,6 +78,9 @@ fun buildFastPetrinet(descr: String, name: String = "net1"): ResetInhibitorNet {
                 ?: id
         val tr = petrinet.addTransition(label)
         tr.pnmlId = id
+        if (label.isEmpty()) {
+            tr.isInvisible = true
+        }
         id to tr
     }.toMap()
     
