@@ -168,12 +168,13 @@ class Generator(
                 val movable = generationHelper.chooseNextMovable()
                 
                 if (movable == null) {
-//                    trace = null
+                    // commented to keep unfinished traces if there are no more steps!
+//                    trace = null 
                     break
                 }
                 
                 // can add noise tokens. 
-                val movementResult = movable.move(trace!!) as MovementResult<F>
+                val movementResult = movable.move(trace) as MovementResult<F>
                 
                 if (!movementResult.isActualStep) {
                     stepNumber--
