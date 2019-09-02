@@ -7,6 +7,7 @@ import com.pavelperc.newgena.petrinet.petrinetExtensions.deleteAllInhibitorReset
 import com.pavelperc.newgena.petrinet.petrinetExtensions.markInhResetArcsByIds
 import com.pavelperc.newgena.utils.common.emptyMarking
 import com.pavelperc.newgena.utils.common.profile
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import org.processmining.models.graphbased.directed.petrinet.ResetInhibitorNet
 import tornadofx.*
@@ -14,13 +15,14 @@ import tornadofx.*
 
 class PetrinetUIController() {
     
+    /** It is false when the petrinet is not null and was updated. */
+    val isPetrinetSaved = SimpleBooleanProperty(true)
+    val isPetrinetNotSaved = isPetrinetSaved.not()
+    
     val petrinetProp = SimpleObjectProperty<ResetInhibitorNet?>(null)
     
     var petrinet by petrinetProp
     private set
-    
-    /** A petrinet copy with initial arcs. */
-    private var petrinetCopy: ResetInhibitorNet? = null
     
     var pnmlMarking = emptyMarking()
         private set
@@ -29,8 +31,8 @@ class PetrinetUIController() {
         private set
     
     fun unloadPetrinet() {
+        isPetrinetSaved.set(true)
         petrinet = null
-        petrinetCopy = null
         pnmlMarking = emptyMarking()
         loadedPetrinetFilePath = null
     }
@@ -38,21 +40,20 @@ class PetrinetUIController() {
     /** Loading petrinet from petrinetFilePath in a text field. */
     fun loadPetrinet(petrinetFilePath: String): ResetInhibitorNet {
         profile("Loading petrinet:") {
-            petrinet = null
-            loadedPetrinetFilePath = null
+            unloadPetrinet()
+            // may crash
             PnmlLoader.loadPetrinetWithOwnParser(petrinetFilePath).also { result ->
                 petrinet = result.first
-                petrinetCopy = result.first.deepCopy()
-                
                 pnmlMarking = result.second
             }
         }
         loadedPetrinetFilePath = petrinetFilePath
+        isPetrinetSaved.set(true)
         return petrinet!!
     }
     
     fun loadUpdatedPetrinet(updatedPetrinet: ResetInhibitorNet) {
+        isPetrinetSaved.set(false)
         petrinet = updatedPetrinet
-        petrinetCopy = updatedPetrinet.deepCopy()
     }
 }

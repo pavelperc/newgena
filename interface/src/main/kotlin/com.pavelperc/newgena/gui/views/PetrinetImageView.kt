@@ -14,6 +14,7 @@ import org.processmining.models.semantics.petrinet.Marking
 import tornadofx.*
 import java.io.File
 
+/** Interface is used to communicate with [PetrinetImageView] */
 interface PetrinetDrawProvider {
     val petrinet: ResetInhibitorNet?
     

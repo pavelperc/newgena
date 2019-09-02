@@ -1,7 +1,7 @@
 {
   "settingsInfo": {
     "type": "petrinet",
-    "version": "0.3"
+    "version": "0.5"
   },
   "petrinetSetup": {
     "petrinetFile": "examples\\petrinet\\dining\\dining.pnml",
@@ -19,11 +19,7 @@
       "finalPlaceIds": {
       },
       "isUsingInitialMarkingFromPnml": false
-    },
-    "inhibitorArcIds": [
-    ],
-    "resetArcIds": [
-    ]
+    }
   },
   "outputFolder": "xes-out",
   "numberOfLogs": 5,
@@ -49,7 +45,6 @@
   },
   "isUsingStaticPriorities": false,
   "staticPriorities": {
-    "maxPriority": 100,
     "transitionIdsToPriorities": {
     }
   },

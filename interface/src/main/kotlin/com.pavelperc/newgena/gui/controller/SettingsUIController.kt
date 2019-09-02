@@ -107,6 +107,10 @@ class SettingsUIController : Controller(), PetrinetDrawProvider {
     val isPetrinetUpdated = SimpleBooleanProperty(false)
     val isPetrinetDirty = isPetrinetUpdated.not()
     
+    /** It is false when the petrinet is not null and was updated. */
+    val isPetrinetSaved = petrinetController.isPetrinetSaved
+    val isPetrinetNotSaved = petrinetController.isPetrinetNotSaved
+    
     /** Is petrinet not null. (Created or loaded.) */
     val isPetrinetLoaded = petrinetProp.isNotNull
     

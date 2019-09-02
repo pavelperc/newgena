@@ -3,6 +3,7 @@ package com.pavelperc.newgena.gui.views.settingsview
 import com.pavelperc.newgena.gui.app.Styles
 import com.pavelperc.newgena.gui.controller.SettingsUIController
 import com.pavelperc.newgena.gui.customfields.*
+import com.pavelperc.newgena.gui.views.ArcsEditorView
 import com.pavelperc.newgena.gui.views.FastPnView
 import com.pavelperc.newgena.gui.views.PetrinetDrawProvider
 import com.pavelperc.newgena.gui.views.PetrinetImageView
@@ -98,14 +99,29 @@ fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsVie
                         
                     }
                 }
+                button("edit arcs") {
+                    enableWhen { controller.isPetrinetLoaded }
+                    action {
+                        val petrinet = controller.petrinet ?: return@action
+                        val arcsEditorView = ArcsEditorView(petrinet.deepCopy()) { updatedPetrinet ->
+                            controller.loadUpdatedPetrinet(updatedPetrinet)
+                        }
+                        val stage = arcsEditorView.openWindow(owner = settingsView.currentStage, escapeClosesWindow = false)
+                        arcsEditorView.setOnCloseAction(stage)
+                    }
+                }
+                
                 button("save") {
                     enableWhen(controller.isPetrinetLoaded)
+                    toggleClass(Styles.redButton, controller.isPetrinetNotSaved)
+                    
                     action {
                         val path = petrinetSetup.petrinetFile.value
                         confirm("Save petrinet", "Save to $path?") {
                             try {
                                 controller.savePetrinet(path)
                                 settingsView.notification("Saved petrinet to $path")
+                                controller.isPetrinetSaved.set(true)
                             } catch (e: Exception) {
                                 error("Can not save petrinet.", e.message)
                             }
@@ -119,6 +135,7 @@ fun EventTarget.petrinetSetupPanel(controller: SettingsUIController, settingsVie
                             val path = controller.savePetrinetAs()
                             if (path != null) {
                                 settingsView.notification("Saved petrinet to $path")
+                                controller.isPetrinetSaved.set(true)
                             }
                         } catch (e: Exception) {
                             error("Can not save petrinet.", e.message)
